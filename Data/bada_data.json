@@ -1,0 +1,402 @@
+{
+    "0": {
+        "CRUISE": {
+            "TAS": null,
+            "fuel": null
+        },
+        "CLIMB": {
+            "TAS": 157,
+            "fuel": "129,4",
+            "ROC": 2140
+        },
+        "DESCENT": {
+            "TAS": 142,
+            "fuel": "9,40",
+            "ROC": 2140
+        }
+    },
+    "5": {
+        "CRUISE": {
+            "TAS": null,
+            "fuel": null
+        },
+        "CLIMB": {
+            "TAS": 158,
+            "fuel": "128,1",
+            "ROC": 2120
+        },
+        "DESCENT": {
+            "TAS": 143,
+            "fuel": "9,30",
+            "ROC": 2120
+        }
+    },
+    "10": {
+        "CRUISE": {
+            "TAS": null,
+            "fuel": null
+        },
+        "CLIMB": {
+            "TAS": 159,
+            "fuel": "126,8",
+            "ROC": 2100
+        },
+        "DESCENT": {
+            "TAS": 149,
+            "fuel": "9,30",
+            "ROC": 2100
+        }
+    },
+    "15": {
+        "CRUISE": {
+            "TAS": null,
+            "fuel": null
+        },
+        "CLIMB": {
+            "TAS": 166,
+            "fuel": "125,5",
+            "ROC": 2180
+        },
+        "DESCENT": {
+            "TAS": 160,
+            "fuel": "9,20",
+            "ROC": 2180
+        }
+    },
+    "20": {
+        "CRUISE": {
+            "TAS": null,
+            "fuel": null
+        },
+        "CLIMB": {
+            "TAS": 167,
+            "fuel": "124,2",
+            "ROC": 2160
+        },
+        "DESCENT": {
+            "TAS": 192,
+            "fuel": "9,20",
+            "ROC": 2160
+        }
+    },
+    "30": {
+        "CRUISE": {
+            "TAS": 261.0,
+            "fuel": "40,4"
+        },
+        "CLIMB": {
+            "TAS": 190,
+            "fuel": "121,6",
+            "ROC": 2450
+        },
+        "DESCENT": {
+            "TAS": 230,
+            "fuel": "9,10",
+            "ROC": 2450
+        }
+    },
+    "40": {
+        "CRUISE": {
+            "TAS": 265.0,
+            "fuel": "40,4"
+        },
+        "CLIMB": {
+            "TAS": 225,
+            "fuel": "119,1",
+            "ROC": 2800
+        },
+        "DESCENT": {
+            "TAS": 233,
+            "fuel": "9,00",
+            "ROC": 2800
+        }
+    },
+    "60": {
+        "CRUISE": {
+            "TAS": 272.0,
+            "fuel": "40,4"
+        },
+        "CLIMB": {
+            "TAS": 272,
+            "fuel": "114,1",
+            "ROC": 3010
+        },
+        "DESCENT": {
+            "TAS": 240,
+            "fuel": "8,80",
+            "ROC": 3010
+        }
+    },
+    "80": {
+        "CRUISE": {
+            "TAS": 280.0,
+            "fuel": "40,3"
+        },
+        "CLIMB": {
+            "TAS": 280,
+            "fuel": "109,1",
+            "ROC": 2880
+        },
+        "DESCENT": {
+            "TAS": 280,
+            "fuel": "8,60",
+            "ROC": 2880
+        }
+    },
+    "100": {
+        "CRUISE": {
+            "TAS": 289.0,
+            "fuel": "40,3"
+        },
+        "CLIMB": {
+            "TAS": 289,
+            "fuel": "104,1",
+            "ROC": 2750
+        },
+        "DESCENT": {
+            "TAS": 289,
+            "fuel": "8,40",
+            "ROC": 2750
+        }
+    },
+    "120": {
+        "CRUISE": {
+            "TAS": 356.0,
+            "fuel": "47,8"
+        },
+        "CLIMB": {
+            "TAS": 356,
+            "fuel": "99,4",
+            "ROC": 2670
+        },
+        "DESCENT": {
+            "TAS": 356,
+            "fuel": "8,10",
+            "ROC": 2670
+        }
+    },
+    "140": {
+        "CRUISE": {
+            "TAS": 366.0,
+            "fuel": "47,6"
+        },
+        "CLIMB": {
+            "TAS": 366,
+            "fuel": "94,6",
+            "ROC": 2490
+        },
+        "DESCENT": {
+            "TAS": 366,
+            "fuel": "7,90",
+            "ROC": 2490
+        }
+    },
+    "160": {
+        "CRUISE": {
+            "TAS": 377.0,
+            "fuel": "47,5"
+        },
+        "CLIMB": {
+            "TAS": 377,
+            "fuel": "89,8",
+            "ROC": 2310
+        },
+        "DESCENT": {
+            "TAS": 377,
+            "fuel": "7,70",
+            "ROC": 2310
+        }
+    },
+    "180": {
+        "CRUISE": {
+            "TAS": 388.0,
+            "fuel": "47,3"
+        },
+        "CLIMB": {
+            "TAS": 388,
+            "fuel": "85,1",
+            "ROC": 2130
+        },
+        "DESCENT": {
+            "TAS": 388,
+            "fuel": "7,50",
+            "ROC": 2130
+        }
+    },
+    "200": {
+        "CRUISE": {
+            "TAS": 400.0,
+            "fuel": "47,1"
+        },
+        "CLIMB": {
+            "TAS": 400,
+            "fuel": "80,5",
+            "ROC": 1940
+        },
+        "DESCENT": {
+            "TAS": 400,
+            "fuel": "7,30",
+            "ROC": 1940
+        }
+    },
+    "220": {
+        "CRUISE": {
+            "TAS": 412.0,
+            "fuel": "46,9"
+        },
+        "CLIMB": {
+            "TAS": 412,
+            "fuel": "76",
+            "ROC": 1740
+        },
+        "DESCENT": {
+            "TAS": 412,
+            "fuel": "7,10",
+            "ROC": 1740
+        }
+    },
+    "240": {
+        "CRUISE": {
+            "TAS": 425.0,
+            "fuel": "46,6"
+        },
+        "CLIMB": {
+            "TAS": 425,
+            "fuel": "71,6",
+            "ROC": 1550
+        },
+        "DESCENT": {
+            "TAS": 425,
+            "fuel": "6,90",
+            "ROC": 1550
+        }
+    },
+    "260": {
+        "CRUISE": {
+            "TAS": 438.0,
+            "fuel": "46,4"
+        },
+        "CLIMB": {
+            "TAS": 438,
+            "fuel": "67,2",
+            "ROC": 1350
+        },
+        "DESCENT": {
+            "TAS": 438,
+            "fuel": "6,70",
+            "ROC": 1350
+        }
+    },
+    "280": {
+        "CRUISE": {
+            "TAS": 452.0,
+            "fuel": "46,1"
+        },
+        "CLIMB": {
+            "TAS": 452,
+            "fuel": "62,9",
+            "ROC": 1150
+        },
+        "DESCENT": {
+            "TAS": 452,
+            "fuel": "6,50",
+            "ROC": 1150
+        }
+    },
+    "300": {
+        "CRUISE": {
+            "TAS": 459.0,
+            "fuel": "45,1"
+        },
+        "CLIMB": {
+            "TAS": 459,
+            "fuel": "58,6",
+            "ROC": 1360
+        },
+        "DESCENT": {
+            "TAS": 459,
+            "fuel": "6,30",
+            "ROC": 1360
+        }
+    },
+    "320": {
+        "CRUISE": {
+            "TAS": 455.0,
+            "fuel": "43"
+        },
+        "CLIMB": {
+            "TAS": 455,
+            "fuel": "54,5",
+            "ROC": 1170
+        },
+        "DESCENT": {
+            "TAS": 455,
+            "fuel": "6,10",
+            "ROC": 1170
+        }
+    },
+    "340": {
+        "CRUISE": {
+            "TAS": 451.0,
+            "fuel": "41,3"
+        },
+        "CLIMB": {
+            "TAS": 451,
+            "fuel": "50,4",
+            "ROC": 970
+        },
+        "DESCENT": {
+            "TAS": 451,
+            "fuel": "5,80",
+            "ROC": 970
+        }
+    },
+    "360": {
+        "CRUISE": {
+            "TAS": 447.0,
+            "fuel": "40"
+        },
+        "CLIMB": {
+            "TAS": 447,
+            "fuel": "46,3",
+            "ROC": 750
+        },
+        "DESCENT": {
+            "TAS": 447,
+            "fuel": "5,60",
+            "ROC": 750
+        }
+    },
+    "380": {
+        "CRUISE": {
+            "TAS": 447.0,
+            "fuel": "39"
+        },
+        "CLIMB": {
+            "TAS": 447,
+            "fuel": "42,4",
+            "ROC": 470
+        },
+        "DESCENT": {
+            "TAS": 447,
+            "fuel": "5,40",
+            "ROC": 470
+        }
+    },
+    "400": {
+        "CRUISE": {
+            "TAS": 447.0,
+            "fuel": "38,3"
+        },
+        "CLIMB": {
+            "TAS": 447,
+            "fuel": "38,5",
+            "ROC": 240
+        },
+        "DESCENT": {
+            "TAS": 447,
+            "fuel": "5,20",
+            "ROC": 240
+        }
+    }
+}
