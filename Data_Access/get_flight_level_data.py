@@ -24,5 +24,13 @@ def get_fl(arb_fl):
     return str(arb_fl)
 
 def get_flight_level_data(flight_level):
+    """Return information to the next available flight level
+
+    Args:
+        flight_level (int/float/str): Flight level
+
+    Returns:
+        dict: Dictionary containing information about the flight level
+    """
     flight_level = get_fl(flight_level)
     return flight_level_data[flight_level]
