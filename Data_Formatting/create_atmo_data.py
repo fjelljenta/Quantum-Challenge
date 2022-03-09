@@ -33,7 +33,7 @@ df = ds.to_dataframe()
 
 for key, value in df.iterrows():
     FL = convert_hPa_to_FL(key[2])
-    if FL != 0:
+    if FL != 0 and key[0]>=-30:
         if key[0] in data:
             if key[1] in data[key[0]]:
                 if FL in data[key[0]][key[1]]:
