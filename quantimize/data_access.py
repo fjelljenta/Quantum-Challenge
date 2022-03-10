@@ -1,8 +1,59 @@
 import json
 import datetime
+import copy
 
-with open("atmo.json", "rb") as f:
+with open("data/atmo.json", "rb") as f:
     atmo_data = json.loads(f.read().decode("utf-8"))
+with open("data/bada_data.json", "rb") as f:
+    flight_level_data = json.loads(f.read().decode("utf-8"))
+with open("data/flights.json","rb") as f:
+    flight_data = json.loads(f.read().decode("utf-8"))
+
+def get_flight_info(flight_nr):
+    """Return the flight information for a given flight number
+
+    Args:
+        flight_nr (int/str/float): Flight number
+
+    Returns:
+        dict: Flight number information
+    """
+    start_time = datetime.datetime.strptime(flight_data[str(flight_nr)]["start_time"], "%H:%M:%S")
+    start_time = datetime.time(start_time.hour, start_time.minute, start_time.second)
+    this_flight = copy.copy(flight_data[str(flight_nr)])
+    this_flight["start_time"] = start_time
+    return this_flight
+
+def get_fl(arb_fl):
+    """Find next available flightlevel to given level
+
+    Args:
+        arb_fl (int/str/float): Current flight level
+
+    Returns:
+        str: Flighlevel for atmo data
+    """
+    arb_fl = int(arb_fl)
+    diff = arb_fl%20
+    if diff == 0:
+        pass
+    elif diff >= 10:
+        arb_fl = arb_fl+20-diff
+    elif diff < 10:
+        arb_fl = arb_fl-diff
+    return str(arb_fl)
+
+def get_flight_level_data(flight_level):
+    """Return information to the next available flight level
+
+    Args:
+        flight_level (int/float/str): Flight level
+
+    Returns:
+        dict: Dictionary containing information about the flight level
+    """
+    flight_level = get_fl(flight_level)
+    return flight_level_data[flight_level]
 
 def get_long(arb_long):
     """Convert and get longitute ready for data access

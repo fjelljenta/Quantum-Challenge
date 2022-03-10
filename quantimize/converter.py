@@ -42,6 +42,14 @@ def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     return round(distance, 2)
 
 def calculate_min_radius(TAS):
+    """Calculates the curveture radius for a given true air speed
+
+    Args:
+        TAS (int/float): True air spee
+
+    Returns:
+        float: Curveture radius
+    """
     TAS_ms = kts_to_ms(TAS)
     g = 9.81
     beta = 25
