@@ -1,13 +1,18 @@
+from email.mime import base
 import json
 import datetime
 import copy
+from netCDF4 import Dataset
+import os
 
-with open("data/atmo.json", "rb") as f:
+base_dir = os.getcwd()
+with open(base_dir+"/quantimize/data/atmo.json", "rb") as f:
     atmo_data = json.loads(f.read().decode("utf-8"))
-with open("data/bada_data.json", "rb") as f:
+with open(base_dir+"/quantimize/data/bada_data.json", "rb") as f:
     flight_level_data = json.loads(f.read().decode("utf-8"))
-with open("data/flights.json","rb") as f:
+with open(base_dir+"/quantimize/data/flights.json","rb") as f:
     flight_data = json.loads(f.read().decode("utf-8"))
+nc = Dataset(base_dir+"/quantimize/data/aCCf_0623_p_spec.nc")
 
 def get_flight_info(flight_nr):
     """Return the flight information for a given flight number
@@ -117,7 +122,7 @@ def avoid_empty_atmo_data(fl):
     else:
         return fl
 
-def get_fl(arb_fl):
+def get_fl_atmo(arb_fl):
     """Find next available flightlevel to given level
 
     Args:
@@ -174,10 +179,52 @@ def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
     """
     LONG = get_long(arb_long)
     LAT = get_lat(arb_lat)
-    FL = get_fl(arb_fl)
+    FL = get_fl_atmo(arb_fl)
     if type(arb_time) is datetime.time:
         TIME = get_time(arb_time)
     else:
         raise Exception("Time is not a time object")
     print(LONG, LAT, FL, TIME)
     return atmo_data[LONG][LAT][FL][TIME]["MERGED"]
+
+def get_atmo_raw_data():
+    """Returns the raw data of the nc atmo fil
+
+    Returns:
+        quintuple: Latitude, Longitude, Time, FL, Merged data
+    """
+    lat = nc.variables["LATITUDE"][:]
+    long = nc.variables["LONGITUDE"][:]
+    time = nc.variables["TIME"][:].tolist()
+    fl = nc.variables["LEVEL11_24"][:].tolist()
+    atmo_data = nc.variables["MERGED"][:]
+    return lat, long, time, fl, atmo_data
+
+def get_hPa(fl):
+    fl = int(get_fl(fl))
+    if fl <= 140:
+        return 600
+    elif fl == 160:
+        return 550
+    elif fl == 180:
+        return 500
+    elif fl == 200:
+        return 450
+    elif fl == 220:
+        return 450
+    elif fl == 240:
+        return 400
+    elif fl == 260:
+        return 350
+    elif fl == 280:
+        return 350
+    elif fl == 300:
+        return 300
+    elif fl == 320:
+        return 300
+    elif fl == 340:
+        return 250
+    elif fl == 360:
+        return 225
+    elif fl >= 380:
+        return 200
