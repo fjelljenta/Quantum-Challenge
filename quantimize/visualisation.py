@@ -5,6 +5,7 @@ import numpy as np
 from netCDF4 import Dataset
 import datetime
 import quantimize.data_access as da
+from matplotlib import cm
 
 
 def get_FL_index(fl_list, FL):
@@ -54,10 +55,10 @@ def make_atmo_map(FL,time):
     map.drawcountries()
     long_grid, lat_grid = np.meshgrid(long_list,lat_list)
     x,y = map(long_grid, lat_grid)
-    cs = map.pcolor(x,y,atmo_data[time_index][FL_index])
+    cs = map.pcolormesh(x,y,atmo_data[time_index][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637)
     cbar = map.colorbar(cs, location="bottom", pad="10%")
     cbar.set_label("Delta C")
-    map.drawgreatcircle(-20,40,20,60)
+    #map.drawgreatcircle(-20,40,20,60)
     plt.title("Atmospheric data map. Time:"+available_time+" FL: "+available_fl)
     plt.show()
 
@@ -75,7 +76,7 @@ def make_animated_atmo_day_map(FL):
     def animate_map(time):
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
         x,y = m(long_grid, lat_grid)
-        cs = m.pcolormesh(x,y,atmo_data[time][FL_index]) 
+        cs = m.pcolormesh(x,y,atmo_data[time][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637) 
 
     ani = FuncAnimation(fig, animate_map, range(3))
     plt.show()
@@ -93,7 +94,7 @@ def make_animated_atmo_FL_map(time):
     def animate_map(FL_index):
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
         x,y = m(long_grid, lat_grid)
-        cs = m.pcolor(x,y,atmo_data[time_index][FL_index]) 
+        cs = m.pcolor(x,y,atmo_data[time_index][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637) 
 
     ani = FuncAnimation(fig, animate_map, range(14))
     plt.show()
@@ -108,7 +109,8 @@ def draw_flight_path_on_map(map, trajectories):
         lat.append(point[1])
         fl.append(point[2])
         time.append(point[3])
-    map.scatter(long,lat, latlon=True, marker=".")
+    cmap = cm.get_cmap("viridis", 14)
+    map.scatter(long,lat,c=fl,cmap="tab20",latlon=True, marker=".")
 
 def make_map():
     m = Basemap(llcrnrlon=-35,llcrnrlat=33,urcrnrlon=35,urcrnrlat=61,resolution="i",projection="merc")
