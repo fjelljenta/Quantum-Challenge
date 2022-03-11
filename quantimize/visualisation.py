@@ -5,7 +5,6 @@ import numpy as np
 from netCDF4 import Dataset
 import datetime
 import quantimize.data_access as da
-from matplotlib import cm
 
 
 def get_FL_index(fl_list, FL):
@@ -109,8 +108,25 @@ def draw_flight_path_on_map(map, trajectories):
         lat.append(point[1])
         fl.append(point[2])
         time.append(point[3])
-    cmap = cm.get_cmap("viridis", 14)
-    map.scatter(long,lat,c=fl,cmap="tab20",latlon=True, marker=".")
+    return map.scatter(long,lat,c=fl,cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
+
+def animate_flight_path_on_map(list_of_trajectories, dt):
+    time_list, time_grid = da.create_time_grid(dt)
+    for element in list_of_trajectories:
+        for point in element:
+            time_grid[point[3]]["LONG"].append(point[0])
+            time_grid[point[3]]["LAT"].append(point[1])
+            time_grid[point[3]]["FL"].append(point[2])
+    fig, ax = plt.subplots()
+    m = Basemap(ax=ax, llcrnrlon=-30,llcrnrlat=34,urcrnrlon=30,urcrnrlat=60,resolution="i",projection="merc")
+    m.drawcoastlines()
+    m.drawcountries()
+
+    def animate_map(time):
+        cs = m.scatter(time_grid[time]["LONG"],time_grid[time]["LAT"],c=time_grid[time]["FL"],cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
+
+    ani = FuncAnimation(fig, animate_map, time_list)
+    plt.show()
 
 def make_map():
     m = Basemap(llcrnrlon=-35,llcrnrlat=33,urcrnrlon=35,urcrnrlat=61,resolution="i",projection="merc")

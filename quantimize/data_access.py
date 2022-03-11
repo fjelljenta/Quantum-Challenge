@@ -1,9 +1,9 @@
-from email.mime import base
 import json
 import datetime
 import copy
 from netCDF4 import Dataset
 import os
+import quantimize.converter as cv
 
 base_dir = os.getcwd()
 with open(base_dir+"/quantimize/data/atmo.json", "rb") as f:
@@ -205,6 +205,14 @@ def get_atmo_raw_data():
     return lat, long, time, fl, atmo_data
 
 def get_hPa(fl):
+    """Returns the flightlevel in hPa for a given FL in FL
+
+    Args:
+        fl (int/string/float): Flightlevel in FL
+
+    Returns:
+        int: Flightlevel in hPa
+    """
     fl = int(get_fl(fl))
     if fl <= 140:
         return 600
@@ -232,3 +240,25 @@ def get_hPa(fl):
         return 225
     elif fl >= 380:
         return 200
+
+def create_time_grid(dt):
+    """Creates a time grid for plotting
+
+    Args:
+        dt (int): Timestep in minutes
+
+    Returns:
+        tuple: List of timepoints and time grid as dict
+    """
+    time_grid = {}
+    time_list = []
+    start = datetime.time(6)
+    end = datetime.time(21)
+    time_grid[start] = {"LONG":[], "LAT":[], "FL":[]}
+    time_list.append(start)
+    count = int((end.hour-start.hour)*60/dt)
+    for i in range(count):
+        start = cv.update_time(start,dt)
+        time_grid[start] = {"LONG":[], "LAT":[], "FL":[]}
+        time_list.append(start)
+    return time_list, time_grid

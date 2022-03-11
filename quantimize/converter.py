@@ -71,6 +71,15 @@ def calculate_min_radius(TAS):
     return radius
 
 def update_time(current_time, dt):
+    """Calculates the next time step
+
+    Args:
+        current_time (datetime.time): Current time
+        dt (int): Timestep
+
+    Returns:
+        datetime.time: Next timestep
+    """
     hr = current_time.hour
     m = current_time.minute
     return datetime.time(hr+(dt+m)//60, (dt+m) % 60)
