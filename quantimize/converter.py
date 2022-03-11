@@ -1,4 +1,6 @@
 import math
+import datetime
+
 
 def kts_to_ms(kts):
     """Convert kts to ms
@@ -11,6 +13,7 @@ def kts_to_ms(kts):
     """
     return 1.852*kts/3.6
 
+
 def ms_to_kts(ms):
     """Convert ms to kts
 
@@ -21,6 +24,16 @@ def ms_to_kts(ms):
         float: kts
     """
     return ms/1.852*3.6
+
+
+def ms_to_kmm(ms):
+    """
+    Convert ms to kmm
+    :param ms: m/s
+    :return: km/min
+    """
+    return ms*60/1000
+
 
 def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     """Convert two coordinates to a distance in km
@@ -41,6 +54,7 @@ def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     distance = math.sqrt(diff_long_km**2+diff_lat_km**2)
     return round(distance, 2)
 
+
 def calculate_min_radius(TAS):
     """Calculates the curveture radius for a given true air speed
 
@@ -55,3 +69,8 @@ def calculate_min_radius(TAS):
     beta = 25
     radius = TAS_ms**2/g*math.tan(beta/(2*math.pi))
     return radius
+
+def update_time(current_time, dt):
+    hr = current_time.hour
+    m = current_time.minute
+    return datetime.time(hr+(dt+m)//60, (dt+m) % 60)
