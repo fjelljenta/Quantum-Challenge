@@ -78,8 +78,12 @@ def get_long(arb_long):
     elif diff >=1 and diff <= 1.5:
         return str(round(arb_long+1,0))
     else:
-        return str(round(arb_long,0))
-
+        arb_long = round(arb_long,0)
+        if arb_long == -0.0:
+            return str(abs(arb_long))
+        else:
+            return str(arb_long)
+            
 def get_lat(arb_lat):
     """Convert and get latitude ready for data access
 
