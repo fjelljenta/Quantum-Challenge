@@ -39,6 +39,7 @@ def create_bada_data():
             data[int(value["FL"])]["CLIMB"]["ROC"] = value["ROC [ft/min]"]
             data[int(value["FL"])]["DESCENT"]["TAS"] = value["TAS [kts].2"]
             data[int(value["FL"])]["DESCENT"]["fuel"] = value["fuel [kg/min].2"]
+            data[int(value["FL"])]["DESCENT"]["ROD"] = value["ROD [ft/min]"]
 
     with open(base_dir+"/data/bada_data.json","wb") as f:
         f.write(simplejson.dumps(data, ignore_nan=True).encode("utf-8"))
