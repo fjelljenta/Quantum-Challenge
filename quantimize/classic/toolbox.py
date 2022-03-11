@@ -25,6 +25,12 @@ def straight_line_solution(flight_nr, dt):
         latitude = current_coord[1] + speed * dt * np.sin(np.arctan(slope)) / 111
         current_coord = longitude, latitude, flight_level, time
         trajectory.append(current_coord)
-        print(current_distance)
     trajectory[-1] = (c[2], c[3], flight_level, current_coord[3])
     return trajectory
+
+def compute_cost(trajectory, dt):
+    dCCO2 = 6.94
+    cost = 0
+    for coordinate in trajectory:
+        cost += (get_merged_atmo_data(*coordinate)+dCCO2) * get_flight_level_data(coordinate[2])['CRUISE']['fuel'] * dt
+    return cost
