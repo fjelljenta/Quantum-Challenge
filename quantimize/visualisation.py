@@ -4,10 +4,8 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 from netCDF4 import Dataset
 import datetime
-try:
-    from quantimize.data_access import get_atmo_raw_data, get_time, get_fl, get_hPa
-except ModuleNotFoundError:
-    from data_access import get_atmo_raw_data, get_time, get_fl, get_hPa
+import quantimize.data_access as da
+
 
 def get_FL_index(fl_list, FL):
     """Return index of flightlevel in hPa for atmo data for a given flightlevel in FL
@@ -19,7 +17,7 @@ def get_FL_index(fl_list, FL):
     Returns:
         int: Index position
     """
-    hPa_fl = get_hPa(FL)
+    hPa_fl = da.get_hPa(FL)
     return fl_list.index(hPa_fl)
 
 def get_time_index(time):
@@ -39,17 +37,17 @@ def get_time_index(time):
     elif date.hour == 18:
         return 2
 
-def make_map(FL,time):
+def make_atmo_map(FL,time):
     """Create map with a given flightlevel and time
 
     Args:
         FL (int/float/str): Current flightlevel
         time (datetime.time): Current time
     """
-    lat_list, long_list, time_list, fl_list, atmo_data = get_atmo_raw_data()
-    available_fl = get_fl(FL)
+    lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
+    available_fl = da.get_fl(FL)
     FL_index = get_FL_index(fl_list, available_fl)
-    available_time = get_time(time)
+    available_time = da.get_time(time)
     time_index = get_time_index(available_time)
     map = Basemap(llcrnrlon=-30,llcrnrlat=34,urcrnrlon=30,urcrnrlat=60,resolution="i",projection="merc")
     map.drawcoastlines()
@@ -64,13 +62,13 @@ def make_map(FL,time):
     plt.show()
 
 
-def make_animated_day_map(FL):
+def make_animated_atmo_day_map(FL):
     fig, ax = plt.subplots()
     m = Basemap(ax=ax, llcrnrlon=-30,llcrnrlat=34,urcrnrlon=30,urcrnrlat=60,resolution="i",projection="merc")
     m.drawcoastlines()
     m.drawcountries()
-    lat_list, long_list, time_list, fl_list, atmo_data = get_atmo_raw_data()
-    available_fl = get_fl(FL)
+    lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
+    available_fl = da.get_fl(FL)
     FL_index = get_FL_index(fl_list, available_fl)
     print(available_fl)
 
@@ -82,13 +80,13 @@ def make_animated_day_map(FL):
     ani = FuncAnimation(fig, animate_map, range(3))
     plt.show()
 
-def make_animated_FL_map(time):
+def make_animated_atmo_FL_map(time):
     fig, ax = plt.subplots()
     m = Basemap(ax=ax, llcrnrlon=-30,llcrnrlat=34,urcrnrlon=30,urcrnrlat=60,resolution="i",projection="merc")
     m.drawcoastlines()
     m.drawcountries()
-    lat_list, long_list, time_list, fl_list, atmo_data = get_atmo_raw_data()
-    available_time = get_time(time)
+    lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
+    available_time = da.get_time(time)
     time_index = get_time_index(available_time)
     print(available_time)
 
@@ -100,5 +98,20 @@ def make_animated_FL_map(time):
     ani = FuncAnimation(fig, animate_map, range(14))
     plt.show()
 
-if __name__ == "__main__":
-    make_map(115, datetime.time(6,0,0))
+def draw_flight_path_on_map(map, trajectories):
+    long = []
+    lat = []
+    fl = []
+    time = []
+    for point in trajectories:
+        long.append(point[0])
+        lat.append(point[1])
+        fl.append(point[2])
+        time.append(point[3])
+    map.scatter(long,lat, latlon=True, marker=".")
+
+def make_map():
+    m = Basemap(llcrnrlon=-35,llcrnrlat=33,urcrnrlon=35,urcrnrlat=61,resolution="i",projection="merc")
+    m.drawcoastlines()
+    m.drawcountries()
+    return m
