@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import json
 import datetime
 import copy
@@ -70,11 +71,16 @@ def get_long(arb_long):
         str: Converted longitude value for atmo data
     """
     arb_long = float(arb_long)
+    #print(arb_long)
     diff = arb_long%2
     if diff == 0:
         return str(arb_long)
     elif diff > 0.5 and diff < 1:
-        return str(round(arb_long-1,0))
+        arb_long = round(arb_long-1,0)
+        if arb_long == -0.0:
+            return str(abs(arb_long))
+        else:
+            return str(arb_long)
     elif diff >=1 and diff <= 1.5:
         return str(round(arb_long+1,0))
     else:
@@ -157,13 +163,15 @@ def get_time(arb_time):
     """
     arb_time = datetime.datetime(2018,6,23,arb_time.hour,arb_time.minute,arb_time.second)
     six_am = datetime.datetime(2018,6,23,6)
+    nine_am = datetime.datetime(2018,6,23,9)
     twelve = datetime.datetime(2018,6,23,12)
+    three_pm = datetime.datetime(2018,6,23,15)
     six_pm = datetime.datetime(2018,6,23,18)
-    if arb_time >= six_am and arb_time < twelve:
+    if arb_time < nine_am:
         return six_am.strftime("%H:%M:%S")
-    elif arb_time >= twelve and arb_time < six_pm:
+    elif arb_time >= nine_am and arb_time < three_pm:
         return twelve.strftime("%H:%M:%S")
-    elif arb_time >= six_pm:
+    elif arb_time >= three_pm:
         return six_pm.strftime("%H:%M:%S")
 
 def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
@@ -188,7 +196,7 @@ def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
         TIME = get_time(arb_time)
     else:
         raise Exception("Time is not a time object")
-    print(LONG, LAT, FL, TIME)
+    #print(LONG, LAT, FL, TIME)
     return atmo_data[LONG][LAT][FL][TIME]["MERGED"]
 
 def get_atmo_raw_data():
@@ -254,11 +262,30 @@ def create_time_grid(dt):
     time_list = []
     start = datetime.time(6)
     end = datetime.time(21)
-    time_grid[start] = {"LONG":[], "LAT":[], "FL":[]}
+    time_grid[start] = {"LONG":[], "LAT":[], "FL":[], "FL_NR":[]}
     time_list.append(start)
-    count = int((end.hour-start.hour)*60/dt)
+    count = int((end.hour-start.hour)*3600/dt)
     for i in range(count):
         start = cv.update_time(start,dt)
-        time_grid[start] = {"LONG":[], "LAT":[], "FL":[]}
+        time_grid[start] = {"LONG":[], "LAT":[], "FL":[], "FL_NR":[]}
         time_list.append(start)
     return time_list, time_grid
+
+
+def map_trajectory_to_time_grid(trajectories, time_grid):
+    """Maps a list of trajectories to a given timegrid
+
+    Args:
+        trajectories (list): List of trajectories
+        time_grid (dict): Time grid
+
+    Returns:
+        dict: Filled time grid
+    """
+    for trajectory in trajectories:
+        for point in trajectory["trajectory"]:
+            time_grid[point[3]]["FL_NR"].append(trajectory["flight_nr"])
+            time_grid[point[3]]["LONG"].append(point[0])
+            time_grid[point[3]]["LAT"].append(point[1])
+            time_grid[point[3]]["FL"].append(point[2])
+    return time_grid

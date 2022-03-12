@@ -112,20 +112,16 @@ def draw_flight_path_on_map(map, trajectories):
 
 def animate_flight_path_on_map(list_of_trajectories, dt):
     time_list, time_grid = da.create_time_grid(dt)
-    for element in list_of_trajectories:
-        for point in element:
-            time_grid[point[3]]["LONG"].append(point[0])
-            time_grid[point[3]]["LAT"].append(point[1])
-            time_grid[point[3]]["FL"].append(point[2])
+    time_grid = da.map_trajectory_to_time_grid(list_of_trajectories, time_grid)
     fig, ax = plt.subplots()
-    m = Basemap(ax=ax, llcrnrlon=-30,llcrnrlat=34,urcrnrlon=30,urcrnrlat=60,resolution="i",projection="merc")
+    m = Basemap(ax=ax, llcrnrlon=-32,llcrnrlat=32,urcrnrlon=32,urcrnrlat=62,resolution="i",projection="merc")
     m.drawcoastlines()
     m.drawcountries()
 
     def animate_map(time):
         cs = m.scatter(time_grid[time]["LONG"],time_grid[time]["LAT"],c=time_grid[time]["FL"],cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
 
-    ani = FuncAnimation(fig, animate_map, time_list)
+    ani = FuncAnimation(fig, animate_map, time_list, interval=20)
     plt.show()
 
 def make_map():
