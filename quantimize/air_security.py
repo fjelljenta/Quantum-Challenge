@@ -1,8 +1,16 @@
-from tabnanny import check
 import quantimize.converter as cv
 import quantimize.data_access as da
 
 def check_height(fl_1, fl_2):
+    """Compares the flight level hight
+
+    Args:
+        fl_1 (int): Flightlevel
+        fl_2 (int): Flightlevel
+
+    Returns:
+        boolean: True for enough distance, false for to close
+    """
     diff = abs(int(fl_1)-int(fl_2))
     if diff >= 10:
         return True
