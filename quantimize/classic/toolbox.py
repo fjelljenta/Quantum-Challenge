@@ -1,6 +1,8 @@
 import quantimize.converter as cv
 import quantimize.data_access as da
 import numpy as np
+import scipy.interpolate as interpolate
+import matplotlib.pyplot as plt
 
 'atmo_data[latitude][longitude][flight level][time][merged]'
 def straight_line_solution(flight_nr, dt):
@@ -27,6 +29,24 @@ def straight_line_solution(flight_nr, dt):
         trajectory.append(current_coord)
     trajectory[-1] = (c[2], c[3], flight_level, current_coord[3])
     return {"flight_nr":flight_nr, "trajectory":trajectory}
+
+
+def fit_spline(x, y, k=3):
+    t, c, k = interpolate.splrep(x, y, s=0, k=k)
+    spline = interpolate.BSpline(t, c, k, extrapolate=False)
+    return spline
+
+
+def plot_b_spline(spline, x, y, N=100):
+    xx = np.linspace(np.min(x), np.max(x), N)
+    plt.plot(x, y, 'bo', label='Control points')
+    plt.plot(xx, spline(xx), 'r', label='BSpline')
+    plt.grid()
+    plt.legend(loc='best')
+    plt.show()
+
+def genetic_algorithm():
+    pass
 
 def compute_cost(trajectory, dt):
     """Returns the cost for a given list of trajectories in 10**-12
