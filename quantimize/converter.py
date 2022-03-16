@@ -34,6 +34,7 @@ def ms_to_kmm(ms):
     """
     return ms*60/1000
 
+
 def ms_to_kms(ms):
     """Convert ms to km/s
 
@@ -44,6 +45,7 @@ def ms_to_kms(ms):
         float: km/s
     """
     return ms/1000
+
 
 def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     """Convert two coordinates to a distance in km
@@ -94,3 +96,10 @@ def update_time(current_time, dt):
     m = current_time.minute
     s = current_time.second
     return datetime.time(hr+(m+(dt+s)//60)//60, (m+(dt+s)//60)%60, (dt+s)%60)
+
+
+def datetime_to_seconds(current_time):
+    hr = current_time.hour
+    m = current_time.minute
+    s = current_time.second
+    return 3600 * hr + 60 * m + s
