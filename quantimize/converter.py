@@ -26,6 +26,20 @@ def ms_to_kts(ms):
     return ms/1.852*3.6
 
 
+def ftm_to_fls(ftm):
+    """Convert feet per minute to flight level per second"""
+    return ftm/60/100
+
+
+def ms_to_fls(ms):
+    """
+    Convert meter per second to flight level per second
+    :param ms:
+    :return:
+    """
+    return ms*3.28084/100
+
+
 def ms_to_kmm(ms):
     """
     Convert ms to kmm
@@ -81,6 +95,7 @@ def calculate_min_radius(TAS):
     beta = 25
     radius = TAS_ms**2/g*math.tan(beta/(2*math.pi))
     return radius
+
 
 def update_time(current_time, dt):
     """Calculates the next time step

@@ -65,32 +65,39 @@ def spline_trajectory(flight_nr, spline_xy, spline_z, dx):
     current_distance = 0
     slope = (info['end_latitudinal'] - info['start_latitudinal']) * 111 / \
             ((info['end_longitudinal'] - info['start_longitudinal']) * 85)
-    dx2 = np.sqrt(dx**2 + (slope*dx)**2)
+    dd = np.sqrt(dx**2 + (slope*dx)**2)*85
     while True:  # This should always be true if the plane is on the trajectory
         longitude = current_coord[0] + sign * dx
         latitude = spline_xy(longitude)
-        current_distance += dx2
+        current_distance += dd
         flight_level = spline_z(current_distance)
         if sign == 1 and longitude > info['end_longitudinal']:
             break
         elif sign == -1 and longitude < info['end_longitudinal']:
             break
         else:
-
-
-            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(info['start_flightlevel'])['CRUISE']['TAS']))
+            if flight_level > current_coord[2]:
+                dt1 = int((flight_level - current_coord[2]) /
+                          cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['CLIMB']['ROC']))
+            else:
+                dt1 = int((current_coord[2] - flight_level) /
+                          cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['DESCENT']['ROD']))
+            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data((flight_level +
+                                                                        current_coord[2])/2)['CRUISE']['TAS']))
             dt = int(cv.coordinates_to_distance(current_coord[0], current_coord[1], longitude, latitude) / speed)
-            time = cv.update_time(current_coord[3], dt)
-            current_coord = longitude, latitude, info['start_flightlevel'], time
+            intermediate_coord = (longitude * (1 - dt1 / dt) + current_coord[0] * dt1 / dt,
+                                  latitude * (1 - dt1 / dt) + current_coord[1] * dt1 / dt,
+                                  flight_level,
+                                  cv.update_time(current_coord[3], dt1))
+            current_coord = longitude, latitude, flight_level, cv.update_time(current_coord[3], dt)
+            trajectory.append(intermediate_coord)
             trajectory.append(current_coord)
-    speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(info['start_flightlevel'])['CRUISE']['TAS']))
+    speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(current_coord[2])['CRUISE']['TAS']))
     dt = int(cv.coordinates_to_distance(current_coord[0], current_coord[1],
                                         info['end_longitudinal'], info['end_latitudinal']) / speed)
     time = cv.update_time(current_coord[3], dt)
-    trajectory.append((info['end_longitudinal'], info['end_latitudinal'], info['start_flightlevel'], time))
+    trajectory.append((info['end_longitudinal'], info['end_latitudinal'], current_coord[2], time))
     return trajectory
-
-
 
 
 def genetic_algorithm():
@@ -104,14 +111,14 @@ def fitness_function(flight_nr, ctrl_pts):
     :return:
     """
     info = da.get_flight_info(flight_nr)
-    x = info['start_longitudinal'] + ctrl_pts[:3] + info['end_longitudinal']
-    y = info['start_latitudinal'] + ctrl_pts[3:6] + info['end_latitudinal']
-    z = info['start_flightlevel'] + ctrl_pts[6:]
+    x = [info['start_longitudinal']] + ctrl_pts[:3] + [info['end_longitudinal']]
+    y = [info['start_latitudinal']] + ctrl_pts[3:6] + [info['end_latitudinal']]
+    z = [info['start_flightlevel']] + ctrl_pts[6:]
     total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                 info['end_longitudinal'], info['end_latitudinal'])
     spline_xy = fit_spline(x, y)
     spline_z = fit_spline(np.linspace(0, total_distance, 6), z)
-    trajectory = spline_trajectory(flight_nr, spline_xy, spline_z, 0.3)
+    trajectory = {"flight_nr": flight_nr, "trajectory": spline_trajectory(flight_nr, spline_xy, spline_z, 0.3)}
     cost = compute_cost(trajectory)
     return cost
 
@@ -129,15 +136,19 @@ def compute_cost(trajectory):
     cost = 0
     t = cv.datetime_to_seconds(trajectory["trajectory"][0][3])
     start_level = trajectory["trajectory"][0][2]
-    for coordinate in trajectory["trajectory"]:
+    for coordinate in trajectory["trajectory"][1:]:
+        print(cost)
+        print(coordinate)
         if coordinate[2] == start_level:
-            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
-                    * (cv.datetime_to_seconds(coordinate[3])-t)/60
+            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CRUISE']['fuel']\
+                    #* (cv.datetime_to_seconds(coordinate[3])-t) / 60
         elif coordinate[2] < start_level:
-            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['DESCENT']['fuel'] * dt/60
+            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['DESCENT']['fuel']\
+                    #* (cv.datetime_to_seconds(coordinate[3])-t) / 60
             start_level = coordinate[2]
-        elif coordinate[2] > start_level:
-            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CLIMB']['fuel'] * dt/60
+        else:
+            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CLIMB']['fuel']\
+                   # * (cv.datetime_to_seconds(coordinate[3])-t) / 60
             start_level = coordinate[2]
         t = cv.datetime_to_seconds(coordinate[3])
     return cost, trajectory["flight_nr"]
