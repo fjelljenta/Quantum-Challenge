@@ -15,6 +15,7 @@ with open(base_dir+"/quantimize/data/flights.json","rb") as f:
     flight_data = json.loads(f.read().decode("utf-8"))
 nc = Dataset(base_dir+"/quantimize/data/aCCf_0623_p_spec.nc")
 
+
 def get_flight_info(flight_nr):
     """Return the flight information for a given flight number
 
@@ -29,6 +30,7 @@ def get_flight_info(flight_nr):
     this_flight = copy.copy(flight_data[str(flight_nr)])
     this_flight["start_time"] = start_time
     return this_flight
+
 
 def get_fl(arb_fl):
     """Find next available flightlevel to given level
@@ -49,6 +51,7 @@ def get_fl(arb_fl):
         arb_fl = arb_fl-diff
     return str(arb_fl)
 
+
 def get_flight_level_data(flight_level):
     """Return information to the next available flight level
 
@@ -60,6 +63,7 @@ def get_flight_level_data(flight_level):
     """
     flight_level = get_fl(flight_level)
     return flight_level_data[flight_level]
+
 
 def get_long(arb_long):
     """Convert and get longitute ready for data access
@@ -89,7 +93,8 @@ def get_long(arb_long):
             return str(abs(arb_long))
         else:
             return str(arb_long)
-            
+
+
 def get_lat(arb_lat):
     """Convert and get latitude ready for data access
 
@@ -109,6 +114,7 @@ def get_lat(arb_lat):
         return str(round(arb_lat+1,0))
     else:
         return str(round(arb_lat,0))
+
 
 def avoid_empty_atmo_data(fl):
     """Avoid flightlevels without data, give back closest data
@@ -132,6 +138,7 @@ def avoid_empty_atmo_data(fl):
     else:
         return fl
 
+
 def get_fl_atmo(arb_fl):
     """Find next available flightlevel to given level
 
@@ -151,6 +158,7 @@ def get_fl_atmo(arb_fl):
         arb_fl = arb_fl-diff
     arb_fl = avoid_empty_atmo_data(arb_fl)
     return str(arb_fl)
+
 
 def get_time(arb_time):
     """Get the corresponding time for the atmo data
@@ -173,6 +181,7 @@ def get_time(arb_time):
         return twelve.strftime("%H:%M:%S")
     elif arb_time >= three_pm:
         return six_pm.strftime("%H:%M:%S")
+
 
 def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
     """Returns the merged climate impact data for a given set of location, flightlevel and time
@@ -199,6 +208,7 @@ def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
     #print(LONG, LAT, FL, TIME)
     return atmo_data[LONG][LAT][FL][TIME]["MERGED"]
 
+
 def get_atmo_raw_data():
     """Returns the raw data of the nc atmo fil
 
@@ -211,6 +221,7 @@ def get_atmo_raw_data():
     fl = nc.variables["LEVEL11_24"][:].tolist()
     atmo_data = nc.variables["MERGED"][:]
     return lat, long, time, fl, atmo_data
+
 
 def get_hPa(fl):
     """Returns the flightlevel in hPa for a given FL in FL
@@ -248,6 +259,7 @@ def get_hPa(fl):
         return 225
     elif fl >= 380:
         return 200
+
 
 def create_time_grid(dt):
     """Creates a time grid for plotting

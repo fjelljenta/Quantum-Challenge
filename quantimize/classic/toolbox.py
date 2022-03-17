@@ -18,7 +18,7 @@ def straight_line_trajectory(flight_nr, dt):
     speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CRUISE']['TAS']))
     total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                 info['end_longitudinal'], info['end_latitudinal'])
-    current_coord = info['start_longitudinal'], info['end_longitudinal'], flight_level, info['start_time']
+    current_coord = info['start_longitudinal'], info['start_latitudinal'], flight_level, info['start_time']
     trajectory = [current_coord]
     current_distance = 0
     while current_distance < total_distance:
@@ -141,14 +141,14 @@ def compute_cost(trajectory):
         print(coordinate)
         if coordinate[2] == start_level:
             cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CRUISE']['fuel']\
-                    #* (cv.datetime_to_seconds(coordinate[3])-t) / 60
+                    * (cv.datetime_to_seconds(coordinate[3])-t) / 60
         elif coordinate[2] < start_level:
             cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['DESCENT']['fuel']\
-                    #* (cv.datetime_to_seconds(coordinate[3])-t) / 60
+                    * (cv.datetime_to_seconds(coordinate[3])-t) / 60
             start_level = coordinate[2]
         else:
             cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CLIMB']['fuel']\
-                   # * (cv.datetime_to_seconds(coordinate[3])-t) / 60
+                    * (cv.datetime_to_seconds(coordinate[3])-t) / 60
             start_level = coordinate[2]
         t = cv.datetime_to_seconds(coordinate[3])
     return cost, trajectory["flight_nr"]
