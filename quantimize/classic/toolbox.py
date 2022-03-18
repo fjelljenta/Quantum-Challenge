@@ -131,12 +131,7 @@ def compute_cost(trajectory):
     return cost
 
 
-def fitness_function(flight_nr, ctrl_pts):
-    """
-    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z.
-    obtain a trajectory and then compute cost
-    :return:
-    """
+def curve_3D_trajectory(flight_nr, ctrl_pts):
     ctrl_pts = list(ctrl_pts)
     info = da.get_flight_info(flight_nr)
     x = [info['start_longitudinal']] + ctrl_pts[:3] + [info['end_longitudinal']]
@@ -147,6 +142,21 @@ def fitness_function(flight_nr, ctrl_pts):
     spline_xy = fit_spline(x, y)
     spline_z = fit_spline(np.linspace(0, total_distance, 6), z)
     trajectory = {"flight_nr": flight_nr, "trajectory": spline_trajectory(flight_nr, spline_xy, spline_z, 0.3)}
+    return trajectory
+
+
+def curve_3D_solution(flight_nr):
+    trajectory = curve_3D_trajectory(flight_nr)
+    return {"flight_nr": flight_nr, "trajectory": trajectory}
+
+
+def fitness_function(flight_nr, ctrl_pts):
+    """
+    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z.
+    obtain a trajectory and then compute cost
+    :return:
+    """
+    trajectory = curve_3D_trajectory(flight_nr, ctrl_pts)
     cost = compute_cost(trajectory)
     print(cost)
     return cost
@@ -174,28 +184,24 @@ def generate_search_bounds(flight_nr):
     y2_bound = [max(y2-dy, 34), min(y2+dy, 60)]
     y3 = 1/4*info['start_latitudinal'] + 3/4*info['end_latitudinal']
     y3_bound = [max(y3-dy, 34), min(y3+dy, 60)]
-    z_bound = [115, 385]
+    z_bound = [120, 380]
     return np.array([x1_bound] + [x2_bound] + [x3_bound] + [y1_bound] + [y2_bound] + [y3_bound] + [z_bound]*5)
 
 
 def run_genetic_algorithm(flight_nr):
     varbound = generate_search_bounds(flight_nr)
-
     algorithm_param = {'max_num_iteration': 100,
                        'population_size': 10,
                        'mutation_probability': 0.1,
-                       'elit_ratio': 0,
+                       'elit_ratio': 0.01,
                        'crossover_probability': 0.5,
                        'parents_portion': 0.3,
                        'crossover_type': 'uniform',
                        'max_iteration_without_improv': 50}
-
     model = ga(fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
                variable_boundaries=varbound, algorithm_parameters=algorithm_param)
-
     model.run()
-
-    convergence = model.report
-    solution = model.ouput_dict
-
-    return convergence, solution
+    report = model.report
+    solution = model.output_dict
+    trajectory = curve_3D_trajectory(flight_nr, solution['variable'])
+    return report, solution, trajectory
