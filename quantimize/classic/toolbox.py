@@ -44,7 +44,7 @@ def straight_line_solution(flight_nr, dt):
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
-def fit_spline(x, y, k=3):
+def fit_spline(x, y, k=2):
     t, c, k = interpolate.splrep(x, y, s=0, k=k)
     spline = interpolate.BSpline(t, c, k, extrapolate=False)
     return spline
@@ -174,21 +174,21 @@ def generate_search_bounds(flight_nr):
     y2_bound = [max(y2-dy, 34), min(y2+dy, 60)]
     y3 = 1/4*info['start_latitudinal'] + 3/4*info['end_latitudinal']
     y3_bound = [max(y3-dy, 34), min(y3+dy, 60)]
-    z_bound = [150, 300]
+    z_bound = [115, 385]
     return np.array([x1_bound] + [x2_bound] + [x3_bound] + [y1_bound] + [y2_bound] + [y3_bound] + [z_bound]*5)
 
 
 def run_genetic_algorithm(flight_nr):
     varbound = generate_search_bounds(flight_nr)
 
-    algorithm_param = {'max_num_iteration': 3000,
-                       'population_size': 100,
+    algorithm_param = {'max_num_iteration': 100,
+                       'population_size': 10,
                        'mutation_probability': 0.1,
-                       'elit_ratio': 0.01,
+                       'elit_ratio': 0,
                        'crossover_probability': 0.5,
                        'parents_portion': 0.3,
                        'crossover_type': 'uniform',
-                       'max_iteration_without_improv': None}
+                       'max_iteration_without_improv': 50}
 
     model = ga(fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
                variable_boundaries=varbound, algorithm_parameters=algorithm_param)
