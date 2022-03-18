@@ -3,6 +3,8 @@ import quantimize.data_access as da
 import numpy as np
 import scipy.interpolate as interpolate
 import matplotlib.pyplot as plt
+from geneticalgorithm import geneticalgorithm as ga
+from functools import partial
 
 
 def straight_line_trajectory(flight_nr, dt):
@@ -100,29 +102,6 @@ def spline_trajectory(flight_nr, spline_xy, spline_z, dx):
     return trajectory
 
 
-def genetic_algorithm():
-    pass
-
-
-def fitness_function(flight_nr, ctrl_pts):
-    """
-    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z.
-    obtain a trajectory and then compute cost
-    :return:
-    """
-    info = da.get_flight_info(flight_nr)
-    x = [info['start_longitudinal']] + ctrl_pts[:3] + [info['end_longitudinal']]
-    y = [info['start_latitudinal']] + ctrl_pts[3:6] + [info['end_latitudinal']]
-    z = [info['start_flightlevel']] + ctrl_pts[6:]
-    total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
-                                                info['end_longitudinal'], info['end_latitudinal'])
-    spline_xy = fit_spline(x, y)
-    spline_z = fit_spline(np.linspace(0, total_distance, 6), z)
-    trajectory = {"flight_nr": flight_nr, "trajectory": spline_trajectory(flight_nr, spline_xy, spline_z, 0.3)}
-    cost = compute_cost(trajectory)
-    return cost
-
-
 def compute_cost(trajectory):
     """Returns the cost for a given list of trajectories in 10**-12
 
@@ -137,8 +116,6 @@ def compute_cost(trajectory):
     t = cv.datetime_to_seconds(trajectory["trajectory"][0][3])
     start_level = trajectory["trajectory"][0][2]
     for coordinate in trajectory["trajectory"][1:]:
-        print(cost)
-        print(coordinate)
         if coordinate[2] == start_level:
             cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CRUISE']['fuel']\
                     * (cv.datetime_to_seconds(coordinate[3])-t) / 60
@@ -151,4 +128,74 @@ def compute_cost(trajectory):
                     * (cv.datetime_to_seconds(coordinate[3])-t) / 60
             start_level = coordinate[2]
         t = cv.datetime_to_seconds(coordinate[3])
-    return cost, trajectory["flight_nr"]
+    return cost
+
+
+def fitness_function(flight_nr, ctrl_pts):
+    """
+    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z.
+    obtain a trajectory and then compute cost
+    :return:
+    """
+    ctrl_pts = list(ctrl_pts)
+    info = da.get_flight_info(flight_nr)
+    x = [info['start_longitudinal']] + ctrl_pts[:3] + [info['end_longitudinal']]
+    y = [info['start_latitudinal']] + ctrl_pts[3:6] + [info['end_latitudinal']]
+    z = [info['start_flightlevel']] + ctrl_pts[6:]
+    total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
+                                                info['end_longitudinal'], info['end_latitudinal'])
+    spline_xy = fit_spline(x, y)
+    spline_z = fit_spline(np.linspace(0, total_distance, 6), z)
+    trajectory = {"flight_nr": flight_nr, "trajectory": spline_trajectory(flight_nr, spline_xy, spline_z, 0.3)}
+    cost = compute_cost(trajectory)
+    print(cost)
+    return cost
+
+
+def fitness_function_single_flight(flight_nr):
+    return partial(fitness_function, flight_nr)
+
+
+def generate_search_bounds(flight_nr):
+    info = da.get_flight_info(flight_nr)
+    total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
+                                                info['end_longitudinal'], info['end_latitudinal'])
+    dx = (info['end_longitudinal'] - info['start_longitudinal']) / 60 * 0.05*total_distance/85
+    dy = (info['end_latitudinal'] - info['start_latitudinal']) / 26 * 0.1*total_distance/111
+    x1 = 3/4*info['start_longitudinal'] + 1/4*info['end_longitudinal']
+    x1_bound = [max(x1-dx, -30), min(x1+dx, 30)]
+    x2 = 1/2*info['start_longitudinal'] + 1/2*info['end_longitudinal']
+    x2_bound = [max(x2-dx, -30), min(x2+dx, 30)]
+    x3 = 1/4*info['start_longitudinal'] + 3/4*info['end_longitudinal']
+    x3_bound = [max(x3-dx, -30), min(x3+dx, 30)]
+    y1 = 3/4*info['start_latitudinal'] + 1/4*info['end_latitudinal']
+    y1_bound = [max(y1-dy, 34), min(y1+dy, 60)]
+    y2 = 1/2*info['start_latitudinal'] + 1/2*info['end_latitudinal']
+    y2_bound = [max(y2-dy, 34), min(y2+dy, 60)]
+    y3 = 1/4*info['start_latitudinal'] + 3/4*info['end_latitudinal']
+    y3_bound = [max(y3-dy, 34), min(y3+dy, 60)]
+    z_bound = [150, 300]
+    return np.array([x1_bound] + [x2_bound] + [x3_bound] + [y1_bound] + [y2_bound] + [y3_bound] + [z_bound]*5)
+
+
+def run_genetic_algorithm(flight_nr):
+    varbound = generate_search_bounds(flight_nr)
+
+    algorithm_param = {'max_num_iteration': 3000,
+                       'population_size': 100,
+                       'mutation_probability': 0.1,
+                       'elit_ratio': 0.01,
+                       'crossover_probability': 0.5,
+                       'parents_portion': 0.3,
+                       'crossover_type': 'uniform',
+                       'max_iteration_without_improv': None}
+
+    model = ga(fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
+               variable_boundaries=varbound, algorithm_parameters=algorithm_param)
+
+    model.run()
+
+    convergence = model.report
+    solution = model.ouput_dict
+
+    return convergence, solution
