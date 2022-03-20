@@ -327,14 +327,6 @@
         "end_longitudinal": 28,
         "end_latitudinal": 60
     },
-    "41": {
-        "start_time": "07:30:00",
-        "start_flightlevel": 310,
-        "start_longitudinal": -30,
-        "start_latitudinal": 54,
-        "end_longitudinal": 30,
-        "end_latitudinal": 42
-    },
     "42": {
         "start_time": "06:55:00",
         "start_flightlevel": 250,
