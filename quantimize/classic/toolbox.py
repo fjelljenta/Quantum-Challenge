@@ -144,7 +144,7 @@ def curve_3D_trajectory(flight_nr, ctrl_pts):
     trajectory = {"flight_nr": flight_nr, "trajectory": spline_trajectory(flight_nr, spline_xy, spline_z, 0.3)}
     return trajectory
 
-
+# Is this functino needed? It would, in my understanding, just put the dict from above in another dict, which does not make sense for me (Jakob)
 def curve_3D_solution(flight_nr):
     trajectory = curve_3D_trajectory(flight_nr)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
