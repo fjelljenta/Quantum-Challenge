@@ -23,7 +23,8 @@ def get_flight_info(flight_nr):
         flight_nr (int/str/float): Flight number
 
     Returns:
-        dict: Flight number information
+        dict: Flight number information with start_time as datetime.time object
+                (start_time, start_flight_level, start_long, start_lat, end_long, end_lat)
     """
     start_time = datetime.datetime.strptime(flight_data[str(flight_nr)]["start_time"], "%H:%M:%S")
     start_time = datetime.time(start_time.hour, start_time.minute, start_time.second)
@@ -33,13 +34,13 @@ def get_flight_info(flight_nr):
 
 
 def get_fl(arb_fl):
-    """Find next available flightlevel to given level
+    """Find next available flight level in given flight level grid (steps of 20 flight levels)
 
     Args:
         arb_fl (int/str/float): Current flight level
 
     Returns:
-        str: Flighlevel for atmo data
+        str: Next available flight level in grid
     """
     arb_fl = int(arb_fl)
     diff = arb_fl%20
@@ -59,14 +60,14 @@ def get_flight_level_data(flight_level):
         flight_level (int/float/str): Flight level
 
     Returns:
-        dict: Dictionary containing information about the flight level
+        dict: Dictionary containing information about the flight level from the bada_data.json
     """
     flight_level = get_fl(flight_level)
     return flight_level_data[flight_level]
 
 
 def get_long(arb_long):
-    """Convert and get longitute ready for data access
+    """Convert and get longitude ready for data access
 
     Args:
         arb_long (int/str/float): Longitude value
@@ -75,7 +76,8 @@ def get_long(arb_long):
         str: Converted longitude value for atmo data
     """
     arb_long = float(arb_long)
-    #print(arb_long)
+    #arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, last part (with -0.0 removal) still needed, tests!
+
     diff = arb_long%2
     if diff == 0:
         return str(arb_long)
@@ -105,6 +107,7 @@ def get_lat(arb_lat):
         str: Convert latitude value for atmo data
     """
     arb_lat = float(arb_lat)
+    # arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, tests!
     diff = arb_lat%2
     if diff == 0:
         return str(arb_lat)
@@ -120,10 +123,10 @@ def avoid_empty_atmo_data(fl):
     """Avoid flightlevels without data, give back closest data
 
     Args:
-        fl (int): Flightlevel to check
+        fl (int): flight level to check
 
     Returns:
-        int: Corrected flighlevel
+        int: nearest flightlevel with available data
     """
     if fl < 140:
         return 140
@@ -140,7 +143,7 @@ def avoid_empty_atmo_data(fl):
 
 
 def get_fl_atmo(arb_fl):
-    """Find next available flightlevel to given level
+    """Find next available flightlevel with given atmospheric data to given level
 
     Args:
         arb_fl (int/str/float): Current flight level
@@ -148,20 +151,16 @@ def get_fl_atmo(arb_fl):
     Returns:
         str: Flighlevel for atmo data
     """
-    arb_fl = int(arb_fl)
-    diff = arb_fl%20
-    if diff == 0:
-        pass
-    elif diff >= 10:
-        arb_fl = arb_fl+20-diff
-    elif diff < 10:
-        arb_fl = arb_fl-diff
-    arb_fl = avoid_empty_atmo_data(arb_fl)
-    return str(arb_fl)
+    corrected_fl = int(get_fl(arb_fl))
+    corrected_fl = avoid_empty_atmo_data(corrected_fl)
+    return str(corrected_fl)
+
+
+
 
 
 def get_time(arb_time):
-    """Get the corresponding time for the atmo data
+    """Get the next available time for the atmo data
 
     Args:
         arb_time (time): Current time of the airplane
@@ -205,7 +204,6 @@ def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
         TIME = get_time(arb_time)
     else:
         raise Exception("Time is not a time object")
-    #print(LONG, LAT, FL, TIME)
     return atmo_data[LONG][LAT][FL][TIME]["MERGED"]
 
 
@@ -262,10 +260,10 @@ def get_hPa(fl):
 
 
 def create_time_grid(dt):
-    """Creates a time grid for plotting
+    """Creates a time grid for plotting with no flight data yet included
 
     Args:
-        dt (int): Timestep in minutes
+        dt (int): Timestep in seconds
 
     Returns:
         tuple: List of timepoints and time grid as dict
@@ -273,7 +271,7 @@ def create_time_grid(dt):
     time_grid = {}
     time_list = []
     start = datetime.time(6)
-    end = datetime.time(21)
+    end = datetime.time(23)
     time_grid[start] = {"LONG":[], "LAT":[], "FL":[], "FL_NR":[]}
     time_list.append(start)
     count = int((end.hour-start.hour)*3600/dt)
@@ -285,7 +283,7 @@ def create_time_grid(dt):
 
 
 def map_trajectory_to_time_grid(trajectories, time_grid):
-    """Maps a list of trajectories to a given timegrid
+    """Maps a list of trajectories to a corresponding timegrid with according time steps
 
     Args:
         trajectories (list): List of trajectories
