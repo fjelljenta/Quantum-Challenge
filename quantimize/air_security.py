@@ -5,8 +5,8 @@ def check_height(fl_1, fl_2):
     """Compares the flight level hight
 
     Args:
-        fl_1 (int): Flightlevel
-        fl_2 (int): Flightlevel
+        fl_1 (int/float/str): Flightlevel
+        fl_2 (int/float/str): Flightlevel
 
     Returns:
         boolean: True for enough distance, false for to close
@@ -18,6 +18,17 @@ def check_height(fl_1, fl_2):
         return False
 
 def check_horizontal_distance(long_1, lat_1, long_2, lat_2):
+    """Checks the horizontal distance between two flights
+
+    Args:
+        long_1 (int/float/str): Longitudinal coordinate of flight 1
+        lat_1 (int/float/str): Latitudinal coordinate of flight 1
+        long_2 (int/float/str): Longitudinal coordinate of flight 2
+        lat_2 (int/float/str): Latitudinal coordinate of flight 2
+
+    Returns:
+        boolean: True for enough distance, false for to close
+    """
     dist = cv.coordinates_to_distance(long_1, lat_1, long_2, lat_2)
     if dist > 9.26:
         return True
@@ -25,12 +36,32 @@ def check_horizontal_distance(long_1, lat_1, long_2, lat_2):
         return False
 
 def check_position_safety(flight_1, flight_2):
+    """Checks if the position (horizontal and vertical) between two flights is safe
+
+    Args:
+        flight_1 (dic): Informations about flight 1
+        flight_2 (dic): Informations about flight 2
+
+    Returns:
+        boolean: True for enough distance, false for to close
+    """
     if check_horizontal_distance(flight_1[0],flight_1[1], flight_2[0],flight_2[1]) or check_height(flight_1[2], flight_2[2]):
         return True
     else:
         return False
 
 def check_safety(list_of_trajectories, dt):
+    """ Checks if the saftey regulations are met
+    
+
+    Args:
+    list_of_trajectories (list): list of flight tranjectories 
+    dt (int): time step 
+
+    Returns:
+    error_list (list): list consisting of the of the saftey violations
+
+    """
     time_list, time_grid = da.create_time_grid(dt)
     time_grid = da.map_trajectory_to_time_grid(list_of_trajectories, time_grid)
     error_list = []
