@@ -63,6 +63,11 @@ def make_atmo_map(FL,time):
 
 
 def make_animated_atmo_day_map(FL):
+    """Creation of an animated atmo data map over the day for one flight level
+    
+    Args:
+        FL (int): flight level
+    """
     fig, ax = plt.subplots()
     m = Basemap(ax=ax, llcrnrlon=-30,llcrnrlat=34,urcrnrlon=30,urcrnrlat=60,resolution="i",projection="merc")
     m.drawcoastlines()
@@ -70,7 +75,7 @@ def make_animated_atmo_day_map(FL):
     lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
     available_fl = da.get_fl(FL)
     FL_index = get_FL_index(fl_list, available_fl)
-    print(available_fl)
+    #print(available_fl)
 
     def animate_map(time):
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
@@ -81,6 +86,11 @@ def make_animated_atmo_day_map(FL):
     plt.show()
 
 def make_animated_atmo_FL_map(time):
+    """Creation of an animated atmo data map for different flight level at one time point
+    
+    Args:
+        time (time): time point for the animation
+    """
     fig, ax = plt.subplots()
     m = Basemap(ax=ax, llcrnrlon=-30,llcrnrlat=34,urcrnrlon=30,urcrnrlat=60,resolution="i",projection="merc")
     m.drawcoastlines()
@@ -88,7 +98,7 @@ def make_animated_atmo_FL_map(time):
     lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
     available_time = da.get_time(time)
     time_index = get_time_index(available_time)
-    print(available_time)
+    #print(available_time)
 
     def animate_map(FL_index):
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
@@ -99,6 +109,15 @@ def make_animated_atmo_FL_map(time):
     plt.show()
 
 def draw_flight_path_on_map(map, trajectories):
+    """draws flight pathes on a map
+    
+    Args:
+        map:
+        trajectories (list): list of tranjectories
+    
+    Returns:
+        map with flight path
+    """
     long = []
     lat = []
     fl = []
@@ -111,6 +130,13 @@ def draw_flight_path_on_map(map, trajectories):
     return map.scatter(long,lat,c=fl,cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
 
 def animate_flight_path_on_map(list_of_trajectories, dt):
+    """annimates fight pathes on a map
+    
+    Args:
+        list_of_trajectories (list): list of tranjectories
+        dt (int): time step of the animation
+    
+    """
     time_list, time_grid = da.create_time_grid(dt)
     time_grid = da.map_trajectory_to_time_grid(list_of_trajectories, time_grid)
     fig, ax = plt.subplots()
@@ -125,6 +151,10 @@ def animate_flight_path_on_map(list_of_trajectories, dt):
     plt.show()
 
 def make_map():
+    """Creates a map
+    Returns:
+        m : basemap
+    """
     m = Basemap(llcrnrlon=-35,llcrnrlat=33,urcrnrlon=35,urcrnrlat=61,resolution="i",projection="merc")
     m.drawcoastlines()
     m.drawcountries()
