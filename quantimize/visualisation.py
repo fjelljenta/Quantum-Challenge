@@ -113,7 +113,7 @@ def draw_flight_path_on_map(map, trajectories):
     
     Args:
         map:
-        trajectories (list): list of tranjectories
+        trajectories (list of trajectory dicts): list of trajectory dicts
     
     Returns:
         map with flight path
@@ -133,7 +133,7 @@ def animate_flight_path_on_map(list_of_trajectories, dt):
     """annimates fight pathes on a map
     
     Args:
-        list_of_trajectories (list): list of tranjectories
+        list_of_trajectories (list of trajectory dicts): list of trajectory dicts
         dt (int): time step of the animation
     
     """

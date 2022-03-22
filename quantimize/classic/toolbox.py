@@ -35,20 +35,28 @@ def compute_cost(trajectory):
 
 
 def straight_line_solution(flight_nr, dt):
-    """
-    :param flight_nr: Flight number
-    :param dt: The time step in minutes
-    :return: Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
+    """Returns the straight line solution for a given flight 
+    
+    Args:
+        flight_nr: Flight number
+        dt: The time step in minutes
+        
+    Returns: 
+        Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
     """
     trajectory = straight_line_trajectory(flight_nr, dt)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
 def straight_line_trajectory(flight_nr, dt):
-    """
-    :param flight_nr: Flight number
-    :param dt: The time step in minutes
-    :return: Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
+    """Computes and returns the straight line solution for a given flight 
+    
+    Args:
+        flight_nr: Flight number
+        dt: The time step in minutes
+        
+    Returns: 
+        Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
     """
     info = da.get_flight_info(flight_nr)
     slope = (info['end_latitudinal'] - info['start_latitudinal']) * 111 / \
@@ -72,11 +80,30 @@ def straight_line_trajectory(flight_nr, dt):
 
 
 def curve_3D_solution(flight_nr):
+    """Returns the curved 3D solution for a given flightnumber
+
+    Args:
+    flight_nr (int): flight number
+
+    Returns:
+    dictionary with flight numbers and corresponding tranjectory
+
+    """
     trajectory = curve_3D_trajectory(flight_nr)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
 def curve_3D_trajectory(flight_nr, ctrl_pts):
+    """
+
+    Args:
+    flight_nr (int): flight number
+    ctrl_pts: control points
+
+    Returns:
+    trajectory (dict): dictionary containing the flights and the corresponding tranjectories
+
+    """
     ctrl_pts = list(ctrl_pts)
     info = da.get_flight_info(flight_nr)
     x = [info['start_longitudinal']] + ctrl_pts[:3] + [info['end_longitudinal']]
@@ -91,6 +118,20 @@ def curve_3D_trajectory(flight_nr, ctrl_pts):
 
 
 def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
+    """
+    
+
+    Args:
+        flight_nr (int): flight number
+        spline_xy : 
+        spline_z : 
+        dx : 
+            
+    Returns:
+        trajectory : 
+
+    """
+    
     info = da.get_flight_info(flight_nr)
     sign = 1 if info['start_longitudinal'] <= info['end_longitudinal'] else -1
     current_coord = info['start_longitudinal'], info['start_latitudinal'], info['start_flightlevel'], info['start_time']
@@ -134,12 +175,33 @@ def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
 
 
 def fit_spline(x, y, k=2):
+    """    
+
+    Args:
+        x : 
+        y : 
+        k : optional, the default is 2
+
+    Returns:
+        spline : 
+
+    """
+    
     t, c, k = interpolate.splrep(x, y, s=0, k=k)
     spline = interpolate.BSpline(t, c, k, extrapolate=False)
     return spline
 
 
 def plot_b_spline(spline, x, y, N=100):
+    """
+    
+    Args:
+        spline : 
+        x : 
+        y : 
+        N : optional, the default is 100
+
+    """
     xx = np.linspace(np.min(x), np.max(x), N)
     plt.plot(x, y, 'bo', label='Control points')
     plt.plot(xx, spline(xx), 'r', label='BSpline')

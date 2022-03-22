@@ -55,7 +55,7 @@ def check_safety(list_of_trajectories, dt):
     
 
     Args:
-    list_of_trajectories (list): list of flight tranjectories 
+    list_of_trajectories (list of trajectory dicts): list of flight tranjectory dicts
     dt (int): time step 
 
     Returns:

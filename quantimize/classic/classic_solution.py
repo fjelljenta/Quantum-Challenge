@@ -4,6 +4,17 @@ from functools import partial
 
 
 def run_genetic_algorithm(flight_nr):
+    """Genetic algorithm for the classical solution for a certain flight
+    
+    Args:
+        flight_nr (int): flight number
+
+    Returns:
+        report : model report
+        solution (dict): output dictionary
+        trajectory (dict): dictionary containing the flights and the corresponding tranjectories
+
+    """
     varbound = generate_search_bounds(flight_nr)
     algorithm_param = {'max_num_iteration': 100,
                        'population_size': 10,
@@ -23,14 +34,28 @@ def run_genetic_algorithm(flight_nr):
 
 
 def fitness_function_single_flight(flight_nr):
+    """
+    
+    Args:
+        flight_nr (int): flight number
+
+    Returns:
+        partial
+
+    """
     return partial(fitness_function, flight_nr)
 
 
 def fitness_function(flight_nr, ctrl_pts):
-    """
-    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z.
+    """    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z.
     obtain a trajectory and then compute cost
-    :return:
+    
+    Args:
+        flight_nr (int): flight number
+        ctrl_pts : control points
+    
+    Returns:
+        cost (float): Environmental cost of a tranjectory
     """
     trajectory = curve_3D_trajectory(flight_nr, ctrl_pts)
     cost = compute_cost(trajectory)
@@ -39,6 +64,15 @@ def fitness_function(flight_nr, ctrl_pts):
 
 
 def generate_search_bounds(flight_nr):
+    """Generation of search boundaries for a certain flight
+
+    Args:
+    flight_nr (int): flight number
+
+    Returns:
+        array with boundaries
+
+    """
     info = da.get_flight_info(flight_nr)
     total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                 info['end_longitudinal'], info['end_latitudinal'])
