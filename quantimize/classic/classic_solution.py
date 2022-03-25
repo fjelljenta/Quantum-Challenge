@@ -57,7 +57,7 @@ def fitness_function(flight_nr, ctrl_pts):
     Returns:
         cost (float): Environmental cost of a tranjectory
     """
-    trajectory = curve_3D_trajectory(flight_nr, ctrl_pts)
+    trajectory = curve_3D_solution(flight_nr, ctrl_pts)
     cost = compute_cost(trajectory)
     print(cost)
     return cost

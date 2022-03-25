@@ -79,7 +79,7 @@ def straight_line_trajectory(flight_nr, dt):
     return trajectory
 
 
-def curve_3D_solution(flight_nr):
+def curve_3D_solution(flight_nr, ctrl_pts):
     """Returns the curved 3D solution for a given flightnumber
 
     Args:
@@ -89,7 +89,7 @@ def curve_3D_solution(flight_nr):
     dictionary with flight numbers and corresponding tranjectory
 
     """
-    trajectory = curve_3D_trajectory(flight_nr)
+    trajectory = curve_3D_trajectory(flight_nr, ctrl_pts)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
@@ -113,7 +113,7 @@ def curve_3D_trajectory(flight_nr, ctrl_pts):
                                                 info['end_longitudinal'], info['end_latitudinal'])
     spline_xy = fit_spline(x, y)
     spline_z = fit_spline(np.linspace(0, total_distance, 6), z)
-    trajectory = {"flight_nr": flight_nr, "trajectory": curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, 0.3)}
+    trajectory = curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, 0.3)
     return trajectory
 
 
