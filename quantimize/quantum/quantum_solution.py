@@ -6,6 +6,9 @@ from quantimize.quantum.toolbox import tensorize_flight_info, normalize_input_da
 from quantimize.classic.toolbox import curve_3D_solution, compute_cost
 import quantimize.data_access as da
 
+# Adjustable parameters include the ansatz, the layer of ansatz, the embedding method, dxy, dz, c,
+# indices in distribution, minimzer (could go for PyTorch or gradient methods or adjust params in SPSA), etc.
+
 
 def generate_circuit(flight_nr, n_qubits):
     dev = qml.device('default.qubit', wires=n_qubits)
