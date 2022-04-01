@@ -10,7 +10,7 @@ import quantimize.data_access as da
 # indices in distribution, minimzer (could go for PyTorch or gradient methods or adjust params in SPSA), etc.
 
 
-def generate_circuit(flight_nr, n_qubits):
+def quantum_neural_network(flight_nr, n_qubits):
     dev = qml.device('default.qubit', wires=n_qubits)
 
     data = normalize_input_data(tensorize_flight_info())[flight_nr]
