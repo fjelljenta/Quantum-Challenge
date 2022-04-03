@@ -210,25 +210,51 @@ def plot_b_spline(spline, x, y, N=100):
     plt.show()
     
 def correct_for_boundaries(tranjectory):
+    #find points where it goes in and out of our area
+    index=[]
     for i in length(tranjectory):
-        lat=i[1]
-        long=i[0]
-        FL=i[2]
         #checking lattitudinal value
-        if i[1]<-34:
-            i[1]=-34
-        if i[1]>60:
-            i[1]=60
+        if i[1]<-34 or i[1]>60:
+            index.append(i-1)#i-1 is last point in our defined area
         #checking longitudinal value
-        if i[0]<-100:
-            i[0]=-100
-        if i[0]>30:
-            i[0]=30
+        if i[0]<-100 or i[0]>30:
+            index.append(i-1)
         #checking FL
-        if i[2]<100:
-            i[2]=100
-        if long>400:
-            i[2]=400
+        if i[2]<100 or long>400:
+            index.append[i-1]
+    #use straightlinge tranjectory in between
+    # correct timestamps in between
+    start_latitudinal = tranjectory[index[0]][1]
+    end_latitudinal = tranjectory[index[-1]+2][1]#index[-1]+2 is first point which is in our area again: i would be last outside, we store i-1m-> first inside would be i+2
+    start_longitudinal = tranjectory[index[0]][0]
+    end_longitudinal = tranjectory[index[-1]+2][0]
+    start_flightlevel = tranjectory[index[0]][2]
+    start_time = tranjectory[index[0]][3]
+    #info = da.get_flight_info(flight_nr)
+    slope = (end_latitudinal - start_latitudinal) * 111 / \
+            ((end_longitudinal - start_longitudinal) * 85)
+    flight_level = start_flightlevel#TODO: change in FL possible between start and end
+    speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CRUISE']['TAS']))
+    total_distance = cv.coordinates_to_distance(start_longitudinal, start_latitudinal,
+                                                end_longitudinal, end_latitudinal)
+    current_coord = start_longitudinal, start_latitudinal, flight_level, start_time
+    trajectory[index[0]] = [current_coord]
+    current_distance = 0
+    counter=0
+    while current_distance < total_distance:
+        counter+=1
+        current_distance += speed*dt
+        time = cv.update_time(current_coord[3], dt)
+        longitude = current_coord[0] + speed * dt * np.cos(np.arctan(slope)) / 85
+        latitude = current_coord[1] + speed * dt * np.sin(np.arctan(slope)) / 111
+        current_coord = longitude, latitude, flight_level, time
+        trajectory[index[0]+counter]=current_coord
+    trajectory[index[-1]+2] = (end_longitudinal, end_latitudinal, flight_level, current_coord[3])
+
+    #add a constant time difference to all points afterwards
+    time_dif=current_coord[3]-start_time
+    for i in range(index[i]+3,length(tranjectory))
+        tranjectory[i][3]+=time_dif
     return (tranjectory)
         
         
