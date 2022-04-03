@@ -122,6 +122,29 @@ def kms_to_ms(kms):
     return ms*1000
 
 
+def coordinates_to_distance3D(start_long, start_lat, start_FL, stop_long, stop_lat, stop_FL):
+    """Convert two 3D coordinates to a distance in km
+
+    Args:
+        start_long (int/float): Start longitudinal value
+        start_lat (int/float): Start latitudinal value
+        start_FL (int/float): Start flightlevel value
+        stop_long (int/float): Stop longitudinal value
+        stop_lat (int/float): Stop latitudinal value
+        stop_FL (int/float): Stop flightlevel value
+
+    Returns:
+        float: Distance in km
+    """
+    diff_long = stop_long-start_long
+    diff_lat = stop_lat-start_lat
+    diff_FL= end_FL-start_FL
+    diff_long_km = diff_long*85
+    diff_lat_km = diff_lat*111
+    diff_FL-km=100*diff_FL*0.0003048#1 feet is 0,0003048km and 1FL is 100feet
+    distance = math.sqrt(diff_long_km**2+diff_lat_km**2+diff_FL_km**2)
+    return round(distance, 2)   #Todo: Check if that is necessary
+
 def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     """Convert two coordinates to a distance in km
 
@@ -140,7 +163,6 @@ def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     diff_lat_km = diff_lat*111
     distance = math.sqrt(diff_long_km**2+diff_lat_km**2)
     return round(distance, 2)   #Todo: Check if that is necessary
-
 
 def calculate_min_radius(TAS):
     """Calculates the curvature radius for a given true air speed

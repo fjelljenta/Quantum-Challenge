@@ -232,14 +232,23 @@ def correct_for_boundaries(tranjectory):
         start_longitudinal = tranjectory[index[i]][0]
         end_longitudinal = tranjectory[index[i+1]+2][0]
         start_flightlevel = tranjectory[index[i]][2]
+        end_flightlevel = tranjectory[index[i+1]+2][2]
         start_time = tranjectory[index[i]][3]
         #info = da.get_flight_info(flight_nr)
         slope = (end_latitudinal - start_latitudinal) * 111 / \
                 ((end_longitudinal - start_longitudinal) * 85)
         flight_level = start_flightlevel#TODO: change in FL possible between start and end, coordinates_to_distance for 3D needed
-        speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CRUISE']['TAS']))
-        total_distance = cv.coordinates_to_distance(start_longitudinal, start_latitudinal,
-                                                    end_longitudinal, end_latitudinal)
+        if flight_level=end_flightlevel:
+            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CRUISE']['TAS']))
+            contr=0
+        elif flight_level<end_flightlevel:
+            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CLIMB']['TAS']))
+            contr=1
+        else:
+            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['DESCENT']['TAS']))
+            contr=2
+        total_distance = cv.coordinates_to_distance3D(start_longitudinal, start_latitudinal, flight_level,
+                                                    end_longitudinal, end_latitudinal, end_flightlevel)
         current_coord = start_longitudinal, start_latitudinal, flight_level, start_time
         trajectory[index[0]] = [current_coord]
         current_distance = 0
@@ -250,9 +259,15 @@ def correct_for_boundaries(tranjectory):
             time = cv.update_time(current_coord[3], dt)
             longitude = current_coord[0] + speed * dt * np.cos(np.arctan(slope)) / 85
             latitude = current_coord[1] + speed * dt * np.sin(np.arctan(slope)) / 111
+            if contr=1:
+                flight_level=current_coord[1]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['CLIMB']['ROC']))
+            elif contrl=2:
+                flight_level=current_coord[1]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['DESCENT']['ROD']))
+            else:
+                flight_level=flight_level
             current_coord = longitude, latitude, flight_level, time
             trajectory[index[0]+counter]=current_coord
-        trajectory[index[-1]+2] = (end_longitudinal, end_latitudinal, flight_level, current_coord[3])
+        trajectory[index[-1]+2] = (end_longitudinal, end_latitudinal, end_flightlevel, current_coord[3])
 
         #add a constant time difference to all points afterwards
         time_dif=cv.datetime_to_seconds(current_coord[3])-cv.datetime_to_seconds(start_time)
