@@ -8,8 +8,7 @@
 #########################################################
 import math
 import numpy as np
-import matplotlib.pyplot as plt
-from quantimize.classic.toolbox import curve_3D_solution, compute_cost, curve_3D_trajectory_core, fit_spline
+from quantimize.classic.toolbox import curve_3D_trajectory, compute_cost
 import quantimize.data_access as da
 
 #########################################################
@@ -71,24 +70,7 @@ def Init_population():
         # beta squared
         qpv[i,j,1]=np.around(2*pow(AlphaBeta[1],2),2) 
 
-#########################################################
-# SHOW QUANTUM POPULATION                               #
-#########################################################
-def Show_population():
-    i=1; j=1;
-    for i in range(1,popSize):
-        print()
-        print()
-        print("qpv = ",i," : ")
-        print()
-        for j in range(1,genomeLength):
-          print(qpv[i, j, 0],end="")
-          print(" ",end="")
-        print()
-        for j in range(1,genomeLength):
-          print(qpv[i, j, 1],end="")
-          print(" ",end="")
-    print()
+
     
 #########################################################
 # MAKE A MEASURE                                        #
@@ -115,51 +97,51 @@ def Fitness_evaluation(flight_nr, generation):
     for i in range(1,popSize):
         fitness[i]=0
 
-#########################################################
-# Define your problem in this section. For instance:    #
-#                                                       #
-# Let f(x)=abs(x-5/2+sin(x)) be a function that takes   #
-# values in the range 0<=x<=15. Within this range f(x)  #
-# has a maximum value at x=11 (binary is equal to 1011) #
-#########################################################
     for i in range(1,popSize):
-       x1=0;
+      x1=0;
        for j in range(1,genomeLength):
            # translate from binary to decimal value
            x1=x1+chromosome[i,j]*pow(2,genomeLength-j-1)
-
       x2=0
       for j in range(1, genomeLength-1):
-        x2=x2+chromosome[i,j+5]*pow(2,genomeLength-1-j-1)
+        x2=x2+chromosome[i,j+genomeLength]*pow(2,genomeLength-1-j-1)
       x3=0
       for j in range(1, genomeLength-2):
-        x3=x3+chromosome[i,j+5]*pow(2,genomeLength-2-j-1)
-      x4=0
-      for j in range(1, genomeLength-3):
-        x2=x2+chromosome[i,j+5]*pow(2,genomeLength-3-j-1)
-      x5=0
-      for j in range(1, genomeLength-4):
-        x5=x5+chromosome[i,j+5]*pow(2,genomeLength-1-j-1)
+        x3=x3+chromosome[i,j+genomeLength]*pow(2,genomeLength-2-j-1)
+      y1=0;
+       for j in range(1,genomeLength):
+           y1=y1+chromosome[i,j]*pow(2,genomeLength-j-1)
+      y2=0
+      for j in range(1, genomeLength-1):
+        y2=y2+chromosome[i,j+genomeLength]*pow(2,genomeLength-1-j-1)
+      y3=0
+      for j in range(1, genomeLength-2):
+        y3=y3+chromosome[i,j+genomeLength]*pow(2,genomeLength-2-j-1)
+      z1=0;
+       for j in range(1,genomeLength):
+           z1=z1+chromosome[i,j]*pow(2,genomeLength-j-1)
+      z2=0
+      for j in range(1, genomeLength-1):
+        z2=z2+chromosome[i,j+genomeLength]*pow(2,genomeLength-1-j-1)
+      z3=0
+      for j in range(1, genomeLength-2):
+        z3=z3+chromosome[i,j+genomeLength]*pow(2,genomeLength-2-j-1)
+      z1=0;
+       for j in range(1,genomeLength):
+           z4=z4+chromosome[i,j]*pow(2,genomeLength-j-1)
+      z2=0
+      for j in range(1, genomeLength-1):
+        z5=z5+chromosome[i,j+genomeLength]*pow(2,genomeLength-1-j-1)
 
-      ##### and more loops to decode other control point parameters... #####
 
-      ctrl_pts=[x1,x2], [x3,x4] # ...+[other ctrl points]
+      ctrl_pts=[x1,x2,x3,y1, y2, y3, z1, z2, z3, z4, z5] # ctrl_points we need
       trajectory=curve_3D_trajectory(flight_nr, ctrl_pts)
       fitness[i]= -compute_cost(trajectory) # - because we want t minimalize the cost
 
-#########################################################
       
-       print("fitness = ",i," ",fitness[i])
-       fitness_total=fitness_total+fitness[i]
-      x2=0
-      for j in range(genomeLength-1):
-        x2=x2+chromosome[i,j+5]*pow(2,-j-1)
+      print("fitness = ",i," ",fitness[i])
+      fitness_total=fitness_total+fitness[i]
 
-      ##### and more loops to decode other control point parameters... #####
-
-      ctrl_pts=[x1,x2] # ...+[other ctrl points]
-      trajectory=curve_3D_trajectory(flight_nr, ctrl_pts)
-      fitness[i]= -compute_cost(trajectory) # or some other monotonically decreasing function of cost, since they're trying to maximize fitness and we're trying to minimize cost
     fitness_average=fitness_total/N
     i=1;
     while i<=N:
@@ -176,11 +158,7 @@ def Fitness_evaluation(flight_nr, generation):
             fitness_max=fitness[i]
             the_best_chrom=i
     best_chrom[generation]=the_best_chrom
-    # Statistical output
-    f = open("output.dat","a")
-    f.write(str(generation)+" "+str(fitness_average)+"\n")
-    f.write(" \n")
-    f.close()
+
     print("Population size = ",popSize - 1)
     print("mean fitness = ",fitness_average)
     print("variance = ",variance," Std. deviation = ",math.sqrt(variance))
@@ -246,20 +224,7 @@ def mutation(pop_mutation_rate, mutation_rate):
             qpv[i,j,0]=nqpv[i,j,0]
             qpv[i,j,1]=nqpv[i,j,1]
 
-#########################################################
-# PERFORMANCE GRAPH                                     #
-#########################################################
-# Read the Docs in http://matplotlib.org/1.4.1/index.html
-def plot_Output():
-    data = np.loadtxt('output.dat')
-    # plot the first column as x, and second column as y
-    x=data[:,0]
-    y=data[:,1]
-    plt.plot(x,y)
-    plt.xlabel('Generation')
-    plt.ylabel('Fitness average')
-    plt.xlim(0.0, 550.0)
-    plt.show()
+
 
 ########################################################
 #                                                      #
@@ -268,24 +233,14 @@ def plot_Output():
 ########################################################
 def Q_GA(flight_nr):
     generation=0;
-    print("============== GENERATION: ",generation," =========================== ")
-    print()
     Init_population()
-    Show_population()
     Measure(0.5)
     Fitness_evaluation(generation)
     while (generation<generation_max-1):
-      print("The best of generation [",generation,"] ", best_chrom[generation])
-      print()
-      print("============== GENERATION: ",generation+1," =========================== ")
-      print()
       rotation()
       mutation(0.01,0.001)
       generation=generation+1
       Measure(0.5)
       Fitness_evaluation(generation)
 
-print ("""QUANTUM GENETIC ALGORITHM""")
-input("Press Enter to continue...")
-Q_GA()
-plot_Output()
+
