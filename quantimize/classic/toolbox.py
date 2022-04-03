@@ -208,3 +208,31 @@ def plot_b_spline(spline, x, y, N=100):
     plt.grid()
     plt.legend(loc='best')
     plt.show()
+    
+def correct_for_boundaries(lat, long, FL)
+    #checking lattitudinal value
+    if lat<-34:
+        lat_cor=-34
+    elif lat>60:
+        lat_cor=60
+    else:
+        lat_cor=lat
+    #checking longitudinal value
+    if long<-100:
+        long_cor=-100
+    elif long>30:
+        long_cor=30
+    else:
+        long_cor=long
+    #checking FL
+    if FL<100:
+        FL_cor=100
+    elif long>400:
+        FL_cor=400
+    else:
+        FL_cor=FL
+    return (lat_cor, long_cor, FL_cor
+        
+        
+    
+        
