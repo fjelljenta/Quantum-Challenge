@@ -238,7 +238,7 @@ def correct_for_boundaries(tranjectory):
         slope = (end_latitudinal - start_latitudinal) * 111 / \
                 ((end_longitudinal - start_longitudinal) * 85)
         flight_level = start_flightlevel#TODO: change in FL possible between start and end, coordinates_to_distance for 3D needed
-        if flight_level=end_flightlevel:
+        if flight_level==end_flightlevel:
             speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CRUISE']['TAS']))
             contr=0
         elif flight_level<end_flightlevel:
@@ -259,9 +259,9 @@ def correct_for_boundaries(tranjectory):
             time = cv.update_time(current_coord[3], dt)
             longitude = current_coord[0] + speed * dt * np.cos(np.arctan(slope)) / 85
             latitude = current_coord[1] + speed * dt * np.sin(np.arctan(slope)) / 111
-            if contr=1:
+            if contr==1:
                 flight_level=current_coord[1]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['CLIMB']['ROC']))
-            elif contrl=2:
+            elif contrl==2:
                 flight_level=current_coord[1]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['DESCENT']['ROD']))
             else:
                 flight_level=flight_level
@@ -271,11 +271,7 @@ def correct_for_boundaries(tranjectory):
 
         #add a constant time difference to all points afterwards
         time_dif=cv.datetime_to_seconds(current_coord[3])-cv.datetime_to_seconds(start_time)
-        for i in range(index[i]+3,len(tranjectory))
+        for i in range(index[i]+3,len(tranjectory)):
             tranjectory[i][3]=cv.update_time(tranjectory[i][3], time_dif)
             
     return (tranjectory)
-        
-        
-    
-        
