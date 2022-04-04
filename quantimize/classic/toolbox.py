@@ -87,7 +87,7 @@ def curve_3D_solution(flight_nr, ctrl_pts):
     flight_nr (int): flight number
 
     Returns:
-    dictionary with flight numbers and corresponding tranjectory
+    dictionary with flight numbers and corresponding trajectory
 
     """
     trajectory = curve_3D_trajectory(flight_nr, ctrl_pts)
@@ -210,11 +210,11 @@ def plot_b_spline(spline, x, y, N=100):
     plt.legend(loc='best')
     plt.show()
     
-def correct_for_boundaries(tranjectory):
-    dt=cv.datetime_to_seconds(tranjectory[0][3])-cv.datetime_to_seconds(tranjectory[1][3])
+def correct_for_boundaries(trajectory):
+    dt=cv.datetime_to_seconds(trajectory[0][3])-cv.datetime_to_seconds(trajectory[1][3])
     #find points where it goes in and out of our area
     index=[]
-    for i in len(tranjectory):
+    for i in len(trajectory):
         #checking lattitudinal value
         if i[1]<-34 or i[1]>60:
             index.append(i-1)#i-1 is last point in our defined area
@@ -224,16 +224,16 @@ def correct_for_boundaries(tranjectory):
         #checking FL
         if i[2]<100 or long>400:
             index.append[i-1]
-    #use straightlinge tranjectory in between
+    #use straightlinge trajectory in between
     # correct timestamps in between
     for i in range(0, len(index)-1,2):
-        start_latitudinal = tranjectory[index[i]][1]
-        end_latitudinal = tranjectory[index[i+1]+2][1]#index[-1]+2 is first point which is in our area again: i would be last outside, we store i-1m-> first inside would be i+2
-        start_longitudinal = tranjectory[index[i]][0]
-        end_longitudinal = tranjectory[index[i+1]+2][0]
-        start_flightlevel = tranjectory[index[i]][2]
-        end_flightlevel = tranjectory[index[i+1]+2][2]
-        start_time = tranjectory[index[i]][3]
+        start_latitudinal = trajectory[index[i]][1]
+        end_latitudinal = trajectory[index[i+1]+2][1]#index[-1]+2 is first point which is in our area again: i would be last outside, we store i-1m-> first inside would be i+2
+        start_longitudinal = trajectory[index[i]][0]
+        end_longitudinal = trajectory[index[i+1]+2][0]
+        start_flightlevel = trajectory[index[i]][2]
+        end_flightlevel = trajectory[index[i+1]+2][2]
+        start_time = trajectory[index[i]][3]
         #info = da.get_flight_info(flight_nr)
         slope = (end_latitudinal - start_latitudinal) * 111 / \
                 ((end_longitudinal - start_longitudinal) * 85)
@@ -260,9 +260,9 @@ def correct_for_boundaries(tranjectory):
             longitude = current_coord[0] + speed * dt * np.cos(np.arctan(slope)) / 85
             latitude = current_coord[1] + speed * dt * np.sin(np.arctan(slope)) / 111
             if contr==1:
-                flight_level=current_coord[1]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['CLIMB']['ROC']))
+                flight_level=current_coord[2]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['CLIMB']['ROC']))
             elif contrl==2:
-                flight_level=current_coord[1]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['DESCENT']['ROD']))
+                flight_level=current_coord[2]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['DESCENT']['ROD']))
             else:
                 flight_level=flight_level
             current_coord = longitude, latitude, flight_level, time
@@ -271,7 +271,7 @@ def correct_for_boundaries(tranjectory):
 
         #add a constant time difference to all points afterwards
         time_dif=cv.datetime_to_seconds(current_coord[3])-cv.datetime_to_seconds(start_time)
-        for i in range(index[i]+3,len(tranjectory)):
-            tranjectory[i][3]=cv.update_time(tranjectory[i][3], time_dif)
+        for i in range(index[i]+3,len(trajectory)):
+            trajectory[i][3]=cv.update_time(trajectory[i][3], time_dif)
             
-    return (tranjectory)
+    return (trajectory)
