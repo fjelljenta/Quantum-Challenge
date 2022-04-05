@@ -217,61 +217,73 @@ def correct_for_boundaries(trajectory):
     for i in len(trajectory):
         #checking lattitudinal value
         if i[1]<-34 or i[1]>60:
-            index.append(i-1)#i-1 is last point in our defined area
+            index.append(i)#i-1 is last point in our defined area
         #checking longitudinal value
         if i[0]<-100 or i[0]>30:
-            index.append(i-1)
+            index.append(i)
         #checking FL
         if i[2]<100 or long>400:
-            index.append[i-1]
-    #use straightlinge trajectory in between
-    # correct timestamps in between
-    for i in range(0, len(index)-1,2):
-        start_latitudinal = trajectory[index[i]][1]
-        end_latitudinal = trajectory[index[i+1]+2][1]#index[-1]+2 is first point which is in our area again: i would be last outside, we store i-1m-> first inside would be i+2
-        start_longitudinal = trajectory[index[i]][0]
-        end_longitudinal = trajectory[index[i+1]+2][0]
-        start_flightlevel = trajectory[index[i]][2]
-        end_flightlevel = trajectory[index[i+1]+2][2]
-        start_time = trajectory[index[i]][3]
+            index.append[i]
+
+    index_shift =[x + 1 for x in index]
+    bad_parts=[]
+    a=0
+    for i in index:
+        if index[i]-index_shift[i]!=a:
+            bad_parts.append(index_shift[i])
+            a=index[i]-index_shift[i]
+        else:
+            pass
+
+    trajectory_corrected=[]
+    number=len(bad_parts)
+    time_dif=0
+    for i in range(0,number,2):
+        start_point=bad_parts[i]
+        end_point=bad_parts[i+2]
+        trajectory_corrected.append(trajectory[x][0], trajectory[x][1], trajectory[x][2],
+                                    cv.update_time(trajectory[x][3], time_dif) for x < start_point)
+        start_latitudinal = trajectory[start_point[1]
+        end_latitudinal = trajectory[end_point][1]
+        start_longitudinal = trajectory[start_point][0]
+        end_longitudinal = trajectory[end_point][0]
+        start_flightlevel = trajectory[start_point][2]
+        end_flightlevel = trajectory[end_point][2]
+        start_time = trajectory[start_point][3]
         #info = da.get_flight_info(flight_nr)
         slope = (end_latitudinal - start_latitudinal) * 111 / \
                 ((end_longitudinal - start_longitudinal) * 85)
-        flight_level = start_flightlevel#TODO: change in FL possible between start and end, coordinates_to_distance for 3D needed
-        if flight_level==end_flightlevel:
-            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CRUISE']['TAS']))
-            contr=0
-        elif flight_level<end_flightlevel:
-            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CLIMB']['TAS']))
-            contr=1
-        else:
-            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['DESCENT']['TAS']))
-            contr=2
         total_distance = cv.coordinates_to_distance3D(start_longitudinal, start_latitudinal, flight_level,
                                                     end_longitudinal, end_latitudinal, end_flightlevel)
         current_coord = start_longitudinal, start_latitudinal, flight_level, start_time
-        trajectory[index[0]] = [current_coord]
+        trajectory_corrected.append(current_coord)
         current_distance = 0
-        counter=0
         while current_distance < total_distance:
-            counter+=1
             current_distance += speed*dt
             time = cv.update_time(current_coord[3], dt)
             longitude = current_coord[0] + speed * dt * np.cos(np.arctan(slope)) / 85
             latitude = current_coord[1] + speed * dt * np.sin(np.arctan(slope)) / 111
-            if contr==1:
-                flight_level=current_coord[2]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['CLIMB']['ROC']))
-            elif contrl==2:
-                flight_level=current_coord[2]+dt*cv.ms_to_kms(cv.flm_to_fls(da.get_flight_level_data(flight_level)['DESCENT']['ROD']))
+            if end_flightlevel > start_flightlevel:
+                dt1 = int((flight_level - current_coord[2]) /
+                          cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['CLIMB']['ROC']))
+            elif start_flightlevel > end_flightlevel:
+                dt1 = int((current_coord[2] - flight_level) /
+                          cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['DESCENT']['ROD']))
             else:
-                flight_level=flight_level
-            current_coord = longitude, latitude, flight_level, time
-            trajectory[index[0]+counter]=current_coord
-        trajectory[index[-1]+2] = (end_longitudinal, end_latitudinal, end_flightlevel, current_coord[3])
+                pass
+            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data((flight_level +
+                                                                        current_coord[2])/2)['CRUISE']['TAS']))
+            dt = int(cv.coordinates_to_distance(current_coord[0], current_coord[1], longitude, latitude) / speed)
+            intermediate_coord = (longitude * (1 - dt1 / dt) + current_coord[0] * dt1 / dt,
+                                  latitude * (1 - dt1 / dt) + current_coord[1] * dt1 / dt,
+                                  end_flightlevel,
+                                  cv.update_time(current_coord[3], dt1))
+            current_coord = longitude, latitude, end_flightlevel, cv.update_time(current_coord[3], dt)
+            trajectory_corrected.append(intermediate_coord)
+            trajectory_corrected.append(current_coord)
 
-        #add a constant time difference to all points afterwards
-        time_dif=cv.datetime_to_seconds(current_coord[3])-cv.datetime_to_seconds(start_time)
-        for i in range(index[i]+3,len(trajectory)):
-            trajectory[i][3]=cv.update_time(trajectory[i][3], time_dif)
-            
-    return (trajectory)
+        trajectory_corrected.append(end_longitudinal, end_latitudinal, end_flightlevel, current_coord[3])
+
+        time_dif=cv.datetime_to_seconds(current_coord[3])-cv.datetime_to_seconds(trajectory[end_point][3])
+
+    return (trajectory_corrected)
