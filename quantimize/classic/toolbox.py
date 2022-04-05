@@ -243,17 +243,16 @@ def correct_for_boundaries(trajectory):
         end_point=bad_parts[i+2]
         trajectory_corrected.append(trajectory[x][0], trajectory[x][1], trajectory[x][2],
                                     cv.update_time(trajectory[x][3], time_dif) for x < start_point)
-        start_latitudinal = trajectory[start_point[1]
-        end_latitudinal = trajectory[end_point][1]
+        start_latitudinal = trajectory[start_point][1]
+        end_latitudinal=trajectory[end_point][1]
         start_longitudinal = trajectory[start_point][0]
         end_longitudinal = trajectory[end_point][0]
         start_flightlevel = trajectory[start_point][2]
         end_flightlevel = trajectory[end_point][2]
         start_time = trajectory[start_point][3]
-        #info = da.get_flight_info(flight_nr)
         slope = (end_latitudinal - start_latitudinal) * 111 / \
                 ((end_longitudinal - start_longitudinal) * 85)
-        total_distance = cv.coordinates_to_distance3D(start_longitudinal, start_latitudinal, flight_level,
+        total_distance = cv.coordinates_to_distance3D(start_longitudinal, start_latitudinal, start_flightlevel,
                                                     end_longitudinal, end_latitudinal, end_flightlevel)
         current_coord = start_longitudinal, start_latitudinal, flight_level, start_time
         trajectory_corrected.append(current_coord)
@@ -264,15 +263,15 @@ def correct_for_boundaries(trajectory):
             longitude = current_coord[0] + speed * dt * np.cos(np.arctan(slope)) / 85
             latitude = current_coord[1] + speed * dt * np.sin(np.arctan(slope)) / 111
             if end_flightlevel > start_flightlevel:
-                dt1 = int((flight_level - current_coord[2]) /
-                          cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['CLIMB']['ROC']))
+                dt1 = int((end_flightlevel - start_flightlevel) /
+                          cv.ftm_to_fls(da.get_flight_level_data((start_flightlevel+end_flightlevel)/2)['CLIMB']['ROC']))
             elif start_flightlevel > end_flightlevel:
-                dt1 = int((current_coord[2] - flight_level) /
-                          cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['DESCENT']['ROD']))
+                dt1 = int((end_flightlevel - start_flightlevel) /
+                          cv.ftm_to_fls(da.get_flight_level_data((start_flightlevel+end_flightlevel)/2)['DESCENT']['ROD']))
             else:
                 pass
-            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data((flight_level +
-                                                                        current_coord[2])/2)['CRUISE']['TAS']))
+            speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data((start_flightlevel+
+                                                                        end_flightlevel)/2)['CRUISE']['TAS']))
             dt = int(cv.coordinates_to_distance(current_coord[0], current_coord[1], longitude, latitude) / speed)
             intermediate_coord = (longitude * (1 - dt1 / dt) + current_coord[0] * dt1 / dt,
                                   latitude * (1 - dt1 / dt) + current_coord[1] * dt1 / dt,
