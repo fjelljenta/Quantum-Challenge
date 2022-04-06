@@ -59,11 +59,11 @@ def ms_to_fls(ms):
     Returns:
         float: Flight speed in flight level per second
     """
-    return ms*3.28084/100
+    return ms * 3.28084 / 100
 
 
-def ms_to_fls(fls):
-    """Convert meter per second to flight level per second
+def fls_to_ms(fls):
+    """Convert flight level per second to meter per second
 
     Args:
         fls (int/float): Flight speed in flight level per second
@@ -95,7 +95,7 @@ def kmm_to_ms(kmm):
     Returns:
         float: Flight speed in meter per second
     """
-    return ms/60*1000
+    return kmm/60*1000
 
 
 def ms_to_kms(ms):
@@ -119,7 +119,19 @@ def kms_to_ms(kms):
     Returns:
         float: Flight speed in meter per second
     """
-    return ms*1000
+    return kms*1000
+
+
+def fl_to_km(fl):
+    """Convert height in flight level to kilometer
+
+    Args:
+        fl (int/float): height in flight level
+
+    Returns:
+        float: height in kilometer
+    """
+    return fl*100*0.0003048
 
 
 def coordinates_to_distance3D(start_long, start_lat, start_FL, stop_long, stop_lat, stop_FL):
@@ -138,12 +150,13 @@ def coordinates_to_distance3D(start_long, start_lat, start_FL, stop_long, stop_l
     """
     diff_long = stop_long-start_long
     diff_lat = stop_lat-start_lat
-    diff_FL= end_FL-start_FL
+    diff_FL= stop_FL-start_FL
     diff_long_km = diff_long*85
     diff_lat_km = diff_lat*111
     diff_FL_km=100*diff_FL*0.0003048#1 feet is 0,0003048km and 1FL is 100feet
     distance = math.sqrt(diff_long_km**2+diff_lat_km**2+diff_FL_km**2)
     return round(distance, 2)   #Todo: Check if that is necessary
+
 
 def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     """Convert two coordinates to a distance in km
@@ -163,6 +176,7 @@ def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     diff_lat_km = diff_lat*111
     distance = math.sqrt(diff_long_km**2+diff_lat_km**2)
     return round(distance, 2)   #Todo: Check if that is necessary
+
 
 def calculate_min_radius(TAS):
     """Calculates the curvature radius for a given true air speed
