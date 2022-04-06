@@ -3,7 +3,7 @@ from geneticalgorithm import geneticalgorithm as ga
 from functools import partial
 
 
-def run_genetic_algorithm(flight_nr):
+def run_genetic_algorithm(flight_nr, **kwargs):
     """Genetic algorithm for the classical solution for a certain flight
     
     Args:
@@ -16,14 +16,14 @@ def run_genetic_algorithm(flight_nr):
 
     """
     varbound = generate_search_bounds(flight_nr)
-    algorithm_param = {'max_num_iteration': 100,
-                       'population_size': 10,
-                       'mutation_probability': 0.1,
-                       'elit_ratio': 0.01,
-                       'crossover_probability': 0.5,
-                       'parents_portion': 0.3,
+    algorithm_param = {'max_num_iteration': kwargs.get("max_iter", 100),
+                       'population_size': kwargs.get("pop_size", 10),
+                       'mutation_probability': kwargs.get("mut_prob", 0.1),
+                       'elit_ratio': kwargs.get("elit_ratio", 0.01),
+                       'crossover_probability': kwargs.get("co_prob", 0.5),
+                       'parents_portion': kwargs.get("pp", 0.3),
                        'crossover_type': 'uniform',
-                       'max_iteration_without_improv': 50}
+                       'max_iteration_without_improv': kwargs.get("max_iter_w_i", 50)}
     model = ga(fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
                variable_boundaries=varbound, algorithm_parameters=algorithm_param)
     model.run()
