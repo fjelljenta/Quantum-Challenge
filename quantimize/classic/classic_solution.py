@@ -90,7 +90,7 @@ def generate_search_bounds(flight_nr):
     y2_bound = [max(y2-dy, 34), min(y2+dy, 60)]
     y3 = 1/4*info['start_latitudinal'] + 3/4*info['end_latitudinal']
     y3_bound = [max(y3-dy, 34), min(y3+dy, 60)]
-    z_bound = [120, 380]
+    z_bound = [100, 400]
     return np.array([x1_bound] + [x2_bound] + [x3_bound] + [y1_bound] + [y2_bound] + [y3_bound] + [z_bound]*5)
 
 

@@ -50,6 +50,10 @@ def get_fl(arb_fl):
         arb_fl = arb_fl+20-diff
     elif diff < 10:
         arb_fl = arb_fl-diff
+    if arb_fl >= 400:
+        arb_fl = 400
+    if arb_fl <= 100:
+        arb_fl = 100
     return str(arb_fl)
 
 
