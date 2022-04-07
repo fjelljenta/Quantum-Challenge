@@ -238,3 +238,24 @@ def seconds_to_datetime(current_time):
     m = (current_time - hr * 3600) // 60
     s = current_time - hr * 3600 - m * 60
     return datetime.time(hr, m, s)
+
+
+def trajectory_elements_to_list(trajectory):
+    """Creates lists from a trajectory by rearranging the points of the trajectory
+
+    Args:
+        trajectory (list): Trajectory list element
+
+    Returns:
+        list: Returns the long, lat, fl, time list
+    """
+    long = []
+    lat = []
+    fl = []
+    time = []
+    for point in trajectory:
+        long.append(point[0])
+        lat.append(point[1])
+        fl.append(point[2])
+        time.append(point[3])
+    return long, lat, fl, time

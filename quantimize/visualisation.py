@@ -5,6 +5,7 @@ import numpy as np
 from netCDF4 import Dataset
 import datetime
 import quantimize.data_access as da
+import quantimize.converter as cv
 
 
 def get_FL_index(fl_list, FL):
@@ -37,6 +38,23 @@ def get_time_index(time):
     elif date.hour == 18:
         return 2
 
+def make_map():
+    """Creates a map
+    Returns:
+        m : basemap
+    """
+    m = Basemap(llcrnrlon=-35,llcrnrlat=33,urcrnrlon=35,urcrnrlat=61,resolution="i",projection="merc")
+    m.drawcoastlines()
+    m.drawcountries()
+    return m
+
+def make_3d_map():
+    ax = plt.figure().add_subplot(projection='3d')
+    m = Basemap(ax=ax, llcrnrlon=-35,llcrnrlat=33,urcrnrlon=35,urcrnrlat=61,resolution="i",projection="merc",fix_aspect=False)
+    ax.add_collection3d(m.drawcoastlines())
+    ax.add_collection3d(m.drawcountries())
+    return ax, m
+
 def make_atmo_map(FL,time):
     """Create map with a given flightlevel and time
 
@@ -61,7 +79,7 @@ def make_atmo_map(FL,time):
     plt.title("Atmospheric data map. Time:"+available_time+" FL: "+available_fl)
     plt.show()
 
-
+############# Atmo animation ################
 def make_animated_atmo_day_map(FL):
     """Creation of an animated atmo data map over the day for one flight level
 
@@ -108,29 +126,53 @@ def make_animated_atmo_FL_map(time):
     ani = FuncAnimation(fig, animate_map, range(14))
     plt.show()
 
-def draw_flight_path_on_map(map, trajectories):
-    """draws flight pathes on a map
+
+################## Normal plots of flight trajectories #################
+def scatter_flight_path_on_map(map, trajectory):
+    """makes a scatter plot of a flight path on a map
 
     Args:
         map:
-        trajectories (list of trajectory dicts): list of trajectory dicts
+        trajectory (list): list of trajectory elements
 
     Returns:
         map with flight path
     """
-    long = []
-    lat = []
-    fl = []
-    time = []
-    for point in trajectories:
-        long.append(point[0])
-        lat.append(point[1])
-        fl.append(point[2])
-        time.append(point[3])
-    # map.scatter(long,lat,c=fl,cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
-    # plt.show()
-    return map.scatter(long,lat,c=fl,cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
+    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    return map.scatter(long, lat, c=fl, cmap="viridis", vmin=100, vmax=400, latlon=True, s=1)
 
+def plot_flight_path_on_map(map, trajectory):
+    """makes a normal line plot of a flight path on a map
+
+    Args:
+        map:
+        trajectory (list): list of trajectory elements
+
+    Returns:
+        map with flight path
+    """
+    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    return map.plot(long, lat, latlon=True)
+
+############# 3D Plots ########################
+def scatter_flight_path_on_map_3d(ax, map, trajectory):
+    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    x,y = map(long, lat)
+    ax.scatter(x,y,fl)
+    ax.scatter(x,y,0)
+    ax.set_zlim(0,400)
+    return ax, map
+
+def plot_flight_path_on_map_3d(ax, map, trajectory):
+    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    x,y = map(long, lat)
+    ax.plot(x,y,fl)
+    ax.plot(x,y,0)
+    ax.set_zlim(0,400)
+    return ax, map
+
+
+############# Animation ##################
 def animate_flight_path_on_map(list_of_trajectories, dt):
     """annimates fight pathes on a map
 
@@ -151,13 +193,3 @@ def animate_flight_path_on_map(list_of_trajectories, dt):
 
     ani = FuncAnimation(fig, animate_map, time_list, interval=20)
     plt.show()
-
-def make_map():
-    """Creates a map
-    Returns:
-        m : basemap
-    """
-    m = Basemap(llcrnrlon=-35,llcrnrlat=33,urcrnrlon=35,urcrnrlat=61,resolution="i",projection="merc")
-    m.drawcoastlines()
-    m.drawcountries()
-    return m
