@@ -83,9 +83,9 @@ def get_long(arb_long):
     """
     arb_long = float(arb_long)
     if arb_long < -30:
-        return str(-30)
+        return str(-30.0)
     elif arb_long > 30:
-        return str(30)
+        return str(30.0)
     else:
         #arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, last part (with -0.0 removal) still needed, tests!
 
@@ -119,9 +119,9 @@ def get_lat(arb_lat):
     """
     arb_lat = float(arb_lat)
     if arb_lat < 34:
-        return str(34)
+        return str(34.0)
     elif arb_lat > 60:
-        return str(60)
+        return str(60.0)
     else:
         # arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, tests!
         diff = arb_lat%2
