@@ -211,8 +211,8 @@ def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
             dt_1 = int(dt_1)
             dt = dt_1 + dt_2
             # We compute the intermediate point separating the two parts and update the coordinate
-            intermediate_coord = (longitude * dt_2 / dt + current_coord[0] * (1 - dt_2 / dt),
-                                  latitude * dt_2 / dt + current_coord[1] * (1 - dt_2 / dt),
+            intermediate_coord = (longitude * (1- dt_2 / dt) + current_coord[0] * dt_2 / dt,
+                                  latitude * (1- dt_2 / dt) + current_coord[1] * dt_2 / dt,
                                   flight_level,
                                   cv.update_time(current_coord[3], dt_1))
             # We update the coordinate at which part 2 finishes
