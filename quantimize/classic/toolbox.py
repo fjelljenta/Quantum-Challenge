@@ -36,6 +36,55 @@ def compute_cost(trajectory):
     return cost
 
 
+def timed_trajectory(trajectory, dt):
+    """Returns a trajectory for given time steps,
+    end_time might be excluded if starttime-endtime is no multiple of dt.
+
+        Args:
+            trajectory (list of lists): List of trajectory points with constant dx
+            dt (int): Timestep in seconds
+
+        Returns:
+            (list of lists): List of trajectory points with constant dt
+        """
+    start_time = cv.datetime_to_seconds(trajectory[0][3])
+    end_time = cv.datetime_to_seconds(trajectory[-1][3])
+    time_trajectory = []
+    for t in np.arange(start_time, end_time, dt):
+        time_trajectory.append(trajectory_at_time(trajectory, cv.seconds_to_datetime(t)))
+
+    return time_trajectory
+
+
+def trajectory_at_time(trajectory, datetime):
+    """Returns one trajectory entry (x,y and z position) which approximates the position for a given time linearly,
+        if time is out of bounds of flight time, an empty array is returned
+
+        Args:
+            trajectory (list of lists): List of trajectory points with constant dx
+            datetime (int): Time in seconds
+
+        Returns:
+            (trajectory point): trajectory point at wished time
+        """
+    time = cv.datetime_to_seconds(datetime)
+    length = len(trajectory)
+    timelist = [cv.datetime_to_seconds(trajectory[k][3]) for k in range(length)]
+    if time < timelist[0] or time > timelist[-1]:
+        return []
+    abs_time_diff_list = np.abs(timelist - time*np.ones(length))
+    index_min = np.argmin(abs_time_diff_list)
+    trajectorypoint = trajectory[index_min]
+    if timelist[index_min] <= time:
+        multiplicator= (time - timelist[index_min])/ (timelist[index_min +1]-timelist[index_min])
+        trajectorypoint= [trajectorypoint[k] + multiplicator* (trajectory[index_min+1][k] - trajectorypoint[k]) for k in range(3)]
+    else:
+        multiplicator = (timelist[index_min] -time) / (timelist[index_min] - timelist[index_min-1])
+        trajectorypoint = [trajectorypoint[k] - multiplicator * (trajectorypoint[k] - trajectory[index_min-1][k]) for k in range(3)]
+    trajectorypoint.append(datetime)
+    return trajectorypoint
+
+
 def straight_line_solution(flight_nr, dt):
     """Returns the straight line solution for a given flight 
     
