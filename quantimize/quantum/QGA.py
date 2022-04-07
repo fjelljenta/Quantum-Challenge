@@ -23,10 +23,13 @@ def curve(X, Y):
 #########################################################
 # ALGORITHM PARAMETERS                                  #
 #########################################################
-N=10                  # Define here the population size
+
+max_dev=20             # Max deviation (along y) away from
+                       # straight line solution
+N=10                   # Define here the population size
 Genome=50              # Define here the chromosome length
-generation_max=2000   # Define here the maximum number of
-                      # generations/iterations
+generation_max=100    # Define here the maximum number of
+                       # generations/iterations
 
 #########################################################
 # VARIABLES ALGORITHM                                   #
@@ -128,8 +131,11 @@ def Fitness_evaluation(flight_nr, generation):
             z[4]+=chromosome[i,j+47]*pow(2,4-j-1)
 
         for j in range(3):
-            x[j]=x[j]*(abs(info['start_longitudinal']-info['end_longitudinal']))/31 - min(info['start_longitudinal'],info['end_longitudinal'])
-            y[j]=y[j]*26/15 + 34
+            x[j]=x[j]*(abs(info['start_longitudinal']-info['end_longitudinal']))/31 + \
+                min(info['start_longitudinal'],info['end_longitudinal'])
+            y[j]=min(max(info['start_latitudinal'] + \
+                x[j]*((info['start_latitudinal']-info['end_latitudinal'])/(info['start_longitudinal']-info['end_longitudinal'])) + \
+                y[j]*(2*max_dev)/15 - max_dev, 34), 60)
 
         for j in range(5):
             z[j]=z[j]*300/15 + 100
@@ -204,8 +210,11 @@ def Fitness_evaluation(flight_nr, generation):
             z[4]+=chromosome[i,j+47]*pow(2,4-j-1)
 
         for j in range(3):
-            x[j]=x[j]*60/31 - 30
-            y[j]=y[j]*26/15 + 34
+            x[j]=x[j]*(abs(info['start_longitudinal']-info['end_longitudinal']))/31 + \
+                min(info['start_longitudinal'],info['end_longitudinal'])
+            y[j]=min(max(info['start_latitudinal'] + \
+                x[j]*((info['start_latitudinal']-info['end_latitudinal'])/(info['start_longitudinal']-info['end_longitudinal'])) + \
+                y[j]*(2*max_dev)/15 - max_dev, 34), 60)
 
         for j in range(5):
             z[j]=z[j]*300/15 + 100
@@ -218,8 +227,6 @@ def Fitness_evaluation(flight_nr, generation):
         y=[y[index] for index in s]
         y=[info['start_latitudinal']]+y+[info['end_latitudinal']]
         z=[info['start_flightlevel']] + z
-        print("ctrl_pts: ", x, y, z)
-        # ctrl_pts=xy_sorted+z # ctrl_points we need
         total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                     info['end_longitudinal'], info['end_latitudinal'])
         curve_xy=curve(x, y)

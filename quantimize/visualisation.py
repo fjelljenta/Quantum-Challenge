@@ -64,7 +64,7 @@ def make_atmo_map(FL,time):
 
 def make_animated_atmo_day_map(FL):
     """Creation of an animated atmo data map over the day for one flight level
-    
+
     Args:
         FL (int): flight level
     """
@@ -80,14 +80,14 @@ def make_animated_atmo_day_map(FL):
     def animate_map(time):
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
         x,y = m(long_grid, lat_grid)
-        cs = m.pcolormesh(x,y,atmo_data[time][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637) 
+        cs = m.pcolormesh(x,y,atmo_data[time][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637)
 
     ani = FuncAnimation(fig, animate_map, range(3))
     plt.show()
 
 def make_animated_atmo_FL_map(time):
     """Creation of an animated atmo data map for different flight level at one time point
-    
+
     Args:
         time (time): time point for the animation
     """
@@ -103,18 +103,18 @@ def make_animated_atmo_FL_map(time):
     def animate_map(FL_index):
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
         x,y = m(long_grid, lat_grid)
-        cs = m.pcolor(x,y,atmo_data[time_index][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637) 
+        cs = m.pcolor(x,y,atmo_data[time_index][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637)
 
     ani = FuncAnimation(fig, animate_map, range(14))
     plt.show()
 
 def draw_flight_path_on_map(map, trajectories):
     """draws flight pathes on a map
-    
+
     Args:
         map:
         trajectories (list of trajectory dicts): list of trajectory dicts
-    
+
     Returns:
         map with flight path
     """
@@ -127,15 +127,17 @@ def draw_flight_path_on_map(map, trajectories):
         lat.append(point[1])
         fl.append(point[2])
         time.append(point[3])
+    # map.scatter(long,lat,c=fl,cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
+    # plt.show()
     return map.scatter(long,lat,c=fl,cmap="viridis",vmin=100,vmax=400,latlon=True,s=1)
 
 def animate_flight_path_on_map(list_of_trajectories, dt):
     """annimates fight pathes on a map
-    
+
     Args:
         list_of_trajectories (list of trajectory dicts): list of trajectory dicts
         dt (int): time step of the animation
-    
+
     """
     time_list, time_grid = da.create_time_grid(dt)
     time_grid = da.map_trajectory_to_time_grid(list_of_trajectories, time_grid)
