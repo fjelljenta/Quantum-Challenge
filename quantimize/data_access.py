@@ -4,6 +4,8 @@ import datetime
 import copy
 from netCDF4 import Dataset
 import os
+
+from sklearn.model_selection import KFold
 import quantimize.converter as cv
 
 base_dir = os.getcwd()
@@ -80,25 +82,30 @@ def get_long(arb_long):
         str: Converted longitude value for atmo data
     """
     arb_long = float(arb_long)
-    #arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, last part (with -0.0 removal) still needed, tests!
-
-    diff = arb_long%2
-    if diff == 0:
-        return str(arb_long)
-    elif diff > 0.5 and diff < 1:
-        arb_long = round(arb_long-1,0)
-        if arb_long == -0.0:
-            return str(abs(arb_long))
-        else:
-            return str(arb_long)
-    elif diff >=1 and diff <= 1.5:
-        return str(round(arb_long+1,0))
+    if arb_long < -30:
+        return str(-30)
+    elif arb_long > 30:
+        return str(30)
     else:
-        arb_long = round(arb_long,0)
-        if arb_long == -0.0:
-            return str(abs(arb_long))
-        else:
+        #arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, last part (with -0.0 removal) still needed, tests!
+
+        diff = arb_long%2
+        if diff == 0:
             return str(arb_long)
+        elif diff > 0.5 and diff < 1:
+            arb_long = round(arb_long-1,0)
+            if arb_long == -0.0:
+                return str(abs(arb_long))
+            else:
+                return str(arb_long)
+        elif diff >=1 and diff <= 1.5:
+            return str(round(arb_long+1,0))
+        else:
+            arb_long = round(arb_long,0)
+            if arb_long == -0.0:
+                return str(abs(arb_long))
+            else:
+                return str(arb_long)
 
 
 def get_lat(arb_lat):
@@ -111,16 +118,21 @@ def get_lat(arb_lat):
         str: Convert latitude value for atmo data
     """
     arb_lat = float(arb_lat)
-    # arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, tests!
-    diff = arb_lat%2
-    if diff == 0:
-        return str(arb_lat)
-    elif diff > 0.5 and diff < 1:
-        return str(round(arb_lat-1,0))
-    elif diff >=1 and diff <= 1.5:
-        return str(round(arb_lat+1,0))
+    if arb_lat < 34:
+        return str(34)
+    elif arb_lat > 60:
+        return str(60)
     else:
-        return str(round(arb_lat,0))
+        # arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, tests!
+        diff = arb_lat%2
+        if diff == 0:
+            return str(arb_lat)
+        elif diff > 0.5 and diff < 1:
+            return str(round(arb_lat-1,0))
+        elif diff >=1 and diff <= 1.5:
+            return str(round(arb_lat+1,0))
+        else:
+            return str(round(arb_lat,0))
 
 
 def avoid_empty_atmo_data(fl):
