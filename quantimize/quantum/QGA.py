@@ -225,7 +225,7 @@ def Fitness_evaluation(flight_nr, generation):
         curve_xy=curve(x, y)
         curve_z=curve(np.linspace(0, total_distance, 6), z)
         trajectory=curve_3D_trajectory_core(flight_nr, curve_xy, curve_z, 0.3)
-        draw_flight_path_on_map(make_map(), trajectory)
+        return trajectory
 
 #########################################################
 # QUANTUM ROTATION GATE                                 #
@@ -299,9 +299,15 @@ def Q_GA(flight_nr):
     Init_population()
     Measure(0.5)
     Fitness_evaluation(flight_nr, generation)
-    while (generation<generation_max-1):
+    while (generation<generation_max-2):
       rotation()
       mutation(0.01,0.001)
       generation=generation+1
       Measure(0.5)
       Fitness_evaluation(flight_nr, generation)
+    rotation()
+    mutation(0.01,0.001)
+    generation=generation+1
+    Measure(0.5)
+    trajectory=Fitness_evaluation(flight_nr, generation)
+    return trajectory
