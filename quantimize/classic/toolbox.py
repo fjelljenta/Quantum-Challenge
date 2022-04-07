@@ -41,11 +41,11 @@ def timed_trajectory(trajectory, dt):
     end_time might be excluded if starttime-endtime is no multiple of dt.
 
         Args:
-            trajectory (list of lists): List of trajectory points with constant dx
+            trajectory (list): List of trajectory points with constant dx
             dt (int): Timestep in seconds
 
         Returns:
-            (list of lists): List of trajectory points with constant dt
+            (list): List of trajectory points with constant dt
         """
     start_time = cv.datetime_to_seconds(trajectory[0][3])
     end_time = cv.datetime_to_seconds(trajectory[-1][3])
@@ -61,11 +61,11 @@ def trajectory_at_time(trajectory, datetime):
         if time is out of bounds of flight time, an empty array is returned
 
         Args:
-            trajectory (list of lists): List of trajectory points with constant dx
+            trajectory (list): List of trajectory points with constant dx
             datetime (int): Time in seconds
 
         Returns:
-            (trajectory point): trajectory point at wished time
+            (list): trajectory point at wished time
         """
     time = cv.datetime_to_seconds(datetime)
     length = len(trajectory)
@@ -90,7 +90,7 @@ def straight_line_solution(flight_nr, dt):
     
     Args:
         flight_nr: Flight number
-        dt: The time step in minutes
+        dt: The time step in seconds
         
     Returns: 
         Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
