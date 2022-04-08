@@ -2,7 +2,6 @@ from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
-from netCDF4 import Dataset
 import datetime
 import quantimize.data_access as da
 import quantimize.converter as cv
@@ -159,7 +158,7 @@ def scatter_flight_path_on_map_3d(ax, map, trajectory):
     long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
     x,y = map(long, lat)
     ax.scatter(x,y,fl)
-    ax.scatter(x,y,0)
+    ax.scatter(x,y,0,"k")
     ax.set_zlim(0,400)
     return ax, map
 
@@ -167,11 +166,20 @@ def plot_flight_path_on_map_3d(ax, map, trajectory):
     long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
     x,y = map(long, lat)
     ax.plot(x,y,fl)
-    ax.plot(x,y,0)
+    ax.plot(x,y,0,"k")
     ax.set_zlim(0,400)
     return ax, map
 
-
+def plot_flight_path_on_map_3d_with_atmo(ax, map, trajectory):
+    atmo = []
+    for point in trajectory:
+        atmo.append(da.get_merged_atmo_data(point[0],point[1],point[2],point[3]))
+    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    x,y = map(long, lat)
+    ax.scatter(x,y,fl,c=atmo,vmin=-0.047278133046295995,vmax=0.34942841580572637)
+    ax.plot(x,y,0,"k")
+    ax.set_zlim(0,400)
+    return ax, map
 ############# Animation ##################
 def animate_flight_path_on_map(list_of_trajectories, dt):
     """annimates fight pathes on a map

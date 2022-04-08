@@ -9,13 +9,9 @@ import quantimize.data_access as da
 import quantimize.air_security as ais
 import quantimize.classic.toolbox as toolbox
 import quantimize.classic.classic_solution as cs
-from quantimize.classic.toolbox import straight_line_trajectory as sls
+from quantimize.classic.toolbox import straight_line_solution as sls
 import matplotlib.pyplot as plt
 import datetime
-
-
-#map = vs.make_map()
-
 
 """
 problems = ais.check_safety(list_of_trajectories, dt)
@@ -28,8 +24,19 @@ for flight in list_of_trajectories:
     cost_list.append((cost, flight_nr))
 print(cost_list)
 """
+"""
 ax, m = vs.make_3d_map()
-for i in range(10):
+for i in range(1):
     report, solution, trajectory = cs.run_genetic_algorithm(i)
     ax, m = vs.plot_flight_path_on_map_3d(ax, m, trajectory)
 plt.show()
+"""
+
+for i in [0,1,13,17,23,56,57,63,71,81]:
+    ax, m = vs.make_3d_map()
+    report, solution, trajectory = cs.run_genetic_algorithm(i)
+    ax, m = vs.plot_flight_path_on_map_3d_with_atmo(ax, m, trajectory)
+    trajectory = sls(i,120)
+    ax, m = vs.plot_flight_path_on_map_3d_with_atmo(ax, m, trajectory["trajectory"])
+    print(i, solution["function"], cs.compute_cost(trajectory))
+    plt.show()
