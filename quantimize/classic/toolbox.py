@@ -22,15 +22,26 @@ def compute_cost(trajectory):
         # incremental cost equals the time change (in min) times fuel consumpution rate (in kg / min ) times
         # change in temperature per portion of fuel (in K / kg)
         if coordinate[2] == start_level:
-            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CRUISE']['fuel']\
-                    * (cv.datetime_to_seconds(coordinate[3])-t) / 60
-        elif coordinate[2] < start_level:
-            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['DESCENT']['fuel']\
-                    * (cv.datetime_to_seconds(coordinate[3])-t) / 60
-            start_level = coordinate[2]
+            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
+                    * (cv.datetime_to_seconds(coordinate[3]) - t) / 60
         else:
-            cost += (da.get_merged_atmo_data(*coordinate)) * da.get_flight_level_data(coordinate[2])['CLIMB']['fuel']\
-                    * (cv.datetime_to_seconds(coordinate[3])-t) / 60
+            dt1 = compute_time_to_reach_other_flightlevel(start_level, coordinate[2])
+            if coordinate[2] < start_level:
+                cost += (da.get_merged_atmo_data(*coordinate)) * \
+                        da.get_flight_level_data(coordinate[2])['DESCENT']['fuel'] \
+                        * dt1 / 60 + \
+                        (da.get_merged_atmo_data(*coordinate)) * \
+                        da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
+                        * (cv.datetime_to_seconds(coordinate[3]) - t - dt1) / 60
+                print(dt1)
+            else:
+                cost += (da.get_merged_atmo_data(*coordinate)) * \
+                        da.get_flight_level_data(coordinate[2])['CLIMB']['fuel'] \
+                        * dt1 / 60 + \
+                        (da.get_merged_atmo_data(*coordinate)) * \
+                        da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
+                        * (cv.datetime_to_seconds(coordinate[3]) - t - dt1) / 60
+                print(dt1)
             start_level = coordinate[2]
         t = cv.datetime_to_seconds(coordinate[3])
     return cost
@@ -72,27 +83,29 @@ def trajectory_at_time(trajectory, datetime):
     timelist = [cv.datetime_to_seconds(trajectory[k][3]) for k in range(length)]
     if time < timelist[0] or time > timelist[-1]:
         return []
-    abs_time_diff_list = np.abs(timelist - time*np.ones(length))
+    abs_time_diff_list = np.abs(timelist - time * np.ones(length))
     index_min = np.argmin(abs_time_diff_list)
     trajectorypoint = trajectory[index_min]
     if timelist[index_min] <= time:
-        multiplicator= (time - timelist[index_min])/ (timelist[index_min +1]-timelist[index_min])
-        trajectorypoint= [trajectorypoint[k] + multiplicator* (trajectory[index_min+1][k] - trajectorypoint[k]) for k in range(3)]
+        multiplicator = (time - timelist[index_min]) / (timelist[index_min + 1] - timelist[index_min])
+        trajectorypoint = [trajectorypoint[k] + multiplicator * (trajectory[index_min + 1][k] - trajectorypoint[k]) for
+                           k in range(3)]
     else:
-        multiplicator = (timelist[index_min] -time) / (timelist[index_min] - timelist[index_min-1])
-        trajectorypoint = [trajectorypoint[k] - multiplicator * (trajectorypoint[k] - trajectory[index_min-1][k]) for k in range(3)]
+        multiplicator = (timelist[index_min] - time) / (timelist[index_min] - timelist[index_min - 1])
+        trajectorypoint = [trajectorypoint[k] - multiplicator * (trajectorypoint[k] - trajectory[index_min - 1][k]) for
+                           k in range(3)]
     trajectorypoint.append(datetime)
     return trajectorypoint
 
 
 def straight_line_solution(flight_nr, dt):
-    """Returns the straight line solution for a given flight 
-    
+    """Returns the straight line solution for a given flight
+
     Args:
         flight_nr: Flight number
         dt: The time step in seconds
-        
-    Returns: 
+
+    Returns:
         Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
     """
     trajectory = straight_line_trajectory(flight_nr, dt)
@@ -100,13 +113,13 @@ def straight_line_solution(flight_nr, dt):
 
 
 def straight_line_trajectory(flight_nr, dt):
-    """Computes and returns the straight line solution for a given flight 
+    """Computes and returns the straight line solution for a given flight
        The straight line solution assumes the same flight level as starting point for the ending point
     Args:
         flight_nr: Flight number
         dt: The time step in seconds
-        
-    Returns: 
+
+    Returns:
         Trajectory in the format of a list of tuples (time, longitude, latitude)
     """
     info = da.get_flight_info(flight_nr)
@@ -206,12 +219,12 @@ def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
         spline_xy : The function of the xy-spline curve, takes x as input and gives y as output
         spline_z : The function of the z-spline curve, takes distance as input and gives z as output
         dx : The incremental step in longitude
-            
+
     Returns:
         trajectory : Trajectory in the format of a list of tuples (time, longitude, latitude)
 
     """
-    
+
     info = da.get_flight_info(flight_nr)
     # To know if the plane is flying from west to east or from east to west
     sign = 1 if info['start_longitudinal'] <= info['end_longitudinal'] else -1
@@ -224,13 +237,13 @@ def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
                                                 info['end_longitudinal'], info['end_latitudinal'])
     # To compute the incremental change in displacement along the straight-line trajectory,
     # since z-spline uses displacement along the straight-line trajectory as input
-    dd = np.sqrt(dx**2 + (slope*dx)**2)*85
+    dd = np.sqrt(dx ** 2 + (slope * dx) ** 2) * 85
     while True:  # This should always be true if the plane is on the trajectory
         longitude = current_coord[0] + sign * dx
         # Stop the while loop is the plane will reach the ending point after updating
-        if sign == 1 and longitude > info['end_longitudinal']:
+        if sign == 1 and longitude >= info['end_longitudinal']:
             break
-        elif sign == -1 and longitude < info['end_longitudinal']:
+        elif sign == -1 and longitude <= info['end_longitudinal']:
             break
         # Otherwise continue
         else:
@@ -240,33 +253,22 @@ def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
             # We break each segment into 2 parts, the first being in climbing (or
             # descending) mode with fixed ROC (or ROD), and the second being in cruise mode.
             # We begin by computing the time needed for the first part.
-            if flight_level > current_coord[2]:  # the plane needs to climb
-                dt_1 = (flight_level - current_coord[2]) / \
-                       cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['CLIMB']['ROC'])
-            else:  # the plane needs to descend. Also works for cruise mode, as the numerator will be simply 0.
-                dt_1 = (current_coord[2] - flight_level) / \
-                       cv.ftm_to_fls(da.get_flight_level_data((flight_level+current_coord[2])/2)['DESCENT']['ROD'])
+            dt_1 = compute_time_to_reach_other_flightlevel(flight_level, current_coord[2])
             # We take the speed for the first part at the average flight level,
             # and the speed for the second part at the second flight level
             # We notice that the speed is the same regardless of the flying mode in the data.
             speed_1 = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data((flight_level +
-                                                                          current_coord[2])/2)['CRUISE']['TAS']))
+                                                                          current_coord[2]) / 2)['CRUISE']['TAS']))
             speed_2 = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(flight_level)['CRUISE']['TAS']))
             # We compute the displacement projected to x-y plane traveled in the first part
-            dxy = np.sqrt((speed_1 * dt_1)**2 - cv.fl_to_km(current_coord[2] - flight_level)**2)
+            dxy = np.sqrt((speed_1 * dt_1) ** 2 - cv.fl_to_km(current_coord[2] - flight_level) ** 2)
             # We compute the remaining distance needed in x-y plane and hence the remaining time to travel
             dt_2 = int((cv.coordinates_to_distance(current_coord[0], current_coord[1],
                                                    longitude, latitude) - dxy) / speed_2)
-            dt_1 = int(dt_1)
-            dt = dt_1 + dt_2
-            # We compute the intermediate point separating the two parts and update the coordinate
-            intermediate_coord = (longitude * (1- dt_2 / dt) + current_coord[0] * dt_2 / dt,
-                                  latitude * (1- dt_2 / dt) + current_coord[1] * dt_2 / dt,
-                                  flight_level,
-                                  cv.update_time(current_coord[3], dt_1))
+            dt = int(dt_1 + dt_2)
             # We update the coordinate at which part 2 finishes
             current_coord = longitude, latitude, flight_level, cv.update_time(current_coord[3], dt)
-            trajectory.append(intermediate_coord)
+            # trajectory.append(intermediate_coord)
             trajectory.append(current_coord)
     # Add the last piece to complete the trajectory. The last speed is chosen to be in cruise mode for convenience.
     speed = cv.ms_to_kms(cv.kts_to_ms(da.get_flight_level_data(current_coord[2])['CRUISE']['TAS']))
@@ -277,8 +279,20 @@ def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
     return trajectory
 
 
+def compute_time_to_reach_other_flightlevel(fl1, fl2):
+    if fl1 == fl2:
+        dt = 0
+    elif fl1 < fl2:  # the plane needs to climb
+        dt = (fl2 - fl1) / \
+             cv.ftm_to_fls(da.get_flight_level_data((fl1 + fl2) / 2)['CLIMB']['ROC'])
+    else:  # the plane needs to descend. Also works for cruise mode, as the numerator will be simply 0.
+        dt = (fl1 - fl2) / \
+             cv.ftm_to_fls(da.get_flight_level_data((fl1 + fl2) / 2)['DESCENT']['ROD'])
+    return dt
+
+
 def fit_spline(x, y, k=2):
-    """    
+    """
     A function that takes in the x and y coordinates of control points, obtain the analytical function of the spline
     curve that interpolates the control points, and returns it.
     Args:
@@ -290,7 +304,7 @@ def fit_spline(x, y, k=2):
         spline : The function of the spline curve, takes x as input and gives y as output
 
     """
-    
+
     t, c, k = interpolate.splrep(x, y, s=0, k=k)
     spline = interpolate.BSpline(t, c, k, extrapolate=False)
     return spline
@@ -323,15 +337,15 @@ def partition(index):
     :return: a list of continuous lists of indices
     """
     parts = []
-    a = [index[i]-index[i - 1] for i in range(1, len(index))]
+    a = [index[i] - index[i - 1] for i in range(1, len(index))]
     part = [index[0]]
     j = 0
     while j < len(a):
         if a[j] == 1:
-            part.append(index[j+1])
+            part.append(index[j + 1])
         else:
             parts.append(part)
-            part = [index[j+1]]
+            part = [index[j + 1]]
         j += 1
     parts.append(part)
     return parts
@@ -345,8 +359,8 @@ def correct_time_for_trajectory(trajectory, time_correction):
 def correct_for_boundaries(trajectory):
     trajectory_corrected = [trajectory[0]]
     # Extract the size of the typical dt
-    dt = cv.datetime_to_seconds(trajectory[2][3])-cv.datetime_to_seconds(trajectory[0][3])
-    #find points where it goes in and out of our area
+    dt = cv.datetime_to_seconds(trajectory[2][3]) - cv.datetime_to_seconds(trajectory[0][3])
+    # find points where it goes in and out of our area
     index = []
     for i in range(len(trajectory)):
         """
@@ -370,10 +384,10 @@ def correct_for_boundaries(trajectory):
         # append the original good part to the new trajectory,
         # the good part just need to be updated with shifted time caused by changes in the previous part of trajectory
         trajectory_corrected += correct_time_for_trajectory(
-            trajectory[start_end_parts[i-1][1] + 1: start_end_parts[i][0]-1], time_correction)
+            trajectory[start_end_parts[i - 1][1] + 1: start_end_parts[i][0] - 1], time_correction)
         # append the corrected bad part to the new trajectory
-        start_longitudinal, start_latitudinal, start_flightlevel, start_time = trajectory[start_end_parts[i][0]-1]
-        end_longitudinal, end_latitudinal, end_flightlevel, end_time = trajectory[start_end_parts[i][1]+1]
+        start_longitudinal, start_latitudinal, start_flightlevel, start_time = trajectory[start_end_parts[i][0] - 1]
+        end_longitudinal, end_latitudinal, end_flightlevel, end_time = trajectory[start_end_parts[i][1] + 1]
         corrected_part = straight_line_trajectory_core(start_longitudinal, end_longitudinal,
                                                        start_latitudinal, end_latitudinal,
                                                        start_flightlevel, start_time, dt)
@@ -384,5 +398,14 @@ def correct_for_boundaries(trajectory):
         trajectory_corrected += corrected_part
     # append the last piece of good part to the new trajectory
     trajectory_corrected += correct_time_for_trajectory(
-            trajectory[start_end_parts[-1][1] + 1:], time_correction)
+        trajectory[start_end_parts[-1][1] + 1:], time_correction)
     return trajectory_corrected
+
+
+# We compute the intermediate point separating the two parts and update the coordinate
+"""
+intermediate_coord = (longitude * (1 - dt_2 / dt) + current_coord[0] * dt_2 / dt,
+                      latitude * (1 - dt_2 / dt) + current_coord[1] * dt_2 / dt,
+                      flight_level,
+                      cv.update_time(current_coord[3], dt_1))
+"""
