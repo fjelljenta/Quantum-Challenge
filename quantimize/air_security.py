@@ -81,6 +81,19 @@ def check_safety(list_of_trajectories, dt):
 
 
 def distance_between_trajectories_at_time(traj1, traj2, t):
+    """ Returns distance between two given flights at a given time
+
+
+    Args:
+    traj1 (list): first flight tranjectory
+    traj2 (list): second flight tranjectory
+    t (int): time of day expressed in seconds
+
+    Returns:
+
+    (float, float): distance between flights with respect to x-y plane, flight level difference between flights
+
+    """
 
     n1=len(traj1)
 
@@ -126,7 +139,7 @@ def check_safety_2(list_of_trajectory_dicts):
             traj1=list_of_trajectory_dicts[i]["trajectory"]
             traj2=list_of_trajectory_dicts[j]["trajectory"]
 
-            # Here we define the relevant time interval when both flights are flying
+            # Here we define the relevant time interval when both airplanes are flying
 
             start_time=traj1[0][3] if traj1[0][3]>traj2[0][3] \
             else traj2[0][3]  # Start times in data are all within the 6 to 8 AM range. No flights just before midnight

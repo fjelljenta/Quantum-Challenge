@@ -1,5 +1,5 @@
 #########################################################
-#        Improved and adjusted version of the           #
+#              Adjusted version of the                  #
 #       QUANTUM GENETIC ALGORITHM (24.05.2016)          #
 #                                                       #
 #               by R. Lahoz-Beltra                      #
@@ -8,6 +8,7 @@
 #########################################################
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 from quantimize.classic.toolbox import curve_3D_trajectory_core, compute_cost
 import quantimize.data_access as da
 import quantimize.converter as cv
@@ -26,10 +27,13 @@ def curve(X, Y):
 
 max_dev=20             # Max deviation (along y) away from
                        # straight line solution
-N=10                   # Define here the population size
+N=70                   # Define here the population size
 Genome=50              # Define here the chromosome length
-generation_max=100    # Define here the maximum number of
+generation_max=50    # Define here the maximum number of
                        # generations/iterations
+
+generational_avg_cost=[]
+generational_best_cost=[]
 
 #########################################################
 # VARIABLES ALGORITHM                                   #
@@ -106,6 +110,7 @@ def Measure(p_alpha):
 def Fitness_evaluation(flight_nr, generation):
     i=1; j=1; fitness_total=0; sum_sqr=0;
     fitness_average=0; variance=0;
+    best_fitness=-1000000
     info = da.get_flight_info(flight_nr)
     for i in range(1,popSize):
         fitness[i]=0
@@ -148,7 +153,6 @@ def Fitness_evaluation(flight_nr, generation):
         y=[y[index] for index in s]
         y=[info['start_latitudinal']]+y+[info['end_latitudinal']]
         z=[info['start_flightlevel']] + z
-        print("ctrl_pts: ", x, y, z)
         # ctrl_pts=xy_sorted+z # ctrl_points we need
         total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                     info['end_longitudinal'], info['end_latitudinal'])
@@ -160,6 +164,9 @@ def Fitness_evaluation(flight_nr, generation):
         #########################################################
 
         print("fitness = ",i," ",fitness[i])
+        if best_fitness<fitness[i] or i==1:
+            best_fitness=fitness[i]
+
         fitness_total=fitness_total+fitness[i]
 
     fitness_average=fitness_total/N
@@ -183,8 +190,13 @@ def Fitness_evaluation(flight_nr, generation):
     print("mean fitness = ",fitness_average)
     print("variance = ",variance," Std. deviation = ",math.sqrt(variance))
     print("fitness max = ",best_chrom[generation])
-    print("Chromosome with max fitness", chromosome[int(best_chrom[generation])])
     print("fitness sum = ",fitness_total)
+
+    global generational_avg_cost
+    global generational_best_cost
+
+    generational_avg_cost+=[-fitness_average]
+    generational_best_cost+=[-best_fitness]
 
     if generation==generation_max-1:
 
@@ -301,7 +313,11 @@ def mutation(pop_mutation_rate, mutation_rate):
 # MAIN PROGRAM                                         #
 #                                                      #
 ########################################################
-def Q_GA(flight_nr):
+def Q_GA(flight_nr, plot_graph=0):
+    global generational_avg_cost
+    global generational_best_cost
+    generational_avg_cost=[]
+    generational_best_cost=[]
     generation=0;
     Init_population()
     Measure(0.5)
@@ -317,4 +333,14 @@ def Q_GA(flight_nr):
     generation=generation+1
     Measure(0.5)
     trajectory=Fitness_evaluation(flight_nr, generation)
+    if plot_graph==1:
+        plt.plot(range(len(generational_avg_cost)),generational_avg_cost)
+        plt.xlabel('Generation')
+        plt.ylabel('Average cost')
+        plt.show()
+    elif plot_graph==2:
+        plt.plot(range(len(generational_best_cost)),generational_best_cost)
+        plt.xlabel('Generation')
+        plt.ylabel('Best cost')
+        plt.show()
     return trajectory

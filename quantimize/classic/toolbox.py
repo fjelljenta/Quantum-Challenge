@@ -33,7 +33,7 @@ def compute_cost(trajectory):
                         (da.get_merged_atmo_data(*coordinate)) * \
                         da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
                         * (cv.datetime_to_seconds(coordinate[3]) - t - dt1) / 60
-                print(dt1)
+                # print(dt1)
             else:
                 cost += (da.get_merged_atmo_data(*coordinate)) * \
                         da.get_flight_level_data(coordinate[2])['CLIMB']['fuel'] \
@@ -41,7 +41,7 @@ def compute_cost(trajectory):
                         (da.get_merged_atmo_data(*coordinate)) * \
                         da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
                         * (cv.datetime_to_seconds(coordinate[3]) - t - dt1) / 60
-                print(dt1)
+                # print(dt1)
             start_level = coordinate[2]
         t = cv.datetime_to_seconds(coordinate[3])
     return cost
