@@ -1,6 +1,8 @@
 import quantimize.converter as cv
 import quantimize.data_access as da
 
+# from quantimize.classic.toolbox import straight_line_solution
+
 def check_height(fl_1, fl_2):
     """Compares the flight level hight
 
@@ -52,11 +54,11 @@ def check_position_safety(flight_1, flight_2):
 
 def check_safety(list_of_trajectories, dt):
     """ Checks if the saftey regulations are met
-    
+
 
     Args:
     list_of_trajectories (list of trajectory dicts): list of flight tranjectory dicts
-    dt (int): time step 
+    dt (int): time step
 
     Returns:
     error_list (list): list consisting of the of the saftey violations
@@ -76,3 +78,84 @@ def check_safety(list_of_trajectories, dt):
                 if not check_position_safety(flight_1, flight_2):
                     error_list.append((time_step, flight_1, flight_2))
     return error_list
+
+
+def distance_between_trajectories_at_time(traj1, traj2, t):
+
+    n1=len(traj1)
+
+    # Assuming consecutive coordinates of a trajectory are equally spaced, we can calculate the index of the coordinate with the given time
+
+    index=(n1-1)*(t-cv.datetime_to_seconds(traj1[0][3]))/(cv.datetime_to_seconds(traj1[-1][3])-cv.datetime_to_seconds(traj1[0][3]))
+
+    # If there is no coordinate with the given time, the index will be some fraction. Assuming the true trajectory is linear between two
+    # consecutive points in our list, we can calculate the position of the airplane accordingly
+
+    x1=(int(index)+1-index)*traj1[int(index)][0]+(index-int(index))*traj1[int(index)+1][0]
+    y1=(int(index)+1-index)*traj1[int(index)][1]+(index-int(index))*traj1[int(index)+1][1]
+    z1=(int(index)+1-index)*traj1[int(index)][2]+(index-int(index))*traj1[int(index)+1][2]
+
+    n2=len(traj2)
+
+    index=(n2-1)*(t-cv.datetime_to_seconds(traj2[0][3]))/(cv.datetime_to_seconds(traj2[-1][3])-cv.datetime_to_seconds(traj2[0][3]))
+    x2=(int(index)+1-index)*traj2[int(index)][0]+(index-int(index))*traj2[int(index)+1][0]
+    y2=(int(index)+1-index)*traj2[int(index)][1]+(index-int(index))*traj2[int(index)+1][1]
+    z2=(int(index)+1-index)*traj2[int(index)][2]+(index-int(index))*traj2[int(index)+1][2]
+
+    # print((x1,y1,z1), (x2,y2,z2))
+
+    return cv.coordinates_to_distance(x1,y1,x2,y2), abs(z2-z1)
+
+
+def check_safety_2(list_of_trajectory_dicts):
+    """ Checks if the safety regulations are met
+
+
+    Args:
+    list_of_trajectory_dicts (list of trajectory dicts): list of flight tranjectory dicts
+    dt (int): time step
+
+    Returns:
+    error_list (list): list consisting of the of the safety violations
+
+    """
+    error_list=[]
+    for i in range(len(list_of_trajectory_dicts)):
+        for j in range(i+1, len(list_of_trajectory_dicts)):
+
+            traj1=list_of_trajectory_dicts[i]["trajectory"]
+            traj2=list_of_trajectory_dicts[j]["trajectory"]
+
+            # Here we define the relevant time interval when both flights are flying
+
+            start_time=traj1[0][3] if traj1[0][3]>traj2[0][3] \
+            else traj2[0][3]  # Start times in data are all within the 6 to 8 AM range. No flights just before midnight
+            end_time=traj1[-1][3] if traj1[-1][3]<traj2[0][3] \
+            else traj2[-1][3]
+
+            max_speed_xy=cv.ms_to_kms(cv.kts_to_ms(459)) # km/s
+            max_speed_z=3830/(60*100) # (100 ft)/s or flight_level/s
+            unsafe_radius=9.26
+            unsafe_height=10
+
+            t=cv.datetime_to_seconds(start_time)
+            current_distance_xy, current_distance_z = distance_between_trajectories_at_time(traj1, traj2, t)
+
+            while t<cv.datetime_to_seconds(end_time):
+                if current_distance_xy<unsafe_radius:
+                    if current_distance_z<unsafe_height:
+                        error_list+=[(list_of_trajectory_dicts[i]["flight_nr"],list_of_trajectory_dicts[j]["flight_nr"])]
+                        break
+                    else:
+                        t+=max(1,(current_distance_z-unsafe_height)/(2*max_speed_z)) # The minimum time it would take for both planes to get dangerously close along the z axis
+                        current_distance_xy, current_distance_z = distance_between_trajectories_at_time(traj1, traj2, t)
+                else:
+                    t+=max(1,(current_distance_xy-unsafe_radius)/(2*max_speed_xy)) # The minimum time it would take for both planes to be dangerously close along the xy plane
+
+    return error_list
+
+# def test_safety(f_list):
+#     list_of_trajectory_dicts=[]
+#     for f in f_list:
+#         list_of_trajectory_dicts+=[straight_line_solution(f, 600)]
+#     print(check_safety_temp(list_of_trajectory_dicts))
