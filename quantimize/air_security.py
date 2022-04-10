@@ -85,8 +85,8 @@ def distance_between_trajectories_at_time(traj1, traj2, t):
 
 
     Args:
-    traj1 (list): first flight tranjectory
-    traj2 (list): second flight tranjectory
+    traj1 (list): first flight trajectory
+    traj2 (list): second flight trajectory
     t (int): time of day expressed in seconds
 
     Returns:
@@ -95,25 +95,56 @@ def distance_between_trajectories_at_time(traj1, traj2, t):
 
     """
 
-    n1=len(traj1)
+    # We find the index of the latest coordinate earlier than the given time
 
-    # Assuming consecutive coordinates of a trajectory are equally spaced, we can calculate the index of the coordinate with the given time
+    lower=0
+    higher=len(traj1)-1
+    index=0
 
-    index=(n1-1)*(t-cv.datetime_to_seconds(traj1[0][3]))/(cv.datetime_to_seconds(traj1[-1][3])-cv.datetime_to_seconds(traj1[0][3]))
+    while True:
+        index=(lower+higher)//2
+        if cv.datetime_to_seconds(traj1[index][3])<t:
+            if cv.datetime_to_seconds(traj1[index+1][3])>t:
+                break
+            lower=max(int(index), lower+1)
+        elif cv.datetime_to_seconds(traj1[index][3])>t:
+            if cv.datetime_to_seconds(traj1[index-1][3])<t:
+                index-=1
+                break
+            higher=min(int(index)+1, higher-1)
+        else:
+            break
 
-    # If there is no coordinate with the given time, the index will be some fraction. Assuming the true trajectory is linear between two
-    # consecutive points in our list, we can calculate the position of the airplane accordingly
+    # Assuming the true trajectory is linear between two consecutive points
+    # in our list, we can calculate the position of the airplane accordingly
 
-    x1=(int(index)+1-index)*traj1[int(index)][0]+(index-int(index))*traj1[int(index)+1][0]
-    y1=(int(index)+1-index)*traj1[int(index)][1]+(index-int(index))*traj1[int(index)+1][1]
-    z1=(int(index)+1-index)*traj1[int(index)][2]+(index-int(index))*traj1[int(index)+1][2]
+    x1=((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][0] + \
+    ((t-cv.datetime_to_seconds(traj1[index][3]))/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)+1][0]
+    y1=((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][1] + \
+    ((t-cv.datetime_to_seconds(traj1[index][3]))/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)+1][1]
+    z1=((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][2] + \
+    ((t-cv.datetime_to_seconds(traj1[index][3]))/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)+1][2]
 
-    n2=len(traj2)
+    while True:
+        index=(lower+higher)//2
+        if cv.datetime_to_seconds(traj2[index][3])<t:
+            if cv.datetime_to_seconds(traj2[index+1][3])>t:
+                break
+            lower=max(int(index), lower+1)
+        elif cv.datetime_to_seconds(traj2[index][3])>t:
+            if cv.datetime_to_seconds(traj2[index-1][3])<t:
+                index-=1
+                break
+            higher=min(int(index)+1, higher-1)
+        else:
+            break
 
-    index=(n2-1)*(t-cv.datetime_to_seconds(traj2[0][3]))/(cv.datetime_to_seconds(traj2[-1][3])-cv.datetime_to_seconds(traj2[0][3]))
-    x2=(int(index)+1-index)*traj2[int(index)][0]+(index-int(index))*traj2[int(index)+1][0]
-    y2=(int(index)+1-index)*traj2[int(index)][1]+(index-int(index))*traj2[int(index)+1][1]
-    z2=(int(index)+1-index)*traj2[int(index)][2]+(index-int(index))*traj2[int(index)+1][2]
+    x2=((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][0] + \
+    ((t-cv.datetime_to_seconds(traj2[index][3]))/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)+1][0]
+    y2=((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][1] + \
+    ((t-cv.datetime_to_seconds(traj2[index][3]))/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)+1][1]
+    z2=((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][2] + \
+    ((t-cv.datetime_to_seconds(traj2[index][3]))/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)+1][2]
 
     # print((x1,y1,z1), (x2,y2,z2))
 
@@ -171,4 +202,4 @@ def check_safety_2(list_of_trajectory_dicts):
 #     list_of_trajectory_dicts=[]
 #     for f in f_list:
 #         list_of_trajectory_dicts+=[straight_line_solution(f, 600)]
-#     print(check_safety_temp(list_of_trajectory_dicts))
+#     print(check_safety_2(list_of_trajectory_dicts))
