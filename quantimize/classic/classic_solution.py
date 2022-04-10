@@ -76,8 +76,9 @@ def generate_search_bounds(flight_nr):
     info = da.get_flight_info(flight_nr)
     total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                 info['end_longitudinal'], info['end_latitudinal'])
-    dx = np.abs(info['end_longitudinal'] - info['start_longitudinal']) / 60 * 0.05*total_distance/85
-    dy = np.abs(info['end_latitudinal'] - info['start_latitudinal']) / 26 * 0.1*total_distance/111
+    dx = np.abs(info['end_longitudinal'] - info['start_longitudinal']) / 60 * 0.12* total_distance/85
+    # x shouldn't vary a lot
+    dy = np.abs(info['end_latitudinal'] - info['start_latitudinal']) / 26 * total_distance/111
     x1 = 3/4*info['start_longitudinal'] + 1/4*info['end_longitudinal']
     x1_bound = [max(x1-dx, -30), min(x1+dx, 30)]
     x2 = 1/2*info['start_longitudinal'] + 1/2*info['end_longitudinal']
