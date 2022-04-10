@@ -3,7 +3,7 @@ Hello everybody,
 this is team Quantimize's contribution to the Quantum Climate Challenge by Deloitte.
 In this repository you can find all our code we produced during the challenge.
 
-You can find a file called \textbf{requirement.txt}, which provides all the packages necessary to run our code. 
+You can find a file called requirement.txt, which provides all the packages necessary to run our code. 
 
 The folder Quantimze contains all the functions we have written.It is devided into parts, which are relevant only for our classical solution, only for our quantum solution or for both, like the data extraction, process and access or the safety check.
 
