@@ -1,6 +1,6 @@
 # Quantum-Challenge by Deloitte
 Hello everybody,
-this is team Quantimize contribution to the Quantum Climate Challenge by Deloitte.
+this is team Quantimize's contribution to the Quantum Climate Challenge by Deloitte.
 In this repository you can find all our code we produced during the challenge.
 
 You can find a file called \textbf{requirement.txt}, which provides all the packages necessary to run our code. 
