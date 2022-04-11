@@ -357,6 +357,7 @@ def correct_time_for_trajectory(trajectory, time_correction):
 
 
 def correct_for_boundaries(trajectory):
+    end = False
     trajectory_corrected = [trajectory[0]]
     # Extract the size of the typical dt
     dt = cv.datetime_to_seconds(trajectory[2][3]) - cv.datetime_to_seconds(trajectory[0][3])
@@ -380,6 +381,7 @@ def correct_for_boundaries(trajectory):
     # find the starting and ending indices for each part
     start_end_parts = [(0, 0)] + [(part[0], part[-1]) for part in partitioned_index]
     time_correction = 0  # The time to correct for following coordinates
+    print(start_end_parts)
     for i in range(1, len(start_end_parts)):
         # append the original good part to the new trajectory,
         # the good part just need to be updated with shifted time caused by changes in the previous part of trajectory
@@ -387,7 +389,11 @@ def correct_for_boundaries(trajectory):
             trajectory[start_end_parts[i - 1][1] + 1: start_end_parts[i][0] - 1], time_correction)
         # append the corrected bad part to the new trajectory
         start_longitudinal, start_latitudinal, start_flightlevel, start_time = trajectory[start_end_parts[i][0] - 1]
-        end_longitudinal, end_latitudinal, end_flightlevel, end_time = trajectory[start_end_parts[i][1] + 1]
+        try:
+            end_longitudinal, end_latitudinal, end_flightlevel, end_time = trajectory[start_end_parts[i][1] + 1]
+        except:
+            end_longitudinal, end_latitudinal, end_flightlevel, end_time = trajectory[start_end_parts[i][1]]
+            end = True
         corrected_part = straight_line_trajectory_core(start_longitudinal, end_longitudinal,
                                                        start_latitudinal, end_latitudinal,
                                                        start_flightlevel, start_time, dt)
@@ -397,8 +403,9 @@ def correct_for_boundaries(trajectory):
                                                                                  cv.datetime_to_seconds(start_time)))
         trajectory_corrected += corrected_part
     # append the last piece of good part to the new trajectory
-    trajectory_corrected += correct_time_for_trajectory(
-        trajectory[start_end_parts[-1][1] + 1:], time_correction)
+    if not end:
+        trajectory_corrected += correct_time_for_trajectory(
+            trajectory[start_end_parts[-1][1] + 1:], time_correction)
     return trajectory_corrected
 
 

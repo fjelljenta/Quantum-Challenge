@@ -59,7 +59,6 @@ def fitness_function(flight_nr, ctrl_pts):
     """
     trajectory = curve_3D_solution(flight_nr, ctrl_pts)
     cost = compute_cost(trajectory)
-    print(cost)
     return cost
 
 
@@ -92,7 +91,6 @@ def generate_search_bounds(flight_nr):
     y3 = 1/4*info['start_latitudinal'] + 3/4*info['end_latitudinal']
     y3_bound = [max(y3-dy, 34), min(y3+dy, 60)]
     z_bound = [100, 400]
-    print(np.array([x1_bound] + [x2_bound] + [x3_bound] + [y1_bound] + [y2_bound] + [y3_bound] + [z_bound]*5))
     return np.array([x1_bound] + [x2_bound] + [x3_bound] + [y1_bound] + [y2_bound] + [y3_bound] + [z_bound]*5)
 
 
