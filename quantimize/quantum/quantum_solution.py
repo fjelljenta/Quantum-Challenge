@@ -3,24 +3,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from noisyopt import minimizeSPSA
 from quantimize.quantum.toolbox import tensorize_flight_info, normalize_input_data, sigmoid
-from quantimize.classic.toolbox import curve_3D_solution, compute_cost
+from quantimize.classic.toolbox import curve_3D_solution, compute_cost, correct_for_boundaries
 import quantimize.data_access as da
 
 # Adjustable parameters include the ansatz, the layer of ansatz, the embedding method, dxy, dz, c,
 # indices in distribution, minimzer (could go for PyTorch or gradient methods or adjust params in SPSA), etc.
 
 
-def quantum_neural_network(flight_nr, n_qubits):
+def quantum_neural_network(flight_nr, n_qubits, init_solution):
     dev = qml.device('default.qubit', wires=n_qubits)
 
     data = normalize_input_data(tensorize_flight_info())[flight_nr]
 
     @qml.qnode(dev)
     def circuit(params):
-        qml.AmplitudeEmbedding(features=data, wires=range(n_qubits), normalize=True, pad_with=0.)
+        #qml.IQPEmbedding(data, wires=range(n_qubits))
+        #qml.AmplitudeEmbedding(features=data, wires=range(n_qubits), normalize=True, pad_with=0.)
         qml.StronglyEntanglingLayers(params, wires=list(range(n_qubits)))
         #return qml.expval(qml.PauliZ(0))
         return qml.probs(wires=range(n_qubits))
+
+
 
     num_layers = 5
 
@@ -30,10 +33,32 @@ def quantum_neural_network(flight_nr, n_qubits):
 
     init_params_spsa = init_params.reshape(flat_shape)
 
-    plot = plt.bar(np.arange(2**n_qubits), circuit(init_params))
-    plt.show()
+    #plot = plt.bar(np.arange(2**n_qubits), circuit(init_params))
+    #plt.show()
 
     qnode = qml.QNode(circuit, dev)
+
+    def from_distribution_to_trajectory_2(distribution):
+        off_setted_distribution = distribution - 1 / 2 ** n_qubits
+        tabx = np.linspace(0, 1, 2 ** n_qubits)
+
+        # Generating weights for polynomial function with degree =2
+        weights = np.polyfit(tabx, off_setted_distribution, 2)
+
+        # Generating model with the given weights
+        model = np.poly1d(weights)
+
+        # Prediction on validation set
+        # We will plot the graph for 70 observations only
+
+        plt.scatter(tabx, off_setted_distribution, facecolor='None', edgecolor='k', alpha=0.3)
+        plt.plot(tabx, model(tabx))
+        plt.show()
+
+        ctrl_pts = np.concatenate((np.array(init_solution[:6]),
+                                  np.array(init_solution[6:] + 1e4 * model(np.linspace(0, 1, 5)))))
+        trajectory = curve_3D_solution(flight_nr, ctrl_pts)
+        return trajectory
 
     def from_distribution_to_trajectory(distribution):
         c = 2 ** (n_qubits-2)
@@ -72,19 +97,19 @@ def quantum_neural_network(flight_nr, n_qubits):
             ctrl_pts_z.append(size*dz + flight_level)
 
         ctrl_pts = ctrl_pts_xy[0] + ctrl_pts_xy[1] + ctrl_pts_z
-        print(ctrl_pts)
         trajectory = curve_3D_solution(flight_nr, ctrl_pts)
         return trajectory
 
     def cost_spsa(params):
         distribution = np.array(qnode(params.reshape(num_layers, n_qubits, 3)))
-        trajectory = from_distribution_to_trajectory(distribution)
+        trajectory = correct_for_boundaries(from_distribution_to_trajectory_2(distribution)['trajectory'])
+        trajectory = {'flight_nr':flight_nr, 'trajectory':trajectory}
         cost = compute_cost(trajectory)
         return cost
 
     #return cost_spsa(init_params)
 
-    niter_spsa = 20
+    niter_spsa = 100
 
     # Evaluate the initial cost
     cost_store_spsa = [cost_spsa(init_params)]

@@ -381,7 +381,6 @@ def correct_for_boundaries(trajectory):
     # find the starting and ending indices for each part
     start_end_parts = [(0, 0)] + [(part[0], part[-1]) for part in partitioned_index]
     time_correction = 0  # The time to correct for following coordinates
-    print(start_end_parts)
     for i in range(1, len(start_end_parts)):
         # append the original good part to the new trajectory,
         # the good part just need to be updated with shifted time caused by changes in the previous part of trajectory
