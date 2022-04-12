@@ -139,7 +139,9 @@ def scatter_flight_path_on_map(map, trajectory):
         map with flight path
     """
     long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
-    return map.scatter(long, lat, c=fl, cmap="viridis", vmin=100, vmax=400, latlon=True, s=1)
+    # TODO: Atmospheric data instead of flightlevel?
+    map.scatter(long, lat, c=fl, cmap="viridis", vmin=100, vmax=400, latlon=True, s=1)
+    return map
 
 def plot_flight_path_on_map(map, trajectory):
     """makes a normal line plot of a flight path on a map
@@ -152,7 +154,8 @@ def plot_flight_path_on_map(map, trajectory):
         map with flight path
     """
     long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
-    return map.plot(long, lat, latlon=True)
+    map.plot(long, lat, latlon=True)
+    return map
 
 ############# 3D Plots ########################
 def scatter_flight_path_on_map_3d(ax, map, trajectory):
