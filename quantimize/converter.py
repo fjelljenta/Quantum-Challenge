@@ -259,3 +259,24 @@ def trajectory_elements_to_list(trajectory):
         fl.append(point[2])
         time.append(point[3])
     return long, lat, fl, time
+
+def trajectory_point_boundaries(trajectory_point):
+    if trajectory_point[0] < 0 and trajectory_point[0]>-1:
+        xbound = abs(round(trajectory_point[0],0))
+    else:
+        xbound = round(trajectory_point[0],0)
+    if xbound%2 == 0 and xbound <= trajectory_point[0]:
+        x = (xbound, xbound+2)
+    elif xbound%2 == 0 and xbound >= trajectory_point[0]:
+        x = (xbound-2, xbound)
+    elif xbound%2 == 1:
+        x = (xbound-1,xbound+1)
+
+    ybound = round(trajectory_point[1],0)
+    if ybound%2 == 0 and ybound <= trajectory_point[1]:
+        y = (ybound, ybound+2)
+    elif ybound%2 == 0 and ybound >= trajectory_point[1]:
+        y = (ybound-2, ybound)
+    elif ybound%2 == 1:
+        y = (ybound-1,ybound+1)
+    return x,y

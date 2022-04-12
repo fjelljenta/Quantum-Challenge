@@ -115,9 +115,10 @@ def make_animated_atmo_FL_map(time):
     lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
     available_time = da.get_time(time)
     time_index = get_time_index(available_time)
-    #print(available_time)
+    print(fl_list)
 
     def animate_map(FL_index):
+        print(FL_index)
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
         x,y = m(long_grid, lat_grid)
         cs = m.pcolor(x,y,atmo_data[time_index][FL_index],vmin=-0.047278133046295995,vmax=0.34942841580572637)
@@ -170,16 +171,33 @@ def plot_flight_path_on_map_3d(ax, map, trajectory):
     ax.set_zlim(0,400)
     return ax, map
 
-def plot_flight_path_on_map_3d_with_atmo(ax, map, trajectory):
+def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
     atmo = []
     for point in trajectory:
         atmo.append(da.get_merged_atmo_data(point[0],point[1],point[2],point[3]))
     long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
     x,y = map(long, lat)
-    ax.scatter(x,y,fl,c=atmo,vmin=-0.047278133046295995,vmax=0.34942841580572637)
+    ax.scatter(x,y,fl,c=atmo,vmin=-0.047278133046295995,vmax=0.34942841580572637,s=1)
     ax.plot(x,y,0,"k")
     ax.set_zlim(0,400)
     return ax, map
+
+def plot_flight_path_on_map_3d_with_atmo_as_slices(ax,map,trajectory):
+    for point in trajectory:
+        xbounds = (point[0]-1,point[0]+1)
+        ybounds = (point[1]-0.5,point[1]+0.5)
+        #xbounds, ybounds = cv.trajectory_point_boundaries(point)
+        xb, yb = np.meshgrid(xbounds, ybounds)
+        c1 = da.get_merged_atmo_data(xbounds[0],ybounds[0],point[2],point[3])
+        c2 = da.get_merged_atmo_data(xbounds[1],ybounds[1],point[2],point[3])
+        ax.add_collection3d(map.pcolor(xb,yb,[[c1],[c2]],latlon=True,vmin=-0.047278133046295995,vmax=0.34942841580572637,alpha=0.5),zs=point[2])
+    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    x,y = map(long, lat)
+    ax.plot(x,y,fl,"k")
+    ax.plot(x,y,0,"k")
+    ax.set_zlim(0,400)
+    return ax, map
+    
 ############# Animation ##################
 def animate_flight_path_on_map(list_of_trajectories, dt):
     """annimates fight pathes on a map
