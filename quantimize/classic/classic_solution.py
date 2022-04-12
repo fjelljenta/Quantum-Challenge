@@ -25,7 +25,7 @@ def run_genetic_algorithm(flight_nr, **kwargs):
                        'crossover_type': 'uniform',
                        'max_iteration_without_improv': kwargs.get("max_iter_w_i", 50)}
     model = ga(fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
-               variable_boundaries=varbound, algorithm_parameters=algorithm_param)
+               variable_boundaries=varbound, algorithm_parameters=algorithm_param, convergence_curve=False)
     model.run()
     report = model.report
     solution = model.output_dict
