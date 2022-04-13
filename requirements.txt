@@ -4,3 +4,6 @@ netCDF4
 qiskit
 numpy
 simplejson
+pennylane
+noisyopt
+sklearn
