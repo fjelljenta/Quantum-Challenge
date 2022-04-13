@@ -280,3 +280,9 @@ def trajectory_point_boundaries(trajectory_point):
     elif ybound%2 == 1:
         y = (ybound-1,ybound+1)
     return x,y
+
+def check_trajectory_dict(trajectory):
+    try:
+        return trajectory["trajectory"]
+    except:
+        return trajectory

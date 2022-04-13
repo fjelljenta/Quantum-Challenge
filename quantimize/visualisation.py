@@ -138,8 +138,8 @@ def scatter_flight_path_on_map(map, trajectory):
     Returns:
         map with flight path
     """
-    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
-    # TODO: Atmospheric data instead of flightlevel?
+    flight_path = cv.check_trajectory_dict(trajectory)
+    long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     map.scatter(long, lat, c=fl, cmap="viridis", vmin=100, vmax=400, latlon=True, s=1)
     return map
 
@@ -153,13 +153,15 @@ def plot_flight_path_on_map(map, trajectory):
     Returns:
         map with flight path
     """
-    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    flight_path = cv.check_trajectory_dict(trajectory)
+    long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     map.plot(long, lat, latlon=True)
     return map
 
 ############# 3D Plots ########################
 def scatter_flight_path_on_map_3d(ax, map, trajectory):
-    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    flight_path = cv.check_trajectory_dict(trajectory)
+    long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x,y = map(long, lat)
     ax.scatter(x,y,fl)
     ax.scatter(x,y,0,"k")
@@ -167,7 +169,8 @@ def scatter_flight_path_on_map_3d(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d(ax, map, trajectory):
-    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    flight_path = cv.check_trajectory_dict(trajectory)
+    long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x,y = map(long, lat)
     ax.plot(x,y,fl)
     ax.plot(x,y,0,"k")
@@ -176,9 +179,10 @@ def plot_flight_path_on_map_3d(ax, map, trajectory):
 
 def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
     atmo = []
-    for point in trajectory:
+    flight_path = cv.check_trajectory_dict(trajectory)
+    for point in flight_path:
         atmo.append(da.get_merged_atmo_data(point[0],point[1],point[2],point[3]))
-    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+    long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x,y = map(long, lat)
     ax.scatter(x,y,fl,c=atmo,vmin=-0.047278133046295995,vmax=0.34942841580572637,s=1)
     ax.plot(x,y,0,"k")
@@ -186,15 +190,18 @@ def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d_with_atmo_as_slices(ax,map,trajectory):
-    for point in trajectory:
+    flight_path = cv.check_trajectory_dict(trajectory)
+    for point in flight_path:
         xbounds = (point[0]-1,point[0]+1)
         ybounds = (point[1]-0.5,point[1]+0.5)
         #xbounds, ybounds = cv.trajectory_point_boundaries(point)
         xb, yb = np.meshgrid(xbounds, ybounds)
         c1 = da.get_merged_atmo_data(xbounds[0],ybounds[0],point[2],point[3])
-        c2 = da.get_merged_atmo_data(xbounds[1],ybounds[1],point[2],point[3])
-        ax.add_collection3d(map.pcolor(xb,yb,[[c1],[c2]],latlon=True,vmin=-0.047278133046295995,vmax=0.34942841580572637,alpha=0.5),zs=point[2])
-    long, lat, fl, time = cv.trajectory_elements_to_list(trajectory)
+        c2 = da.get_merged_atmo_data(xbounds[0],ybounds[1],point[2],point[3])
+        c3 = da.get_merged_atmo_data(xbounds[1],ybounds[0],point[2],point[3])
+        c4 = da.get_merged_atmo_data(xbounds[1],ybounds[1],point[2],point[3])
+        ax.add_collection3d(map.pcolor(xb,yb,[[c1,c3],[c2,c4]],latlon=True,vmin=-0.047278133046295995,vmax=0.34942841580572637,alpha=0.3),zs=point[2])
+    long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x,y = map(long, lat)
     ax.plot(x,y,fl,"k")
     ax.plot(x,y,0,"k")

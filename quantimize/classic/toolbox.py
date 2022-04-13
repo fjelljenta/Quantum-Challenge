@@ -15,10 +15,11 @@ def compute_cost(trajectory):
         float, int: cost in 10**-12 K and flight number
     """
     cost = 0
-    t = cv.datetime_to_seconds(trajectory["trajectory"][0][3])
-    start_level = trajectory["trajectory"][0][2]
+    flight_path = cv.check_trajectory_dict(trajectory)
+    t = cv.datetime_to_seconds(flight_path[0][3])
+    start_level = flight_path[0][2]
     # we compare the flight levels between neighbors to know in which mode (climb/cruise/descend) the plane is flying
-    for coordinate in trajectory["trajectory"][1:]:
+    for coordinate in flight_path[1:]:
         # incremental cost equals the time change (in min) times fuel consumpution rate (in kg / min ) times
         # change in temperature per portion of fuel (in K / kg)
         if coordinate[2] == start_level:
