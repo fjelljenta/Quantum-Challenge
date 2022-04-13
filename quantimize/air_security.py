@@ -1,6 +1,6 @@
 import quantimize.converter as cv
 import quantimize.data_access as da
-
+import numpy as np
 # from quantimize.classic.toolbox import straight_line_solution
 
 def check_height(fl_1, fl_2):
@@ -197,6 +197,30 @@ def check_safety_2(list_of_trajectory_dicts):
                     t+=max(1,(current_distance_xy-unsafe_radius)/(2*max_speed_xy)) # The minimum time it would take for both planes to be dangerously close along the xy plane
 
     return error_list
+
+
+def radius_control(trajectory):
+    """Returns true or false depending if the turning angle was above 25 degree or below
+
+    Args:
+        trajectory (dict/list): List of trajectory points
+
+    Returns:
+        Boolean: True for angle smaller than 25 degree, false for angle greater 25 degree
+    """
+    flag = False
+    flight_path = cv.check_trajectory_dict(trajectory)
+    for i in range(len(flight_path)-2):
+        v1 = np.array([flight_path[i][0]-flight_path[i+1][0],flight_path[i][1]-flight_path[i+1][1]])
+        v2 = np.array([flight_path[i+1][0]-flight_path[i+2][0],flight_path[i+1][1]-flight_path[i+2][1]])
+        theta = np.arccos(np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2)))*180/np.pi
+        if theta > 25:
+            flag = True
+    if flag:
+        return False
+    else:
+        return True
+
 
 # def test_safety(f_list):
 #     list_of_trajectory_dicts=[]
