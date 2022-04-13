@@ -109,7 +109,7 @@ def quantum_neural_network(flight_nr, n_qubits, init_solution):
 
     #return cost_spsa(init_params)
 
-    niter_spsa = 100
+    niter_spsa = 50
 
     # Evaluate the initial cost
     cost_store_spsa = [cost_spsa(init_params)]
