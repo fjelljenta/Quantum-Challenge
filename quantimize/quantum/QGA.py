@@ -94,15 +94,15 @@ def Init_population():
 # p_alpha: probability of finding qubit in alpha state
 def Measure(p_alpha):
     for i in range(1,popSize):
-        print()
+        #print()
         for j in range(1,genomeLength):
             if p_alpha<=qpv[i, j, 0]:
                 chromosome[i,j]=0
             else:
                 chromosome[i,j]=1
-            print(chromosome[i,j]," ",end="")
-        print()
-    print()
+            #print(chromosome[i,j]," ",end="")
+        #print()
+    #print()
 
 #########################################################
 # FITNESS EVALUATION                                    #
@@ -163,7 +163,7 @@ def Fitness_evaluation(flight_nr, generation):
 
         #########################################################
 
-        print("fitness = ",i," ",fitness[i])
+        #print("fitness = ",i," ",fitness[i])
         if best_fitness<fitness[i] or i==1:
             best_fitness=fitness[i]
 
@@ -186,11 +186,11 @@ def Fitness_evaluation(flight_nr, generation):
             the_best_chrom=i
     best_chrom[generation]=the_best_chrom
 
-    print("Population size = ",popSize - 1)
-    print("mean fitness = ",fitness_average)
-    print("variance = ",variance," Std. deviation = ",math.sqrt(variance))
-    print("fitness max = ",best_chrom[generation])
-    print("fitness sum = ",fitness_total)
+    #print("Population size = ",popSize - 1)
+    #print("mean fitness = ",fitness_average)
+    #print("variance = ",variance," Std. deviation = ",math.sqrt(variance))
+    #print("fitness max = ",best_chrom[generation])
+    #print("fitness sum = ",fitness_total)
 
     global generational_avg_cost
     global generational_best_cost
