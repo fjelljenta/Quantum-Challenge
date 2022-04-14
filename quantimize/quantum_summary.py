@@ -4,6 +4,7 @@ Main run for quantum algorithm here, import functions from files in quantum fold
 
 import quantimize.classic.toolbox as toolbox
 import quantimize.quantum.QGA as qga
+import quantimize.quantum.quantum_neural_network as qna
 import quantimize.quantum.quantum_solution as qsol
 
 def quantum_genetic_algorith_solution(flight_nr, dt):
@@ -19,6 +20,15 @@ def quantum_genetic_algorith_solution(flight_nr, dt):
     trajectory = toolbox.timed_trajectory(trajectory, dt)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
+def quantum_neural_network(flight_nr, n_qubits, init_solution):
+    return qna.quantum_neural_network(flight_nr, n_qubits, init_solution)
+
+def sample_grid():
+    return qsol.sample_grid()
+
+def run_QAOA(cg, orientation=0, verbose=False):
+    return qsol.run_QAOA(cg, orientation, verbose)
+    
 def compute_cost(trajectory):
     """Wrapper for the compute cost function
 

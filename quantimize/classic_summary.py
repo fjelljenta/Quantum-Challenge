@@ -30,7 +30,7 @@ def genetic_algorith_solution(flight_nr, dt):
     """
     report, solution, trajectory = csol.run_genetic_algorithm(flight_nr)
     trajectory = toolbox.timed_trajectory(trajectory, dt)
-    return {"flight_nr": flight_nr, "trajectory": trajectory}
+    return report, solution, {"flight_nr": flight_nr, "trajectory": trajectory}
 
 def compute_cost(trajectory):
     """Wrapper for the compute cost function
