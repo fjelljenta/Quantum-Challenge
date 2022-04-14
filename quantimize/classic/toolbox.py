@@ -58,12 +58,13 @@ def timed_trajectory(trajectory, dt):
 
         Returns:
             (list): List of trajectory points with constant dt
-        """
-    start_time = cv.datetime_to_seconds(trajectory[0][3])
-    end_time = cv.datetime_to_seconds(trajectory[-1][3])
+    """
+    flight_path = cv.check_trajectory_dict(trajectory)
+    start_time = cv.datetime_to_seconds(flight_path[0][3])
+    end_time = cv.datetime_to_seconds(flight_path[-1][3])
     time_trajectory = []
     for t in np.arange(start_time, end_time, dt):
-        time_trajectory.append(trajectory_at_time(trajectory, cv.seconds_to_datetime(t)))
+        time_trajectory.append(trajectory_at_time(flight_path, cv.seconds_to_datetime(t)))
 
     return time_trajectory
 
@@ -127,6 +128,7 @@ def straight_line_trajectory(flight_nr, dt):
     trajectory = straight_line_trajectory_core(info['start_longitudinal'], info['end_longitudinal'],
                                                info['start_latitudinal'], info['end_latitudinal'],
                                                info['start_flightlevel'], info['start_time'], dt)
+    trajectory = timed_trajectory(trajectory, dt)
     return trajectory
 
 

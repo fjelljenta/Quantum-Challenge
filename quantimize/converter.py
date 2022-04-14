@@ -286,3 +286,6 @@ def check_trajectory_dict(trajectory):
         return trajectory["trajectory"]
     except:
         return trajectory
+
+def wrap_trajectory(flight_nr, trajectory):
+    return {"flight_nr":flight_nr, "trajectory":trajectory}
