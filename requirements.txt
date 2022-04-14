@@ -2,6 +2,7 @@ xarray
 Basemap
 netCDF4
 qiskit
+qiskit_optimization
 numpy
 simplejson
 pennylane
