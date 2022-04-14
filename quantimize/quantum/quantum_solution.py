@@ -1,144 +1,193 @@
-import pennylane as qml
 import numpy as np
-import matplotlib.pyplot as plt
-from noisyopt import minimizeSPSA
-from quantimize.quantum.toolbox import tensorize_flight_info, normalize_input_data, sigmoid
-from quantimize.classic.toolbox import curve_3D_solution, compute_cost, correct_for_boundaries
-import quantimize.data_access as da
+import sympy as sp
+from fractions import Fraction
 
-# Adjustable parameters include the ansatz, the layer of ansatz, the embedding method, dxy, dz, c,
-# indices in distribution, minimzer (could go for PyTorch or gradient methods or adjust params in SPSA), etc.
-
-
-def quantum_neural_network(flight_nr, n_qubits, init_solution):
-    dev = qml.device('default.qubit', wires=n_qubits)
-
-    data = normalize_input_data(tensorize_flight_info())[flight_nr]
-
-    @qml.qnode(dev)
-    def circuit(params):
-        #qml.IQPEmbedding(data, wires=range(n_qubits))
-        #qml.AmplitudeEmbedding(features=data, wires=range(n_qubits), normalize=True, pad_with=0.)
-        qml.StronglyEntanglingLayers(params, wires=list(range(n_qubits)))
-        #return qml.expval(qml.PauliZ(0))
-        return qml.probs(wires=range(n_qubits))
+from qiskit import IBMQ
+from qiskit_optimization import QuadraticProgram
+from qiskit import Aer
+from qiskit.utils import QuantumInstance
+from qiskit_optimization.algorithms import MinimumEigenOptimizer
+from qiskit.algorithms import QAOA
 
 
+def sample_grid():
+    cg = -1 * np.array([[5,5,5,5],[5,1,5,5],[5,1,5,5],[5,5,5,5]]) 
+    # The cost grid - the value represents the cost to travel through that grid, with dimension N x N
+    # The cost should be computed mainly based on atmospheric data, plus a penalty by deviating from the 
+    # straight-line solution. The idea behind is that a grid too far away from the straight-line solution should be
+    # costly even if the non-CO2 emission there is low, because the CO2 emission, which depends solely on distance of 
+    # travel, will be high.
+    return cg
 
-    num_layers = 5
+def cost(z):
+    z1,z2,z3,z4 = z
+    return 3*z1*z2+ z1*z3 + 5*z2*z4 + 3*z3*z4 + 6*z1 - 10*z4
 
-    flat_shape = num_layers * n_qubits * 3
-    param_shape = qml.templates.StronglyEntanglingLayers.shape(n_wires=n_qubits, n_layers=num_layers)
-    init_params = np.random.normal(scale=0.1, size=param_shape)
+def brute_force():
+    for i in [-1,1]:
+        for j in [-1,1]:
+            for k in [-1,1]:
+                for l in [-1,1]:
+                    print([i,j,k,l], cost([i,j,k,l]))
 
-    init_params_spsa = init_params.reshape(flat_shape)
+def obtain_weight_matrices(cg):
+    wh = np.array([[(cg[i][j+1]+cg[i][j])/2 for j in range(len(cg)-1)] for i in range(len(cg))])
+    # The matrix storing horizonatal edge (coupling) values between voxel centers (qubits)
+    # with dimension N x N-1
+    wv = np.array([[(cg[i][j]+cg[i+1][j])/2 for j in range(len(cg))] for i in range(len(cg)-1)])
+    # The matrix storing vertical edge (coupling) values between voxel centers (qubits)
+    # with dimension N-1 x N
+    return wv, wh
 
-    #plot = plt.bar(np.arange(2**n_qubits), circuit(init_params))
-    #plt.show()
+def create_vcg(n, orientation=0):  #voxel_center_grid
+    vcg = np.zeros((n,n))
+    if orientation == 0:  # travel from southwest to northeast or the opposite
+        for i in range(n):
+            for j in range(n):
+                if (i == 0 and j != n-1) or (j == 0 and i != n-1):
+                    vcg[i][j] = 1
+                if (i == n-1 and j != 0) or (j == n-1 and i != 0):
+                    vcg[i][j] = -1
+    if orientation == 1:  # travel from northwest to southeast or the opposite
+        for i in range(n):
+            for j in range(n):
+                if (i == 0 and j != 0) or (j == n-1 and i != n-1):
+                    vcg[i][j] = 1
+                if (i == n-1 and j != n-1) or (j == 0 and i != 0):
+                    vcg[i][j] = -1
+    return vcg
 
-    qnode = qml.QNode(circuit, dev)
+def construct_function(cg, orientation=0):
+    """Constructs the mathematical function to be optimized
 
-    def from_distribution_to_trajectory_2(distribution):
-        off_setted_distribution = distribution - 1 / 2 ** n_qubits
-        tabx = np.linspace(0, 1, 2 ** n_qubits)
+    Args:
+        cg: cost grid
 
-        # Generating weights for polynomial function with degree =2
-        weights = np.polyfit(tabx, off_setted_distribution, 2)
+    Returns:
+        sympyfunction, dict: mathematical sympy function with coefficients
+    """
+    function = 0
+    sp.init_printing(use_unicode=True)
+    
+    n = len(cg)
+    
+    vcg = create_vcg(n, orientation=orientation)
+    
+    wv, wh = obtain_weight_matrices(cg)
+    
+    # construct the Pauli operators Zij 
+    for i in range(1,n-1):
+        for j in range(1, n-1):
+            globals()['Z%s %x' % (i, j)] = sp.symbols('Z'+str(i)+str(j))
+        
+    # for each qubit, add its contribution to the total cost function
+    for i in range(1,n-1):
+        for j in range(1, n-1):
+            term = 0
+            if vcg[i-1][j] == 0:  # Check if neighbor up is variable or fixed
+                term += globals()['Z%s %x' % (i-1, j)] * globals()['Z%s %x' % (i, j)] * wv[i-1][j] / 2 
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                term += vcg[i-1][j] * globals()['Z%s %x' % (i, j)] * wv[i-1][j]
+            
+            if vcg[i+1][j] == 0:  # Check if neighbor down is variable or fixed
+                term += globals()['Z%s %x' % (i+1, j)] * globals()['Z%s %x' % (i, j)]  * wv[i][j] / 2 
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                term += vcg[i+1][j] * globals()['Z%s %x' % (i, j)] * wv[i][j]
 
-        # Generating model with the given weights
-        model = np.poly1d(weights)
+            if vcg[i][j-1] == 0:  # Check if neighbor left is variable or fixed
+                term += globals()['Z%s %x' % (i, j-1)] * globals()['Z%s %x' % (i, j)]  * wh[i][j-1] / 2 
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                term += vcg[i][j-1] * globals()['Z%s %x' % (i, j)] * wh[i][j-1]
+                
+            if vcg[i][j+1] == 0:  # Check if neighbor right is variable or fixed
+                term += globals()['Z%s %x' % (i, j+1)] * globals()['Z%s %x' % (i, j)]  * wh[i][j] / 2 
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                term += vcg[i][j+1] * globals()['Z%s %x' % (i, j)] * wh[i][j]
+            
+            function += term
+                
+    print('Cost function in Ising Hamiltonian form:', function)
+    
+    # map the Pauli Z variable {-1, 1} to variable x {0, 1} by doing Z = 2x-1
+    for i in range(1,n-1):
+        for j in range(1, n-1):
+            function = function.subs(sp.symbols('Z'+str(i)+str(j)), 2*sp.symbols('q'+str(i)+str(j)) -1 )
+        coeffs = sp.Poly(function).as_dict()
+        
+        # expand and simplify the cost function
+    function = sp.expand(function)
+    
+    print('Cost function in QUBO form:', function)
+        
+    # function in sympy form and coefficients of all terms in an easily readble dictionary form returned
+    return function, coeffs
 
-        # Prediction on validation set
-        # We will plot the graph for 70 observations only
+def generate_QP(coeffs, n, verbose=False):
+    """Generates the Quadratic Program to be optimized
 
-        plt.scatter(tabx, off_setted_distribution, facecolor='None', edgecolor='k', alpha=0.3)
-        plt.plot(tabx, model(tabx))
-        plt.show()
+    Args:
+        coeffs (dict): Contains the coefficients from the sympy funciton
+        n (int): Number of hydraulic heads
 
-        ctrl_pts = np.concatenate((np.array(init_solution[:6]),
-                                  np.array(init_solution[6:] + 1e4 * model(np.linspace(0, 1, 5)))))
-        trajectory = curve_3D_solution(flight_nr, ctrl_pts)
-        return trajectory
+    Returns:
+        QuadraticProgram: The quadratic program to optimize
+    """
+    qp = QuadraticProgram()   #Initialize a Qiskit Quadratic Program object
+    for i in range(1,n-1):
+        for j in range(1,n-1):
+            qp.binary_var('q'+str(i)+str(j))  # binary variables xij
+    constant = 0      # constant term
+    linear = {}      # coefficients for linear terms
+    quadratic = {}    # coefficients for coupling terms
+    
+    nl = [(i,j) for i in range(1,n-1) for j in range(1,n-1)]  # name list
+    for key,value in coeffs.items():    # add coefficients to the corresponding dictionaries one by one
+        if sum(key) == 0:
+            constant = float(value)
+        elif sum(key) == 1:
+            term = 'q'+str(nl[np.argmax(key)][0])+str(nl[np.argmax(key)][1])
+            linear[term] = float(value)
+        else:
+            indices = [i[0] for i in np.argwhere(np.array(key)>0)]
+            term = ('q'+str(nl[indices[0]][0])+str(nl[indices[0]][1]), 'q'+str(nl[indices[1]][0])+str(nl[indices[1]][1]))
+            quadratic[term] = float(value)
+    qp.minimize(linear=linear, quadratic=quadratic, constant=constant)  # run the optimization algorithm, find minimum value
+    if verbose:
+        print(qp.export_as_lp_string())  # make a printed report of the task
+    return qp
 
-    def from_distribution_to_trajectory(distribution):
-        c = 2 ** (n_qubits-2)
-        dxy = 0.01
-        dz = 100
-        index_xy = np.sort(np.argsort(distribution[int(0.5*2**(n_qubits-1)):2**(n_qubits-1)])[::-1][:3])
-        value_xy = distribution[index_xy]
-        normalized_xy = sigmoid(value_xy - np.mean(value_xy), c) - 0.5
+def run_QAOA(cg, orientation=0, verbose=False):
+    """Constructs and solves the mathematical function
 
+    Args:
+        cg: cost grid
+        verbose (Bool): Output information or not
 
-        index_z = np.sort(np.argsort(distribution[2**(n_qubits-1):int(1.5*2**(n_qubits-1))])[::-1][:5])
-        value_z = distribution[index_z+2**(n_qubits-1)]
-        normalized_z = sigmoid(value_z - np.mean(value_z), c) - 0.5
-
-        info = da.get_flight_info(flight_nr)
-        slope = (info['end_latitudinal'] - info['start_latitudinal']) * 111 / \
-                ((info['end_longitudinal'] - info['start_longitudinal']) * 85)
-        flight_level = info['start_flightlevel']
-
-        perp_slope = -1/slope
-        ctrl_pts_xy = [], []
-        for i in range(3):
-            index = index_xy[i]
-            size = normalized_xy[i]
-            intersection = index/(2**(n_qubits-1)) * info['end_longitudinal'] + \
-                           (1-index/(2**(n_qubits-1))) * info['start_longitudinal'], \
-                           index/(2 ** (n_qubits - 1)) * info['end_latitudinal'] + \
-                           (1 - index / (2 ** (n_qubits - 1))) * info['start_latitudinal']
-            ctrl_pts_xy[0].append(np.cos(np.arctan(perp_slope)) * dxy * size + intersection[0])
-            ctrl_pts_xy[1].append(np.sin(np.arctan(perp_slope)) * dxy * size + intersection[1])
-
-        ctrl_pts_z = []
-        for i in range(5):
-            #index = index_z[i]
-            size = normalized_z[i]
-            ctrl_pts_z.append(size*dz + flight_level)
-
-        ctrl_pts = ctrl_pts_xy[0] + ctrl_pts_xy[1] + ctrl_pts_z
-        trajectory = curve_3D_solution(flight_nr, ctrl_pts)
-        return trajectory
-
-    def cost_spsa(params):
-        distribution = np.array(qnode(params.reshape(num_layers, n_qubits, 3)))
-        trajectory = correct_for_boundaries(from_distribution_to_trajectory_2(distribution)['trajectory'])
-        trajectory = {'flight_nr':flight_nr, 'trajectory':trajectory}
-        cost = compute_cost(trajectory)
-        return cost
-
-    #return cost_spsa(init_params)
-
-    niter_spsa = 50
-
-    # Evaluate the initial cost
-    cost_store_spsa = [cost_spsa(init_params)]
-    device_execs_spsa = [0]
-
-    def callback_fn(xk):
-        cost_val = cost_spsa(xk)
-        cost_store_spsa.append(cost_val)
-
-        # We've evaluated the cost function, let's make up for that
-        num_executions = int(dev.num_executions / 2)
-        device_execs_spsa.append(num_executions)
-
-        iteration_num = len(cost_store_spsa)
-        if iteration_num % 1 == 0:
-            print(
-                f"Iteration = {iteration_num}, "
-                f"Number of device executions = {num_executions}, "
-                f"Cost = {cost_val}"
-            )
-
-    res = minimizeSPSA(
-        cost_spsa,
-        x0=init_params_spsa.copy(),
-        niter=niter_spsa,
-        paired=False,
-        c=0.15,
-        a=0.2,
-        callback=callback_fn,
-    )
-
-    return res
+    Returns:
+        
+    """
+    n = len(cg)
+    # Create the mathematical function
+    function, coeffs = construct_function(cg, orientation=orientation)
+    if verbose:
+        print('Function in Sympy:', function)
+    # Generate the quadratic problem and solve it with Qiskit
+    qp = generate_QP(coeffs,n,verbose)
+    qins = QuantumInstance(backend=Aer.get_backend('qasm_simulator'), shots=1000, seed_simulator=123)
+    meo = MinimumEigenOptimizer(min_eigen_solver=QAOA(reps=1, quantum_instance=qins))  # solve with QAOA algorithm,
+    result = meo.solve(qp)    #could replace by classical solver and other quantum solvers
+    z_sol = 2*result.x-1
+    q_sol = np.array([int((i+1)%2) for i in result.x])
+    if verbose:
+        print('\nrun time:', result.min_eigen_solver_result.optimizer_time)
+        print('result in Pauli-Z form:', z_sol)
+        print('result in qubit form:', q_sol)
+    vcg = create_vcg(n, orientation)
+    nl = [(i,j) for i in range(1,n-1) for j in range(1,n-1)]  # name list
+    for l in range(len(z_sol)):
+        vcg[nl[l][0]][nl[l][1]] = z_sol[l]
+    return z_sol, q_sol, vcg
