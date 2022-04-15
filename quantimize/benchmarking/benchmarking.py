@@ -86,7 +86,7 @@ def fuel_consumption(trajectory):
             fuel += da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
                 * (cv.datetime_to_seconds(coordinate[3]) - t) / 60
         else:
-            dt1 = compute_time_to_reach_other_flightlevel(start_level, coordinate[2])
+            dt1 = ct.compute_time_to_reach_other_flightlevel(start_level, coordinate[2])
             if coordinate[2] < start_level:
                 fuel += da.get_flight_level_data(coordinate[2])['DESCENT']['fuel'] \
                         * dt1 / 60 + \
@@ -110,3 +110,4 @@ def average_fuel(trajectory_list):
         fuel_list.append(fuel)
     average_fuel_per_flight=sum(fuel_list)/number_of_flights
     return average_fuel_per_flight
+
