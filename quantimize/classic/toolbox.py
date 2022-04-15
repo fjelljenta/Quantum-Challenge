@@ -128,7 +128,6 @@ def straight_line_trajectory(flight_nr, dt):
     trajectory = straight_line_trajectory_core(info['start_longitudinal'], info['end_longitudinal'],
                                                info['start_latitudinal'], info['end_latitudinal'],
                                                info['start_flightlevel'], info['start_time'], dt)
-    trajectory = timed_trajectory(trajectory, dt)
     return trajectory
 
 

@@ -16,6 +16,7 @@ def straight_line_solution(flight_nr, dt):
         Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
     """
     trajectory = toolbox.straight_line_trajectory(flight_nr, dt)
+    trajectory = toolbox.timed_trajectory(trajectory, dt)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
