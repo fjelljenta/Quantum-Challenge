@@ -40,14 +40,16 @@ for i in [17,81]:
     plt.show()
 """
 
-report, solution, trajectory = cs.run_genetic_algorithm(0)
-trajectory = toolbox.timed_trajectory(trajectory,300)
-ax, m = vs.make_3d_map()
+report, solution, trajectory = cs.run_genetic_algorithm(5)
+trajectory = toolbox.timed_trajectory(trajectory,30)
+trajectory = cv.wrap_trajectory(5,trajectory)
+da.trajectory_to_csv("meinzweitertest",trajectory,toolbox.compute_cost(trajectory))
+"""ax, m = vs.make_3d_map()
 ax, m = vs.plot_flight_path_on_map_3d_with_atmo_as_slices(ax,m, trajectory)
 plt.show()
 ax, m = vs.make_3d_map()
 ax, m = vs.plot_flight_path_on_map_3d_with_atmo_as_points(ax,m, trajectory)
-plt.show()
+plt.show()"""
 
 """
 report, solution, trajectory = cs.run_genetic_algorithm(0)

@@ -1,12 +1,10 @@
-from dataclasses import dataclass
 import json
 import datetime
 import copy
 from netCDF4 import Dataset
 import os
-
-from sklearn.model_selection import KFold
 import quantimize.converter as cv
+import csv
 
 base_dir = os.getcwd()
 with open(base_dir+"/quantimize/data/atmo.json", "rb") as f:
@@ -315,3 +313,38 @@ def map_trajectory_to_time_grid(trajectories, time_grid):
             time_grid[point[3]]["LAT"].append(point[1])
             time_grid[point[3]]["FL"].append(point[2])
     return time_grid
+
+def trajectory_to_csv(filename, trajectory, cost=0, flight_nr=-1):
+    """Creates a csv file containing all flight trajectories or appends the data to a file with the same name. Flights are seperated by a blank line
+
+    Args:
+        filename (string): Filename
+        trajectory (dict/list): flight trajectory. If it is a dict, flight_nr is optional, if it is a list, then flight_nr is mandatory
+        cost (int, optional): Cost of the flight. Defaults to 0.
+        flight_nr (int, optional): Flight number. Defaults to -1.
+    """
+    folder_dir = base_dir+"/quantimize/output/"
+    try: 
+        os.mkdir(folder_dir)
+    except:
+        pass
+    if flight_nr == -1:
+        flight_nr = trajectory["flight_nr"]
+        trajectory = trajectory["trajectory"]
+    try:
+        with open(folder_dir+filename+".csv","a",newline='', encoding='utf-8') as f:
+            csvwriter = csv.writer(f, delimiter=",")
+            csvwriter.writerow(["Flight_Nr", flight_nr,"Cost",cost])
+            for point in trajectory:
+                csvwriter.writerow(point)
+            csvwriter.writerow([])
+    except:
+        with open(folder_dir+filename+".csv","w",newline='', encoding='utf-8') as f:
+            csvwriter = csv.writer(f, delimiter=",")
+            csvwriter.writerow(["Flight_Nr", flight_nr,"Cost",cost])
+            csvwriter.writerow(["Long","Lat","Flight_Level","Time"])
+            for point in trajectory:
+                csvwriter.writerow(point)
+            csvwriter.writerow([])
+
+    
