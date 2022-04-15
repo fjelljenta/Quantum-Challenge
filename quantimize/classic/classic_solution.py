@@ -15,7 +15,7 @@ def run_genetic_algorithm(flight_nr, **kwargs):
         trajectory (dict): dictionary containing the flights and the corresponding tranjectories
 
     """
-    varbound = generate_search_bounds(flight_nr)
+    varbound = generate_search_bounds(flight_nr, **kwargs)
     algorithm_param = {'max_num_iteration': kwargs.get("max_iter", 100),
                        'population_size': kwargs.get("pop_size", 10),
                        'mutation_probability': kwargs.get("mut_prob", 0.1),
@@ -62,7 +62,7 @@ def fitness_function(flight_nr, ctrl_pts):
     return cost
 
 
-def generate_search_bounds(flight_nr):
+def generate_search_bounds(flight_nr, **kwargs):
     """Generation of search boundaries for a certain flight
 
     Args:
@@ -75,9 +75,9 @@ def generate_search_bounds(flight_nr):
     info = da.get_flight_info(flight_nr)
     total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                 info['end_longitudinal'], info['end_latitudinal'])
-    dx = np.abs(info['end_longitudinal'] - info['start_longitudinal']) / 60 * 0.12* total_distance/85
+    dx = np.abs(info['end_longitudinal'] - info['start_longitudinal']) / 60 * kwargs.get('factor_x', 0.05) * total_distance/85
     # x shouldn't vary a lot
-    dy = np.abs(info['end_latitudinal'] - info['start_latitudinal']) / 26 * total_distance/111
+    dy = np.abs(info['end_latitudinal'] - info['start_latitudinal']) / 26 * kwargs.get('factor_y', 0.1) * total_distance/111
     x1 = 3/4*info['start_longitudinal'] + 1/4*info['end_longitudinal']
     x1_bound = [max(x1-dx, -30), min(x1+dx, 30)]
     x2 = 1/2*info['start_longitudinal'] + 1/2*info['end_longitudinal']
