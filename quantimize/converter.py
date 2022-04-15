@@ -207,7 +207,7 @@ def update_time(current_time, dt):
     hr = current_time.hour
     m = current_time.minute
     s = current_time.second
-    return datetime.time((hr+(m+(dt+s)//60)//60)%24, (m+(dt+s)//60)%60, (dt+s)%60)
+    return datetime.time((hr+(m+(dt+s)//60)//60), (m+(dt+s)//60)%60, (dt+s)%60)
 
 
 def datetime_to_seconds(current_time):
