@@ -27,29 +27,7 @@ def sl_for_benchmarking(flight_nr):
 
 
 def ga_for_benchmarking(flight_nr, **kwargs):
-    """Genetic algorithm for the classical solution for a certain flight
-
-    Args:
-        flight_nr (int): flight number
-
-    Returns:
-        trajectory (dict): dictionary containing the flights and the corresponding tranjectories
-
-    """
-    varbound = csol.generate_search_bounds(flight_nr)
-    algorithm_param = {'max_num_iteration': kwargs.get("max_iter", 100),
-                       'population_size': kwargs.get("pop_size", 10),
-                       'mutation_probability': kwargs.get("mut_prob", 0.1),
-                       'elit_ratio': kwargs.get("elit_ratio", 0.01),
-                       'crossover_probability': kwargs.get("co_prob", 0.5),
-                       'parents_portion': kwargs.get("pp", 0.3),
-                       'crossover_type': 'uniform',
-                       'max_iteration_without_improv': kwargs.get("max_iter_w_i", 50)}
-    model = ga(csol.fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
-               variable_boundaries=varbound, algorithm_parameters=algorithm_param, convergence_curve=False)
-    model.run()
-    solution = model.output_dict
-    trajectory = ct.curve_3D_trajectory(flight_nr, solution['variable'])
+    report, solution, trajectory = run_genetic_algorithm(flight_nr, **kwargs)
     return trajectory
 
 
