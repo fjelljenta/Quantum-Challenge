@@ -160,6 +160,16 @@ def plot_flight_path_on_map(map, trajectory):
 
 ############# 3D Plots ########################
 def scatter_flight_path_on_map_3d(ax, map, trajectory):
+    """Makes a scatterplot on a 3d map of the flight trajectory
+
+    Args:
+        ax (matplotlib.Axes): Matplotlib axes
+        map (matplotlib.Figure): The actual map
+        trajectory (list/dict): List or dict with the trajectory points
+
+    Returns:
+        ax, map: Returns the ax and map (might not be needed)
+    """
     flight_path = cv.check_trajectory_dict(trajectory)
     long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x,y = map(long, lat)
@@ -169,6 +179,16 @@ def scatter_flight_path_on_map_3d(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d(ax, map, trajectory):
+    """Makes a lineplot on a 3d map of the flight trajectory
+
+    Args:
+        ax (matplotlib.Axes): Matplotlib axes
+        map (matplotlib.Figure): The actual map
+        trajectory (list/dict): List or dict with the trajectory points
+
+    Returns:
+        ax, map: Returns the ax and map (might not be needed)
+    """
     flight_path = cv.check_trajectory_dict(trajectory)
     long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x,y = map(long, lat)
@@ -178,6 +198,16 @@ def plot_flight_path_on_map_3d(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
+    """Makes a scatterplot on a 3d map of the flight trajectory and adds colors to the points according to the atmospheric data values for that point
+
+    Args:
+        ax (matplotlib.Axes): Matplotlib axes
+        map (matplotlib.Figure): The actual map
+        trajectory (list/dict): List or dict with the trajectory points
+
+    Returns:
+        ax, map: Returns the ax and map (might not be needed)
+    """
     atmo = []
     flight_path = cv.check_trajectory_dict(trajectory)
     for point in flight_path:
@@ -190,6 +220,16 @@ def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d_with_atmo_as_slices(ax,map,trajectory):
+    """Makes a lineplot on a 3d map of the flight trajectory and adds colored slices to the points according to the atmospheric data values for that point
+
+    Args:
+        ax (matplotlib.Axes): Matplotlib axes
+        map (matplotlib.Figure): The actual map
+        trajectory (list/dict): List or dict with the trajectory points
+
+    Returns:
+        ax, map: Returns the ax and map (might not be needed)
+    """
     flight_path = cv.check_trajectory_dict(trajectory)
     for point in flight_path:
         xbounds = (point[0]-1,point[0]+1)

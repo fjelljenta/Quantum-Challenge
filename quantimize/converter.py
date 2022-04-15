@@ -261,6 +261,14 @@ def trajectory_elements_to_list(trajectory):
     return long, lat, fl, time
 
 def trajectory_point_boundaries(trajectory_point):
+    """Finds the boundary points for a given trajectory points according to the atmospheric data grid
+
+    Args:
+        trajectory_point (tuple/list): long, lat, timestemp
+
+    Returns:
+        float: x and y boundaries for the given point
+    """
     if trajectory_point[0] < 0 and trajectory_point[0]>-1:
         xbound = abs(round(trajectory_point[0],0))
     else:
@@ -282,10 +290,27 @@ def trajectory_point_boundaries(trajectory_point):
     return x,y
 
 def check_trajectory_dict(trajectory):
+    """Check function to strip of the dictionary if used
+
+    Args:
+        trajectory (dict/list): The trajectory
+
+    Returns:
+        list: the trajectory as list
+    """
     try:
         return trajectory["trajectory"]
     except:
         return trajectory
 
 def wrap_trajectory(flight_nr, trajectory):
+    """Wraps the trajectory list in a dictionary
+
+    Args:
+        flight_nr (int): flight number of the trajectory
+        trajectory (list): list of trajectory points
+
+    Returns:
+        dict: dict combining flightnumber and trajectory
+    """
     return {"flight_nr":flight_nr, "trajectory":trajectory}
