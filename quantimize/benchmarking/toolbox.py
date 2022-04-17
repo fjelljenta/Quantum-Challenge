@@ -5,6 +5,8 @@ from geneticalgorithm import geneticalgorithm as ga
 import quantimize.quantum.QGA as qga
 import quantimize.quantum.quantum_neural_network as qnn
 import quantimize.quantum.quantum_solution as qsol
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 
@@ -45,3 +47,17 @@ def qnn_for_benchmarking(flight_nr):
 
 def qaoa_for_benchmarking(flight_nr):
     return None
+
+def plot_graph(titel, y_label, mean_value_list, error_list):
+    algorithms=['Straight line', 'GA', 'QGA']
+    x_pos=np.arange(len(algorithms))
+    fig, ax = plt.subplots()
+    ax.bar(x_pos, mean_value_list, yerr=error_list, align='center', alpha=0.5, ecolor='black', capsize=10)
+    ax.set_ylabel(y_label)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(algorithms)
+    ax.set_title(titel)
+    ax.yaxis.grid(True)
+    plt.tight_layout()
+    #plt.savefig('bar_plot_with_error_bars.png')
+    plt.show()

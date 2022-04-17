@@ -5,6 +5,8 @@ import quantimize.quantum.QGA as qga
 import quantimize.quantum.quantum_neural_network as qna
 import quantimize.converter as cv
 import quantimize.data_access as da
+import numpy as np
+import quantimize.benchmarking.toolbox as bt
 
 import time
 
@@ -110,4 +112,42 @@ def average_fuel(trajectory_list):
         fuel_list.append(fuel)
     average_fuel_per_flight=sum(fuel_list)/number_of_flights
     return average_fuel_per_flight
+
+
+def benchmark_wrapper(flights, runs):
+    cost_comp_sl, cost_comp_ga, cost_comp_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
+    cost_sl, cost_ga, cost_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
+    flight_time_sl, flight_time_ga, flight_time_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
+    fuel_sl, fuel_ga, fuel_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
+
+    for counter in range(runs):
+        cost_comp_sl[counter], trajectory_sl = average_computation_time(bt.sl_for_benchmarking, flights=flights)
+        cost_comp_ga[counter], trajectory_ga = average_computation_time(bt.ga_for_benchmarking, flights=flights)
+        cost_comp_qga[counter], trajectory_qga = average_computation_time(bt.qga_for_benchmarking, flights=flights)
+
+        cost_sl[counter] = average_cost(trajectory_sl)
+        cost_ga[counter] = average_cost(trajectory_ga)
+        cost_qga[counter] =average_cost(trajectory_qga)
+
+        flight_time_sl[counter] = averaged_flight_time(trajectory_sl)
+        flight_time_ga[counter] = averaged_flight_time(trajectory_ga)
+        flight_time_qga[counter] =averaged_flight_time(trajectory_qga)
+
+        fuel_sl[counter] = average_fuel(trajectory_sl)
+        fuel_ga[counter] = average_fuel(trajectory_ga)
+        fuel_qga[counter] =average_fuel(trajectory_qga)
+
+    Mean_comp_time = np.mean([cost_comp_sl, cost_comp_ga, cost_comp_qga], axis=1)
+    Error_comp_time = np.std([cost_comp_sl, cost_comp_ga, cost_comp_qga], axis=1)
+
+    Mean_cost = np.mean([cost_sl, cost_ga, cost_qga], axis=1)
+    Error_cost = np.std([cost_sl, cost_ga, cost_qga], axis=1)
+
+    Mean_flight_time = np.mean([flight_time_sl, flight_time_ga, flight_time_qga], axis=1)
+    Error_flight_time = np.std([flight_time_sl, flight_time_ga, flight_time_qga], axis=1)
+
+    Mean_fuel = np.mean([fuel_sl, fuel_ga, fuel_qga], axis=1)
+    Error_fuel = np.std([fuel_sl, fuel_ga, fuel_qga], axis=1)
+
+    return Mean_comp_time, Error_comp_time, Mean_cost, Error_cost, Mean_flight_time, Error_flight_time, Mean_fuel, Error_fuel
 
