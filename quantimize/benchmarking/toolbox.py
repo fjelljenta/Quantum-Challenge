@@ -27,7 +27,7 @@ def sl_for_benchmarking(flight_nr):
 
 
 def ga_for_benchmarking(flight_nr, **kwargs):
-    report, solution, trajectory = run_genetic_algorithm(flight_nr, **kwargs)
+    report, solution, trajectory = csol.run_genetic_algorithm(flight_nr, **kwargs)
     return trajectory
 
 

@@ -20,7 +20,7 @@ def straight_line_solution(flight_nr, dt):
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
-def genetic_algorith_solution(flight_nr, dt):
+def genetic_algorithm_solution(flight_nr, dt):
     """Returns the genetic algorithm solution for a given flight and maps it to constant time points
 
     Args:
