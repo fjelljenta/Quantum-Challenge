@@ -18,7 +18,7 @@ def sl_for_benchmarking(flight_nr):
         flight_nr: Flight number
 
     Returns:
-        Trajectory in the format of a list of tuples (time, longitude, latitude)
+        Trajectory in the format of a list containing coordinates and time stamps
     """
     dt=10
     info = da.get_flight_info(flight_nr)
@@ -29,16 +29,37 @@ def sl_for_benchmarking(flight_nr):
 
 
 def ga_for_benchmarking(flight_nr, **kwargs):
+    """Computes and returns the genetic algorithm solution for a given flight
+    Args:
+        flight_nr: Flight number
+
+    Returns:
+        Trajectory in the format of a list containing coordinates and time stamps
+    """
     report, solution, trajectory = csol.run_genetic_algorithm(flight_nr, **kwargs)
     return trajectory
 
 
 def qga_for_benchmarking(flight_nr):
+    """Computes and returns the quantum genetic algorithm solution for a given flight
+    Args:
+        flight_nr: Flight number
+
+    Returns:
+        Trajectory in the format of a list containing coordinates and time stamps
+    """
     trajectory = qga.Q_GA(flight_nr)
     return trajectory
 
 
 def qnn_for_benchmarking(flight_nr):
+    """Computes and returns the quantum neural network solution for a given flight
+    Args:
+        flight_nr: Flight number
+
+    Returns:
+        Trajectory in the format of a list containing coordinates and time stamps
+    """
     n_qubits=6
     report_ga, init_solution_ga, trajectory_ga = csol.run_genetic_algorithm(flight_nr)
     print(init_solution_ga)
@@ -49,6 +70,17 @@ def qaoa_for_benchmarking(flight_nr):
     return None
 
 def plot_graph(titel, y_label, mean_value_list, error_list):
+    """Creation of bar plots with error bars
+
+    Args:
+        titel (string): title of the plot
+        y_label (string): y-axis label of the plot
+        mean_value_list (list): list of mean values for the bars
+        error_list (list): list of the corresponding errors for the error bar
+
+    Returns:
+        plot
+    """
     algorithms=['Straight line', 'GA', 'QGA']
     x_pos=np.arange(len(algorithms))
     fig, ax = plt.subplots()

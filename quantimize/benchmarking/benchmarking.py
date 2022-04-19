@@ -7,18 +7,20 @@ import quantimize.converter as cv
 import quantimize.data_access as da
 import numpy as np
 import quantimize.benchmarking.toolbox as bt
-
 import time
 
 
-#decorator: give solution_function as argument
-
-#computing_time and climate_impact combined
-
-#given: cost(trajectory),
-
-#decorator
 def computiation_time(flight_number, algorithm):
+    """Calculation of the computation time for one flight and a with the second argument specified optimization algorithm
+
+    Args:
+        flight_number (int): flight number
+        algorithm (function): algorithm used to optimize the trajectory
+
+    Returns:
+        float: computation time needed for the optimization in seconds
+        list: optimized trajectory of the given flight
+    """
     start = time.perf_counter()
     trajectory = algorithm(flight_number)
     stop = time.perf_counter()
@@ -26,6 +28,18 @@ def computiation_time(flight_number, algorithm):
     return computation_time, trajectory
 
 def average_computation_time(algorithm, **kwargs):
+    """Averaged computation time for a with the first argument specified algorithm for several/all flights
+
+    Args:
+        algorithm (function): algorithm used to optimize the trajectory
+        **kwargs: possibility to hand in a list of flight numbers, if no done all flights will be considered
+                  possibility to specify if a list of all trajectories should be returned, default value: TRUE
+
+    Returns:
+        float: Averaged computation time for a with the first argument specified algorithm for several/all flights
+        list: trajectory_list: list containing all trajectories
+
+    """
     flightlist= kwargs.get('flights', range(100))
     return_trajectory=kwargs.get('return_trajectory', True)
 
@@ -47,6 +61,15 @@ def average_computation_time(algorithm, **kwargs):
 
 
 def average_cost(trajectory_list):
+    """Computation of the average climate impacted for several/all flights
+
+    Args:
+        trajectory_list (list): list, which contains all the trajectories of all the flights we want to take into account
+
+    Returns:
+        float: average_cost_per_flight average climate impact per flight in 10^(-12)K
+
+    """
     number_of_flights = len(trajectory_list)
     cost_list = []
     for flight in trajectory_list:
@@ -57,6 +80,15 @@ def average_cost(trajectory_list):
 
 
 def averaged_flight_time(trajectory_list):
+    """Computation of the averaged flight time per flight
+
+    Args:
+        trajectory_list (list): list, which contains all the trajectories of all the flights we want to take into account
+
+    Returns:
+        float: average_time_per_flight averaged flight time per flight in seconds
+
+    """
     number_of_flights = len(trajectory_list)
     time_list = []
     for flight in trajectory_list:
@@ -67,14 +99,13 @@ def averaged_flight_time(trajectory_list):
     return average_time_per_flight
 
 def fuel_consumption(trajectory):
-
-    """Returns the fuel_consumption for a given list of trajectories in 10**-12
+    """Returns the fuel consumption for a given trajectory in 10**-12
 
     Args:
         trajectory (list): List describing one flight trajectory
 
     Returns:
-        float, int: fuel_consumption in kg and flight number
+        float: fuel_consumption in kg for a given flight number
     """
     fuel = 0
     flight_path = cv.check_trajectory_dict(trajectory)
@@ -99,12 +130,19 @@ def fuel_consumption(trajectory):
                         * dt1 / 60 + \
                         da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
                         * (cv.datetime_to_seconds(coordinate[3]) - t - dt1) / 60
-        #start_level = coordinate[2]
-        #t = cv.datetime_to_seconds(coordinate[3])
         return fuel
 
 
 def average_fuel(trajectory_list):
+    """Computation of the averaged fuel consumption over several/all flights
+
+    Args:
+        trajectory_list (list): list, which contains all the trajectories of all the flights we want to take into account
+
+    Returns:
+        float: average fuel consumption per flight
+
+    """
     number_of_flights = len(trajectory_list)
     fuel_list = []
     for flight in trajectory_list:
@@ -115,6 +153,17 @@ def average_fuel(trajectory_list):
 
 
 def benchmark_wrapper(flights, runs):
+    """Calculation of the mean values and errors of the averaged computation time, averaged climate cost, averaged flight time
+    and of the averaged fuel consumption
+
+    Args:
+        flights (list): list of the flight numbers of interest
+        runs (int): number of runs for the benchmarking
+
+    Returns:
+        float: Mean_comp_time, Error_comp_time, Mean_cost, Error_cost, Mean_flight_time, Error_flight_time, Mean_fuel, Error_fuel
+
+    """
     cost_comp_sl, cost_comp_ga, cost_comp_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
     cost_sl, cost_ga, cost_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
     flight_time_sl, flight_time_ga, flight_time_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
