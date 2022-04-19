@@ -8,3 +8,5 @@ pennylane
 noisyopt
 sklearn
 geneticalgorithm
+notebook
+ipympl
