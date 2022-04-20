@@ -1,5 +1,6 @@
 import numpy as np
 import sympy as sp
+import matplotlib.pyplot as plt
 from fractions import Fraction
 
 from qiskit import IBMQ
@@ -11,7 +12,14 @@ from qiskit.algorithms import QAOA
 
 
 def sample_grid():
-    cg = -1 * np.array([[5,5,5,5],[5,1,5,5],[5,1,5,5],[5,5,5,5]]) 
+    """
+    This function generates the cost grid for a scaled-down experiment example (4 qubits)
+
+    :return: the cost grid
+    """
+    cg = -1 * np.array([[5, 5, 5, 5], [5, 1, 5, 5], [5, 1, 5, 5], [5, 5, 5, 5]])
+    # Without the coefficient -1, we would obtain a maximization problem.
+
     # The cost grid - the value represents the cost to travel through that grid, with dimension N x N
     # The cost should be computed mainly based on atmospheric data, plus a penalty by deviating from the 
     # straight-line solution. The idea behind is that a grid too far away from the straight-line solution should be
@@ -19,27 +27,57 @@ def sample_grid():
     # travel, will be high.
     return cg
 
-def cost(z):
-    z1,z2,z3,z4 = z
-    return 3*z1*z2+ z1*z3 + 5*z2*z4 + 3*z3*z4 + 6*z1 - 10*z4
+
+def sample_cost(z):
+    """
+    Evaluates the cost function of the example problem, given the Pauli-z values of the 4 qubits.
+    :param z: the Pauli-z values of the 4 qubits which is an element of the set {-1,1}^4
+    :return: the value of the cost function
+    """
+    z1, z2, z3, z4 = z
+    return -1 * (3*z1*z2 + z1*z3 + 5*z2*z4 + 3*z3*z4 + 6*z1 - 10*z4)
+
 
 def brute_force():
-    for i in [-1,1]:
-        for j in [-1,1]:
-            for k in [-1,1]:
-                for l in [-1,1]:
-                    print([i,j,k,l], cost([i,j,k,l]))
+    """
+    Solve by brute force the sample problem
+    :return: tuple containing the optimal solution and the optimal cost
+    """
+    sol_list = []
+    cost_list = []
+    for i in [-1, 1]:
+        for j in [-1, 1]:
+            for k in [-1, 1]:
+                for l in [-1, 1]:
+                    sol = [i, j, k, l]
+                    cost = sample_cost([i, j, k, l])
+                    print('z =', sol, 'gives cost:', cost)
+                    sol_list.append(sol)
+                    cost_list.append(cost)
+    return sol_list[np.argmin(cost_list)], np.min(cost_list)
+
 
 def obtain_weight_matrices(cg):
+    """
+    obtain the interaction strengths (edges) for the qubit grid from the cost grid
+    :param cg: cost grid
+    :return: interaction strengths (edges) stored in two separate matrices, one for vertical, one for horizontal
+    """
     wh = np.array([[(cg[i][j+1]+cg[i][j])/2 for j in range(len(cg)-1)] for i in range(len(cg))])
-    # The matrix storing horizonatal edge (coupling) values between voxel centers (qubits)
+    # The matrix storing horizontal edge (coupling) values between voxel centers (qubits)
     # with dimension N x N-1
     wv = np.array([[(cg[i][j]+cg[i+1][j])/2 for j in range(len(cg))] for i in range(len(cg)-1)])
     # The matrix storing vertical edge (coupling) values between voxel centers (qubits)
     # with dimension N-1 x N
     return wv, wh
 
-def create_vcg(n, orientation=0):  #voxel_center_grid
+def create_vcg(n, orientation=0):  #voxel_center_graph
+    """
+    create the initial voxel_center_graph
+    :param n:
+    :param orientation:
+    :return:
+    """
     vcg = np.zeros((n,n))
     if orientation == 0:  # travel from southwest to northeast or the opposite
         for i in range(n):
