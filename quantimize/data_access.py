@@ -335,6 +335,7 @@ def trajectory_to_csv(filename, trajectory, cost=0, flight_nr=-1):
         with open(folder_dir+filename+".csv","a",newline='', encoding='utf-8') as f:
             csvwriter = csv.writer(f, delimiter=",")
             csvwriter.writerow(["Flight_Nr", flight_nr,"Cost",cost])
+            csvwriter.writerow(["Long","Lat","Flight_Level","Time"])
             for point in trajectory:
                 csvwriter.writerow(point)
             csvwriter.writerow([])

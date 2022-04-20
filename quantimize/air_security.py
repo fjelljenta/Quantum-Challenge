@@ -213,7 +213,8 @@ def radius_control(trajectory):
     for i in range(len(flight_path)-2):
         v1 = np.array([flight_path[i][0]-flight_path[i+1][0],flight_path[i][1]-flight_path[i+1][1]])
         v2 = np.array([flight_path[i+1][0]-flight_path[i+2][0],flight_path[i+1][1]-flight_path[i+2][1]])
-        theta = np.arccos(np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2)))*180/np.pi
+        #theta = np.arccos(np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2)))*180/np.pi
+        theta = np.arccos(np.dot(v1/ np.linalg.norm(v1), v2/np.linalg.norm(v2))) * 180 / np.pi
         if theta > 25:
             flag = True
     if flag:

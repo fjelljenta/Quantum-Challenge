@@ -21,23 +21,18 @@ def curve(X, Y):
                 return Y[i]+(x-X[i])*(Y[i+1]-Y[i])/(X[i+1]-X[i])
     return f
 
-#########################################################
-# ALGORITHM PARAMETERS                                  #
-#########################################################
+# setting the algorithm parameters:
 
-max_dev=20             # Max deviation (along y) away from
-                       # straight line solution
-N=70                   # Define here the population size
-Genome=50              # Define here the chromosome length
-generation_max=50    # Define here the maximum number of
-                       # generations/iterations
+max_dev=20           # Max deviation (along y) away from straight line solution
+N=70                 # Definition of the population size
+Genome=50            # Definition of the chromosome length
+generation_max=50    # Definition of the maximum number of generations/iterations
 
 generational_avg_cost=[]
 generational_best_cost=[]
 
-#########################################################
-# VARIABLES ALGORITHM                                   #
-#########################################################
+
+# setting the variables for the algorithm
 popSize=N+1
 genomeLength=Genome+1
 top_bottom=3
@@ -55,16 +50,21 @@ child1 = np.empty([popSize, genomeLength, top_bottom])
 child2 = np.empty([popSize, genomeLength, top_bottom])
 best_chrom = np.empty([generation_max])
 
-# Initialization global variables
+# Initialization of the global variables
 theta=0;
 iteration=0;
 the_best_chrom=0;
 generation=0;
 
-#########################################################
-# QUANTUM POPULATION INITIALIZATION                     #
-#########################################################
+
 def Init_population():
+    """Initialization of the quantum population
+    Args:
+        None
+
+    Returns:
+        None
+    """
     # Hadamard gate
     r2=math.sqrt(2.0)
     h=np.array([[1/r2,1/r2],[1/r2,-1/r2]])
@@ -86,28 +86,35 @@ def Init_population():
         # beta squared
         qpv[i,j,1]=np.around(2*pow(AlphaBeta[1],2),2)
 
-
-
-#########################################################
-# MAKE A MEASURE                                        #
-#########################################################
-# p_alpha: probability of finding qubit in alpha state
 def Measure(p_alpha):
+    """making a measurement
+
+    Args:
+        p_alpha (float): probability of finding a qubit in alpha state
+
+    Returns:
+        None
+
+    """
     for i in range(1,popSize):
-        #print()
         for j in range(1,genomeLength):
             if p_alpha<=qpv[i, j, 0]:
                 chromosome[i,j]=0
             else:
                 chromosome[i,j]=1
-            #print(chromosome[i,j]," ",end="")
-        #print()
-    #print()
 
-#########################################################
-# FITNESS EVALUATION                                    #
-#########################################################
+
 def Fitness_evaluation(flight_nr, generation):
+    """Fitness evaluation
+
+    Args:
+        flight_nr (int): flight number
+        generation (int): number of generation/iteration
+
+    Returns:
+        trajectory (list): 3D curved trajectory for the given flight number
+
+    """
     i=1; j=1; fitness_total=0; sum_sqr=0;
     fitness_average=0; variance=0;
     best_fitness=-1000000
@@ -159,16 +166,10 @@ def Fitness_evaluation(flight_nr, generation):
         curve_xy=curve(x, y)
         curve_z=curve(np.linspace(0, total_distance, 6), z)
         trajectory=curve_3D_trajectory_core(flight_nr, curve_xy, curve_z, 0.3)
-        fitness[i]= -compute_cost({"trajectory": trajectory}) # - because we want t minimalize the cost
-
-        #########################################################
-
-        #print("fitness = ",i," ",fitness[i])
+        fitness[i]= -compute_cost({"trajectory": trajectory}) # - because we want to minimalize the cost
         if best_fitness<fitness[i] or i==1:
             best_fitness=fitness[i]
-
         fitness_total=fitness_total+fitness[i]
-
     fitness_average=fitness_total/N
     i=1;
     while i<=N:
@@ -185,23 +186,13 @@ def Fitness_evaluation(flight_nr, generation):
             fitness_max=fitness[i]
             the_best_chrom=i
     best_chrom[generation]=the_best_chrom
-
-    #print("Population size = ",popSize - 1)
-    #print("mean fitness = ",fitness_average)
-    #print("variance = ",variance," Std. deviation = ",math.sqrt(variance))
-    #print("fitness max = ",best_chrom[generation])
-    #print("fitness sum = ",fitness_total)
-
     global generational_avg_cost
     global generational_best_cost
-
     generational_avg_cost+=[-fitness_average]
     generational_best_cost+=[-best_fitness]
 
     if generation==generation_max-1:
-
         i=int(best_chrom[generation])
-
         x=[0,0,0]
         for j in range(5):
             # translate from binary to decimal value
@@ -220,14 +211,12 @@ def Fitness_evaluation(flight_nr, generation):
             z[2]+=chromosome[i,j+39]*pow(2,4-j-1)
             z[3]+=chromosome[i,j+43]*pow(2,4-j-1)
             z[4]+=chromosome[i,j+47]*pow(2,4-j-1)
-
         for j in range(3):
             x[j]=x[j]*(abs(info['start_longitudinal']-info['end_longitudinal']))/31 + \
                 min(info['start_longitudinal'],info['end_longitudinal'])
             y[j]=min(max(info['start_latitudinal'] + \
                 x[j]*((info['start_latitudinal']-info['end_latitudinal'])/(info['start_longitudinal']-info['end_longitudinal'])) + \
                 y[j]*(2*max_dev)/15 - max_dev, 34), 60)
-
         for j in range(5):
             z[j]=z[j]*300/15 + 100
 
@@ -246,10 +235,15 @@ def Fitness_evaluation(flight_nr, generation):
         trajectory=curve_3D_trajectory_core(flight_nr, curve_xy, curve_z, 0.3)
         return trajectory
 
-#########################################################
-# QUANTUM ROTATION GATE                                 #
-#########################################################
 def rotation():
+    """Quantum rotation gate
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
     rot=np.empty([2,2])
     # Lookup table of the rotation angle
     for i in range(1,popSize):
@@ -277,13 +271,16 @@ def rotation():
                    qpv[i,j,1]=round(1-nqpv[i,j,0],2)
              # if chromosome[i,j]==1 and chromosome[best_chrom[generation],j]==1:
 
-#########################################################
-# X-PAULI QUANTUM MUTATION GATE                         #
-#########################################################
-# pop_mutation_rate: mutation rate in the population
-# mutation_rate: probability of a mutation of a bit
 def mutation(pop_mutation_rate, mutation_rate):
+    """X-Pauli quantum mutation gate
 
+    Args:
+        pop_mutation_rate (float): mutation rate in the population
+        mutation_rate (float): probability of a mutation of a bit
+
+    Returns:
+        None
+    """
     for i in range(1,popSize):
         up=np.random.random_integers(100)
         up=up/100
@@ -308,12 +305,19 @@ def mutation(pop_mutation_rate, mutation_rate):
 
 
 
-########################################################
-#                                                      #
-# MAIN PROGRAM                                         #
-#                                                      #
-########################################################
+
 def Q_GA(flight_nr, plot_graph=0):
+    """main program: running of the QGA
+
+    Args:
+        flight_nr (int): flight number
+        plot_graph (0,1,2): 0: graph not plotted,
+                            1: graph with average cost vs generation is plotted
+                            2: graph with best cost vs generation is plotted
+
+    Returns:
+        trajectory (list): optimal flight trajectory for the given flight number
+    """
     global generational_avg_cost
     global generational_best_cost
     generational_avg_cost=[]

@@ -3,9 +3,10 @@ Basemap
 netCDF4
 qiskit
 qiskit_optimization
-numpy
 simplejson
 pennylane
 noisyopt
 sklearn
 geneticalgorithm
+notebook
+ipympl
