@@ -71,6 +71,7 @@ def obtain_weight_matrices(cg):
     # with dimension N-1 x N
     return wv, wh
 
+
 def create_vcg(n, orientation=0):  #voxel_center_graph
     """
     create the initial voxel_center_graph
@@ -94,6 +95,7 @@ def create_vcg(n, orientation=0):  #voxel_center_graph
                 if (i == n-1 and j != n-1) or (j == 0 and i != 0):
                     vcg[i][j] = -1
     return vcg
+
 
 def construct_function(cg, orientation=0):
     """Constructs the mathematical function to be optimized
@@ -164,6 +166,7 @@ def construct_function(cg, orientation=0):
     # function in sympy form and coefficients of all terms in an easily readble dictionary form returned
     return function, coeffs
 
+
 def generate_QP(coeffs, n, verbose=False):
     """Generates the Quadratic Program to be optimized
 
@@ -197,6 +200,7 @@ def generate_QP(coeffs, n, verbose=False):
     if verbose:
         print(qp.export_as_lp_string())  # make a printed report of the task
     return qp
+
 
 def run_QAOA(cg, orientation=0, verbose=False):
     """Constructs and solves the mathematical function
