@@ -13,7 +13,7 @@ def straight_line_solution(flight_nr, dt):
         dt: The time step in seconds
 
     Returns:
-        Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber
+        Trajectory in the format of a list of tuples (time, longitude, latitude) embedded in a dict with the flight number
     """
     trajectory = toolbox.straight_line_trajectory(flight_nr, dt)
     trajectory = toolbox.timed_trajectory(trajectory, dt)
@@ -27,14 +27,14 @@ def genetic_algorithm_solution(flight_nr, dt):
         flight_nr (int): Flight number
 
     Returns:
-        dict: Trajectory in the format of a list of tuples (long, lat, time) embeded in a dict with flightnumber
+        dict: Trajectory in the format of a list of tuples (long, lat, time) embedded in a dict with the flight number
     """
     report, solution, trajectory = csol.run_genetic_algorithm(flight_nr)
     trajectory = toolbox.timed_trajectory(trajectory, dt)
     return report, solution, {"flight_nr": flight_nr, "trajectory": trajectory}
 
 def compute_cost(trajectory):
-    """Wrapper for the compute cost function
+    """Wrapper for the computation of the cost function
 
     Args:
         trajectory (list): List of trajectory points

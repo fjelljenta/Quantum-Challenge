@@ -6,14 +6,6 @@
 #                                                       #
 #                                                       #
 #########################################################
-import math
-import numpy as np
-import matplotlib.pyplot as plt
-from quantimize.classic.toolbox import curve_3D_trajectory_core, compute_cost
-import quantimize.data_access as da
-import quantimize.converter as cv
-from quantimize.visualisation import *
-
 def curve(X, Y):
     def f(x):
         for i in range(len(X)-1):

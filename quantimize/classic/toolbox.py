@@ -133,6 +133,22 @@ def straight_line_trajectory(flight_nr, dt):
 
 def straight_line_trajectory_core(start_longitudinal, end_longitudinal, start_latitudinal, end_latitudinal,
                                   start_flightlevel, start_time, dt):
+    """Computes and returns the straight line solution for a given start and ending point.
+       The straight line solution assumes that the ending point has the same flight level as the starting point
+
+    Args:
+        start_longitudinal (float/int): start longitudinal coordinate
+        end_longitudinal (float/int): end longitudinal coordinate
+        start_latitudinal (float/int): start latitudinal coordinate
+        end_latitudinal (float/int): end latitudinal coordinate
+        start_flightlevel (float/int): start flight level, also the end flight level
+        start_time (datetime): start time of the plane
+        dt (float/int): time step
+
+    Returns:
+        Trajectory in the format of a list of tuples
+
+    """
     slope = ((end_latitudinal - start_latitudinal) * 111) / \
             ((end_longitudinal - start_longitudinal) * 85)
     # compute the slope of the straight line connecting start and end points in x-y plane
@@ -282,6 +298,16 @@ def curve_3D_trajectory_core(flight_nr, spline_xy, spline_z, dx):
 
 
 def compute_time_to_reach_other_flightlevel(fl1, fl2):
+    """Computes the time a plane needs to reach another flight level
+
+    Args:
+        fl1: start flight level
+        fl2: end flight level
+
+    Returns:
+        time dt it needs to reach the next flight level in seconds
+
+    """
     if fl1 == fl2:
         dt = 0
     elif fl1 < fl2:  # the plane needs to climb
@@ -294,9 +320,9 @@ def compute_time_to_reach_other_flightlevel(fl1, fl2):
 
 
 def fit_spline(x, y, k=2):
-    """
-    A function that takes in the x and y coordinates of control points, obtain the analytical function of the spline
+    """A function that takes in the x and y coordinates of control points, obtain the analytical function of the spline
     curve that interpolates the control points, and returns it.
+
     Args:
         x : x-coordinates of control points
         y : y-coordinates of control points
@@ -313,8 +339,8 @@ def fit_spline(x, y, k=2):
 
 
 def plot_b_spline(spline, x, y, N=100):
-    """
-    makes a plot of the spline curve, and marks the control points on the plot
+    """makes a plot of the spline curve, and marks the control points on the plot
+
     Args:
         spline : The function of the spline curve, takes x as input and gives y as output
         x : x-coordinates of control points
@@ -331,12 +357,14 @@ def plot_b_spline(spline, x, y, N=100):
 
 
 def partition(index):
-    """
-    partitions a list into continuous parts
+    """partitions a list into continuous parts
     eg. [1,2,3,5,6,7,8,11,12,15] --> [[1, 2, 3], [5, 6, 7, 8], [11, 12], [15]]
 
-    :param index: a list of indices
-    :return: a list of continuous lists of indices
+    Args:
+        index (list): a list of indices
+
+    Returns:
+        a list of continuous lists of indices
     """
     parts = []
     a = [index[i] - index[i - 1] for i in range(1, len(index))]
@@ -354,11 +382,32 @@ def partition(index):
 
 
 def correct_time_for_trajectory(trajectory, time_correction):
+    """Corrects a given trajectory for a certain time correction
+
+    Args:
+        trajectory (list): trajectory
+        time_correction: time correction
+
+    Returns:
+        time corrected trajectory
+
+    """
     return [(coordinate[0], coordinate[1], coordinate[2], cv.update_time(coordinate[3], time_correction))
             for coordinate in trajectory]
 
 
 def correct_for_boundaries(trajectory):
+    """Checks if every point in our trajectory has a flight level between 100 and 400, which are the bounds.
+    If the trajectory leaves our boundaries the trajectory is corrected by replacing the "bad parts" with a straight line solution
+    between the last point inside our bounds and the first point, which is inside the bounds again.
+
+    Args:
+        trajectory: input trajectory, which potentially leaves the area of interest
+
+    Returns:
+        corrected trajectory, which is only inside the bounds
+
+    """
     end = False
     trajectory_corrected = [trajectory[0]]
     # Extract the size of the typical dt

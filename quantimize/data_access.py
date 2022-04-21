@@ -85,8 +85,6 @@ def get_long(arb_long):
     elif arb_long > 30:
         return str(30.0)
     else:
-        #arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, last part (with -0.0 removal) still needed, tests!
-
         diff = arb_long%2
         if diff == 0:
             return str(arb_long)
@@ -121,7 +119,6 @@ def get_lat(arb_lat):
     elif arb_lat > 60:
         return str(60.0)
     else:
-        # arb_long = 2 * round(arb_long/2,0)    #Todo: Alternative way, tests!
         diff = arb_lat%2
         if diff == 0:
             return str(arb_lat)
@@ -134,13 +131,13 @@ def get_lat(arb_lat):
 
 
 def avoid_empty_atmo_data(fl):
-    """Avoid flightlevels without data, give back closest data
+    """Avoid flight levels without data, give back closest data
 
     Args:
         fl (int): flight level to check
 
     Returns:
-        int: nearest flightlevel with available data
+        int: nearest flight level with available data
     """
     if fl < 140:
         return 140
@@ -157,13 +154,13 @@ def avoid_empty_atmo_data(fl):
 
 
 def get_fl_atmo(arb_fl):
-    """Find next available flightlevel with given atmospheric data to given level
+    """Find next available flight level with given atmospheric data to given level
 
     Args:
         arb_fl (int/str/float): Current flight level
 
     Returns:
-        str: Flighlevel for atmo data
+        str: Flight level for atmo data
     """
     corrected_fl = int(get_fl(arb_fl))
     corrected_fl = avoid_empty_atmo_data(corrected_fl)
@@ -197,12 +194,12 @@ def get_time(arb_time):
 
 
 def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
-    """Returns the merged climate impact data for a given set of location, flightlevel and time
+    """Returns the merged climate impact data for a given set of location, flight level and time
 
     Args:
         arb_long (int/str/float): Current longitude
         arb_lat (int/str/float): Current latitude
-        arb_fl (int/str/float): Current flightlevel
+        arb_fl (int/str/float): Current flight level
         arb_time (datetime.time): Current time
 
     Raises:
@@ -222,7 +219,7 @@ def get_merged_atmo_data(arb_long, arb_lat, arb_fl, arb_time):
 
 
 def get_atmo_raw_data():
-    """Returns the raw data of the nc atmo fil
+    """Returns the raw data of the nc atmo file
 
     Returns:
         quintuple: Latitude, Longitude, Time, FL, Merged data
@@ -236,13 +233,13 @@ def get_atmo_raw_data():
 
 
 def get_hPa(fl):
-    """Returns the flightlevel in hPa for a given FL in FL
+    """Returns the flight level in hPa for a given FL in FL
 
     Args:
-        fl (int/string/float): Flightlevel in FL
+        fl (int/string/float): Flight level in FL
 
     Returns:
-        int: Flightlevel in hPa
+        int: Flight level in hPa
     """
     fl = int(get_fl(fl))
     if fl <= 140:
@@ -297,7 +294,7 @@ def create_time_grid(dt):
 
 
 def map_trajectory_to_time_grid(trajectories, time_grid):
-    """Maps a list of trajectories to a corresponding timegrid with according time steps
+    """Maps a list of trajectories to a corresponding time grid with according time steps
 
     Args:
         trajectories (list): List of trajectories
@@ -315,11 +312,13 @@ def map_trajectory_to_time_grid(trajectories, time_grid):
     return time_grid
 
 def trajectory_to_csv(filename, trajectory, cost=0, flight_nr=-1):
-    """Creates a csv file containing all flight trajectories or appends the data to a file with the same name. Flights are seperated by a blank line
+    """Creates a csv file containing all flight trajectories or appends the data to a file with the same name.
+    Flights are separated by a blank line
 
     Args:
         filename (string): Filename
-        trajectory (dict/list): flight trajectory. If it is a dict, flight_nr is optional, if it is a list, then flight_nr is mandatory
+        trajectory (dict/list): flight trajectory. If it is a dict, flight_nr is optional,
+                                if it is a list, then flight_nr is mandatory
         cost (int, optional): Cost of the flight. Defaults to 0.
         flight_nr (int, optional): Flight number. Defaults to -1.
     """
