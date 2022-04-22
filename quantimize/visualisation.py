@@ -8,11 +8,11 @@ import quantimize.converter as cv
 
 
 def get_FL_index(fl_list, FL):
-    """Return index of flightlevel in hPa for atmo data for a given flightlevel in FL
+    """Return index of flight level in hPa for atmo data for a given flight level in FL
 
     Args:
         fl_list (list): List with available flight levels in hPa
-        FL (int/float/str): Current flightlevel in FL
+        FL (int/float/str): Current flight level in FL
 
     Returns:
         int: Index position
@@ -39,6 +39,7 @@ def get_time_index(time):
 
 def make_map():
     """Creates a map
+
     Returns:
         m : basemap
     """
@@ -55,10 +56,10 @@ def make_3d_map():
     return ax, m
 
 def make_atmo_map(FL,time):
-    """Create map with a given flightlevel and time
+    """Create map with a given flight level and time
 
     Args:
-        FL (int/float/str): Current flightlevel
+        FL (int/float/str): Current flight level
         time (datetime.time): Current time
     """
     lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
@@ -92,7 +93,6 @@ def make_animated_atmo_day_map(FL):
     lat_list, long_list, time_list, fl_list, atmo_data = da.get_atmo_raw_data()
     available_fl = da.get_fl(FL)
     FL_index = get_FL_index(fl_list, available_fl)
-    #print(available_fl)
 
     def animate_map(time):
         long_grid, lat_grid = np.meshgrid(long_list,lat_list)
@@ -160,7 +160,7 @@ def plot_flight_path_on_map(map, trajectory):
 
 ############# 3D Plots ########################
 def scatter_flight_path_on_map_3d(ax, map, trajectory):
-    """Makes a scatterplot on a 3d map of the flight trajectory
+    """Makes a scatter plot on a 3d map of the flight trajectory
 
     Args:
         ax (matplotlib.Axes): Matplotlib axes
@@ -179,7 +179,7 @@ def scatter_flight_path_on_map_3d(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d(ax, map, trajectory):
-    """Makes a lineplot on a 3d map of the flight trajectory
+    """Makes a line plot on a 3d map of the flight trajectory
 
     Args:
         ax (matplotlib.Axes): Matplotlib axes
@@ -198,7 +198,8 @@ def plot_flight_path_on_map_3d(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
-    """Makes a scatterplot on a 3d map of the flight trajectory and adds colors to the points according to the atmospheric data values for that point
+    """Makes a scatter plot on a 3d map of the flight trajectory and adds colors to the points according to the
+    atmospheric data values for that point
 
     Args:
         ax (matplotlib.Axes): Matplotlib axes
@@ -220,7 +221,8 @@ def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
     return ax, map
 
 def plot_flight_path_on_map_3d_with_atmo_as_slices(ax,map,trajectory):
-    """Makes a lineplot on a 3d map of the flight trajectory and adds colored slices to the points according to the atmospheric data values for that point
+    """Makes a line plot on a 3d map of the flight trajectory and adds colored slices to the points according to the
+    atmospheric data values for that point
 
     Args:
         ax (matplotlib.Axes): Matplotlib axes
@@ -250,7 +252,7 @@ def plot_flight_path_on_map_3d_with_atmo_as_slices(ax,map,trajectory):
     
 ############# Animation ##################
 def animate_flight_path_on_map(list_of_trajectories, dt):
-    """annimates fight pathes on a map
+    """animates fight paths on a map
 
     Args:
         list_of_trajectories (list of trajectory dicts): list of trajectory dicts

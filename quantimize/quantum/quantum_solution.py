@@ -12,10 +12,10 @@ from qiskit.algorithms import QAOA
 
 
 def sample_grid():
-    """
-    This function generates the cost grid for a scaled-down experiment example (4 qubits)
+    """This function generates the cost grid for a scaled-down experiment example (4 qubits)
 
-    :return: the cost grid
+    Returns:
+        the cost grid
     """
     cg = -1 * np.array([[5, 5, 5, 5], [5, 1, 5, 5], [5, 1, 5, 5], [5, 5, 5, 5]])
     # Without the coefficient -1, we would obtain a maximization problem.
@@ -29,19 +29,21 @@ def sample_grid():
 
 
 def sample_cost(z):
-    """
-    Evaluates the cost function of the example problem, given the Pauli-z values of the 4 qubits.
-    :param z: the Pauli-z values of the 4 qubits which is an element of the set {-1,1}^4
-    :return: the value of the cost function
+    """Evaluates the cost function of the example problem, given the Pauli-z values of the 4 qubits.
+
+    Args:
+        z: the Pauli-z values of the 4 qubits which is an element of the set {-1,1}^4
+    Returns:
+        the value of the cost function
     """
     z1, z2, z3, z4 = z
     return -1 * (3*z1*z2 + z1*z3 + 5*z2*z4 + 3*z3*z4 + 6*z1 - 10*z4)
 
 
 def brute_force():
-    """
-    Solve by brute force the sample problem
-    :return: tuple containing the optimal solution and the optimal cost
+    """Solve by brute force the sample problem
+    Returns:
+        tuple containing the optimal solution and the optimal cost
     """
     sol_list = []
     cost_list = []
@@ -58,10 +60,13 @@ def brute_force():
 
 
 def obtain_weight_matrices(cg):
-    """
-    obtain the interaction strengths (edges) for the qubit grid from the cost grid
-    :param cg: cost grid
-    :return: interaction strengths (edges) stored in two separate matrices, one for vertical, one for horizontal
+    """obtain the interaction strengths (edges) for the qubit grid from the cost grid
+
+    Args:
+        cg: cost grid
+
+    Returns:
+        interaction strengths (edges) stored in two separate matrices, one for vertical, one for horizontal
     """
     wh = np.array([[(cg[i][j+1]+cg[i][j])/2 for j in range(len(cg)-1)] for i in range(len(cg))])
     # The matrix storing horizontal edge (coupling) values between voxel centers (qubits)
@@ -73,11 +78,14 @@ def obtain_weight_matrices(cg):
 
 
 def create_vcg(n, orientation=0):  #voxel_center_graph
-    """
-    create the initial voxel_center_graph
-    :param n:
-    :param orientation:
-    :return:
+    """create the initial voxel_center_graph
+
+    Args:
+        n: size of the graph (n times n voxels)
+        orientation: orientation of the graph
+
+    Returns:
+        voxel_center_graph
     """
     vcg = np.zeros((n,n))
     if orientation == 0:  # travel from southwest to northeast or the opposite
@@ -210,6 +218,9 @@ def run_QAOA(cg, orientation=0, verbose=False):
         verbose (Bool): Output information or not
 
     Returns:
+        z_sol: result in Pauli-Z form
+        q_sol: result in qubit form
+        vcg: voxel_center_graph
         
     """
     n = len(cg)

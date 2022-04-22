@@ -4,11 +4,11 @@ import numpy as np
 # from quantimize.classic.toolbox import straight_line_solution
 
 def check_height(fl_1, fl_2):
-    """Compares the flight level hight
+    """Compares the flight level height
 
     Args:
-        fl_1 (int/float/str): Flightlevel
-        fl_2 (int/float/str): Flightlevel
+        fl_1 (int/float/str): Flight level
+        fl_2 (int/float/str): Flight level
 
     Returns:
         boolean: True for enough distance, false for to close
@@ -41,8 +41,8 @@ def check_position_safety(flight_1, flight_2):
     """Checks if the position (horizontal and vertical) between two flights is safe
 
     Args:
-        flight_1 (dic): Informations about flight 1
-        flight_2 (dic): Informations about flight 2
+        flight_1 (dic): information about flight 1
+        flight_2 (dic): information about flight 2
 
     Returns:
         boolean: True for enough distance, false for to close
@@ -53,15 +53,14 @@ def check_position_safety(flight_1, flight_2):
         return False
 
 def check_safety(list_of_trajectories, dt):
-    """ Checks if the saftey regulations are met
-
+    """ Checks if the safety regulations are met
 
     Args:
-    list_of_trajectories (list of trajectory dicts): list of flight tranjectory dicts
-    dt (int): time step
+        list_of_trajectories (list of trajectory dicts): list of flight trajectory dicts
+        dt (int): time step
 
     Returns:
-    error_list (list): list consisting of the of the saftey violations
+        error_list (list): list consisting of the safety violations
 
     """
     time_list, time_grid = da.create_time_grid(dt)
@@ -83,15 +82,13 @@ def check_safety(list_of_trajectories, dt):
 def distance_between_trajectories_at_time(traj1, traj2, t):
     """ Returns distance between two given flights at a given time
 
-
     Args:
-    traj1 (list): first flight trajectory
-    traj2 (list): second flight trajectory
-    t (int): time of day expressed in seconds
+        traj1 (list): first flight trajectory
+        traj2 (list): second flight trajectory
+        t (int): time of day expressed in seconds
 
     Returns:
-
-    (float, float): distance between flights with respect to x-y plane, flight level difference between flights
+        (float, float): distance between flights with respect to x-y plane, flight level difference between flights
 
     """
 
@@ -154,13 +151,12 @@ def distance_between_trajectories_at_time(traj1, traj2, t):
 def check_safety_2(list_of_trajectory_dicts):
     """ Checks if the safety regulations are met
 
-
     Args:
-    list_of_trajectory_dicts (list of trajectory dicts): list of flight tranjectory dicts
-    dt (int): time step
+        list_of_trajectory_dicts (list of trajectory dicts): list of flight trajectory dicts
+        dt (int): time step
 
     Returns:
-    error_list (list): list consisting of the of the safety violations
+        error_list (list): list consisting of the safety violations
 
     """
     error_list=[]
@@ -200,7 +196,7 @@ def check_safety_2(list_of_trajectory_dicts):
 
 
 def radius_control(trajectory):
-    """Returns true or false depending if the turning angle was above 25 degree or below
+    """Returns true or false depending on if the turning angle was above 25 degree or below
 
     Args:
         trajectory (dict/list): List of trajectory points
@@ -221,10 +217,3 @@ def radius_control(trajectory):
         return False
     else:
         return True
-
-
-# def test_safety(f_list):
-#     list_of_trajectory_dicts=[]
-#     for f in f_list:
-#         list_of_trajectory_dicts+=[straight_line_solution(f, 600)]
-#     print(check_safety_2(list_of_trajectory_dicts))
