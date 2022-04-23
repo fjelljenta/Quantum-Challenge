@@ -38,5 +38,3 @@ We found out, that at the moment the classical genetic algorithm is the best cho
 The quantum genetic algorithm performs solid, but does not give an obvious advantage over the classical genetic algorithm.The quantum neural network (QNN) we implemented, is not trainable with the currently available number of qubits. However, we do believe that this is a promising concept, which can be useful in the future, when larger devicesare standar
 
 The Quantimize.ipynb summarizes everything we have done to give you a brief overview. 
-
-If you like to test our code in more depth. We recommend the notebook „Tutorial.ipynb“, which explains how to call and use our functions in more detail.
