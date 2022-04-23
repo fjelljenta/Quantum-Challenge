@@ -163,7 +163,7 @@ def scatter_flight_path_on_map(map, trajectory):
     """
     flight_path = cv.check_trajectory_dict(trajectory)
     long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
-    map.scatter(long, lat, c=fl, cmap="viridis",
+    map.scatter(long, lat, c=fl, cmap="autumn",
                 vmin=100, vmax=400, latlon=True, s=1)
     return map
 
@@ -200,7 +200,7 @@ def scatter_flight_path_on_map_3d(ax, map, trajectory):
     flight_path = cv.check_trajectory_dict(trajectory)
     long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x, y = map(long, lat)
-    ax.scatter(x, y, fl)
+    ax.scatter(x, y, fl, c=fl, cmap="autumn")
     ax.scatter(x, y, 0, "k")
     ax.set_zlim(0, 400)
     return ax, map
@@ -245,7 +245,7 @@ def plot_flight_path_on_map_3d_with_atmo_as_points(ax, map, trajectory):
             point[0], point[1], point[2], point[3]))
     long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x, y = map(long, lat)
-    ax.scatter(x, y, fl, c=atmo, vmin=-0.047278133046295995,
+    ax.scatter(x, y, fl, c=atmo, cmap="winter", vmin=-0.047278133046295995,
                vmax=0.34942841580572637, s=1)
     ax.plot(x, y, 0, "k")
     ax.set_zlim(0, 400)
@@ -279,7 +279,7 @@ def plot_flight_path_on_map_3d_with_atmo_as_slices(ax, map, trajectory):
         c4 = da.get_merged_atmo_data(
             xbounds[1], ybounds[1], point[2], point[3])
         ax.add_collection3d(map.pcolor(xb, yb, [[c1, c3], [
-                            c2, c4]], latlon=True, vmin=-0.047278133046295995, vmax=0.34942841580572637, alpha=0.3), zs=point[2])
+                            c2, c4]], latlon=True, vmin=-0.047278133046295995, vmax=0.34942841580572637, alpha=0.3, cmap="winter"), zs=point[2])
     long, lat, fl, time = cv.trajectory_elements_to_list(flight_path)
     x, y = map(long, lat)
     ax.plot(x, y, fl, "k")
