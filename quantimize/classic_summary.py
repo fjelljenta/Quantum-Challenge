@@ -1,9 +1,6 @@
-"""
-Main run for classic algorithm here, import functions from files in classic folder
-"""
-
 import quantimize.classic.toolbox as toolbox
 import quantimize.classic.classic_solution as csol
+
 
 def straight_line_solution(flight_nr, dt):
     """Returns the straight line solution for a given flight
@@ -29,9 +26,18 @@ def genetic_algorithm_solution(flight_nr, dt):
     Returns:
         dict: Trajectory in the format of a list of tuples (long, lat, time) embedded in a dict with the flight number
     """
-    report, solution, trajectory = csol.run_genetic_algorithm(flight_nr)
+    # tries to run the code and gives it another shot, if it fails. Common error is "hour must be in 0..23"
+    run_complete = False
+    while not run_complete:
+        try:
+            report, solution, trajectory = csol.run_genetic_algorithm(
+                flight_nr)
+            run_complete = True
+        except:
+            print("Retry GA")
     trajectory = toolbox.timed_trajectory(trajectory, dt)
     return report, solution, {"flight_nr": flight_nr, "trajectory": trajectory}
+
 
 def compute_cost(trajectory):
     """Wrapper for the computation of the cost function

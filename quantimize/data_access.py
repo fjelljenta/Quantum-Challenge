@@ -6,12 +6,13 @@ import os
 import quantimize.converter as cv
 import csv
 
+# Load all data and provide it to all files, that import this file
 base_dir = os.getcwd()
 with open(base_dir+"/quantimize/data/atmo.json", "rb") as f:
     atmo_data = json.loads(f.read().decode("utf-8"))
 with open(base_dir+"/quantimize/data/bada_data.json", "rb") as f:
     flight_level_data = json.loads(f.read().decode("utf-8"))
-with open(base_dir+"/quantimize/data/flights.json","rb") as f:
+with open(base_dir+"/quantimize/data/flights.json", "rb") as f:
     flight_data = json.loads(f.read().decode("utf-8"))
 nc = Dataset(base_dir+"/quantimize/data/aCCf_0623_p_spec.nc")
 
@@ -26,8 +27,10 @@ def get_flight_info(flight_nr):
         dict: Flight number information with start_time as datetime.time object
                 (start_time, start_flight_level, start_long, start_lat, end_long, end_lat)
     """
-    start_time = datetime.datetime.strptime(flight_data[str(flight_nr)]["start_time"], "%H:%M:%S")
-    start_time = datetime.time(start_time.hour, start_time.minute, start_time.second)
+    start_time = datetime.datetime.strptime(
+        flight_data[str(flight_nr)]["start_time"], "%H:%M:%S")
+    start_time = datetime.time(
+        start_time.hour, start_time.minute, start_time.second)
     this_flight = copy.copy(flight_data[str(flight_nr)])
     this_flight["start_time"] = start_time
     return this_flight
@@ -43,7 +46,7 @@ def get_fl(arb_fl):
         str: Next available flight level in grid
     """
     arb_fl = int(arb_fl)
-    diff = arb_fl%20
+    diff = arb_fl % 20
     if diff == 0:
         pass
     elif diff >= 10:
@@ -85,19 +88,19 @@ def get_long(arb_long):
     elif arb_long > 30:
         return str(30.0)
     else:
-        diff = arb_long%2
+        diff = arb_long % 2
         if diff == 0:
             return str(arb_long)
         elif diff > 0.5 and diff < 1:
-            arb_long = round(arb_long-1,0)
+            arb_long = round(arb_long-1, 0)
             if arb_long == -0.0:
                 return str(abs(arb_long))
             else:
                 return str(arb_long)
-        elif diff >=1 and diff <= 1.5:
-            return str(round(arb_long+1,0))
+        elif diff >= 1 and diff <= 1.5:
+            return str(round(arb_long+1, 0))
         else:
-            arb_long = round(arb_long,0)
+            arb_long = round(arb_long, 0)
             if arb_long == -0.0:
                 return str(abs(arb_long))
             else:
@@ -119,15 +122,15 @@ def get_lat(arb_lat):
     elif arb_lat > 60:
         return str(60.0)
     else:
-        diff = arb_lat%2
+        diff = arb_lat % 2
         if diff == 0:
             return str(arb_lat)
         elif diff > 0.5 and diff < 1:
-            return str(round(arb_lat-1,0))
-        elif diff >=1 and diff <= 1.5:
-            return str(round(arb_lat+1,0))
+            return str(round(arb_lat-1, 0))
+        elif diff >= 1 and diff <= 1.5:
+            return str(round(arb_lat+1, 0))
         else:
-            return str(round(arb_lat,0))
+            return str(round(arb_lat, 0))
 
 
 def avoid_empty_atmo_data(fl):
@@ -167,9 +170,6 @@ def get_fl_atmo(arb_fl):
     return str(corrected_fl)
 
 
-
-
-
 def get_time(arb_time):
     """Get the next available time for the atmo data
 
@@ -179,12 +179,13 @@ def get_time(arb_time):
     Returns:
         str: Corresponding time for atmo data
     """
-    arb_time = datetime.datetime(2018,6,23,arb_time.hour,arb_time.minute,arb_time.second)
-    six_am = datetime.datetime(2018,6,23,6)
-    nine_am = datetime.datetime(2018,6,23,9)
-    twelve = datetime.datetime(2018,6,23,12)
-    three_pm = datetime.datetime(2018,6,23,15)
-    six_pm = datetime.datetime(2018,6,23,18)
+    arb_time = datetime.datetime(
+        2018, 6, 23, arb_time.hour, arb_time.minute, arb_time.second)
+    six_am = datetime.datetime(2018, 6, 23, 6)
+    nine_am = datetime.datetime(2018, 6, 23, 9)
+    twelve = datetime.datetime(2018, 6, 23, 12)
+    three_pm = datetime.datetime(2018, 6, 23, 15)
+    six_pm = datetime.datetime(2018, 6, 23, 18)
     if arb_time < nine_am:
         return six_am.strftime("%H:%M:%S")
     elif arb_time >= nine_am and arb_time < three_pm:
@@ -283,12 +284,12 @@ def create_time_grid(dt):
     time_list = []
     start = datetime.time(6)
     end = datetime.time(23)
-    time_grid[start] = {"LONG":[], "LAT":[], "FL":[], "FL_NR":[]}
+    time_grid[start] = {"LONG": [], "LAT": [], "FL": [], "FL_NR": []}
     time_list.append(start)
     count = int((end.hour-start.hour)*3600/dt)
     for i in range(count):
-        start = cv.update_time(start,dt)
-        time_grid[start] = {"LONG":[], "LAT":[], "FL":[], "FL_NR":[]}
+        start = cv.update_time(start, dt)
+        time_grid[start] = {"LONG": [], "LAT": [], "FL": [], "FL_NR": []}
         time_list.append(start)
     return time_list, time_grid
 
@@ -311,6 +312,7 @@ def map_trajectory_to_time_grid(trajectories, time_grid):
             time_grid[point[3]]["FL"].append(point[2])
     return time_grid
 
+
 def trajectory_to_csv(filename, trajectory, cost=0, flight_nr=-1):
     """Creates a csv file containing all flight trajectories or appends the data to a file with the same name.
     Flights are separated by a blank line
@@ -323,7 +325,7 @@ def trajectory_to_csv(filename, trajectory, cost=0, flight_nr=-1):
         flight_nr (int, optional): Flight number. Defaults to -1.
     """
     folder_dir = base_dir+"/quantimize/output/"
-    try: 
+    try:
         os.mkdir(folder_dir)
     except:
         pass
@@ -331,20 +333,19 @@ def trajectory_to_csv(filename, trajectory, cost=0, flight_nr=-1):
         flight_nr = trajectory["flight_nr"]
         trajectory = trajectory["trajectory"]
     try:
-        with open(folder_dir+filename+".csv","a",newline='', encoding='utf-8') as f:
+        with open(folder_dir+filename+".csv", "a", newline='', encoding='utf-8') as f:
             csvwriter = csv.writer(f, delimiter=",")
-            csvwriter.writerow(["Flight_Nr", flight_nr,"Cost",cost])
-            csvwriter.writerow(["Long","Lat","Flight_Level","Time"])
+            csvwriter.writerow(["Flight_Nr", flight_nr, "Cost", cost])
+            csvwriter.writerow(["Long", "Lat", "Flight_Level", "Time"])
             for point in trajectory:
                 csvwriter.writerow(point)
             csvwriter.writerow([])
     except:
-        with open(folder_dir+filename+".csv","w",newline='', encoding='utf-8') as f:
+        with open(folder_dir+filename+".csv", "w", newline='', encoding='utf-8') as f:
             csvwriter = csv.writer(f, delimiter=",")
-            csvwriter.writerow(["Flight_Nr", flight_nr,"Cost",cost])
-            csvwriter.writerow(["Long","Lat","Flight_Level","Time"])
+            csvwriter.writerow(["Flight_Nr", flight_nr, "Cost", cost])
+            csvwriter.writerow(["Long", "Lat", "Flight_Level", "Time"])
             for point in trajectory:
                 csvwriter.writerow(point)
             csvwriter.writerow([])
 
-    

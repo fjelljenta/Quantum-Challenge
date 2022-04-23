@@ -150,12 +150,12 @@ def coordinates_to_distance3D(start_long, start_lat, start_FL, stop_long, stop_l
     """
     diff_long = stop_long-start_long
     diff_lat = stop_lat-start_lat
-    diff_FL= stop_FL-start_FL
+    diff_FL = stop_FL-start_FL
     diff_long_km = diff_long*85
     diff_lat_km = diff_lat*111
-    diff_FL_km=100*diff_FL*0.0003048#1 feet is 0,0003048km and 1FL is 100feet
+    diff_FL_km = 100*diff_FL*0.0003048  # 1 feet is 0,0003048km and 1FL is 100feet
     distance = math.sqrt(diff_long_km**2+diff_lat_km**2+diff_FL_km**2)
-    return round(distance, 2)   #Todo: Check if that is necessary
+    return round(distance, 2)  # Todo: Check if that is necessary
 
 
 def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
@@ -175,7 +175,7 @@ def coordinates_to_distance(start_long, start_lat, stop_long, stop_lat):
     diff_long_km = diff_long*85
     diff_lat_km = diff_lat*111
     distance = math.sqrt(diff_long_km**2+diff_lat_km**2)
-    return round(distance, 2)   #Todo: Check if that is necessary
+    return round(distance, 2)  # Todo: Check if that is necessary
 
 
 def calculate_min_radius(TAS):
@@ -207,7 +207,7 @@ def update_time(current_time, dt):
     hr = current_time.hour
     m = current_time.minute
     s = current_time.second
-    return datetime.time((hr+(m+(dt+s)//60)//60), (m+(dt+s)//60)%60, (dt+s)%60)
+    return datetime.time((hr+(m+(dt+s)//60)//60), (m+(dt+s)//60) % 60, (dt+s) % 60)
 
 
 def datetime_to_seconds(current_time):
@@ -260,6 +260,7 @@ def trajectory_elements_to_list(trajectory):
         time.append(point[3])
     return long, lat, fl, time
 
+
 def trajectory_point_boundaries(trajectory_point):
     """Finds the boundary points for a given trajectory points according to the atmospheric data grid
 
@@ -269,25 +270,26 @@ def trajectory_point_boundaries(trajectory_point):
     Returns:
         float: x and y boundaries for the given point
     """
-    if trajectory_point[0] < 0 and trajectory_point[0]>-1:
-        xbound = abs(round(trajectory_point[0],0))
+    if trajectory_point[0] < 0 and trajectory_point[0] > -1:
+        xbound = abs(round(trajectory_point[0], 0))
     else:
-        xbound = round(trajectory_point[0],0)
-    if xbound%2 == 0 and xbound <= trajectory_point[0]:
+        xbound = round(trajectory_point[0], 0)
+    if xbound % 2 == 0 and xbound <= trajectory_point[0]:
         x = (xbound, xbound+2)
-    elif xbound%2 == 0 and xbound >= trajectory_point[0]:
+    elif xbound % 2 == 0 and xbound >= trajectory_point[0]:
         x = (xbound-2, xbound)
-    elif xbound%2 == 1:
-        x = (xbound-1,xbound+1)
+    elif xbound % 2 == 1:
+        x = (xbound-1, xbound+1)
 
-    ybound = round(trajectory_point[1],0)
-    if ybound%2 == 0 and ybound <= trajectory_point[1]:
+    ybound = round(trajectory_point[1], 0)
+    if ybound % 2 == 0 and ybound <= trajectory_point[1]:
         y = (ybound, ybound+2)
-    elif ybound%2 == 0 and ybound >= trajectory_point[1]:
+    elif ybound % 2 == 0 and ybound >= trajectory_point[1]:
         y = (ybound-2, ybound)
-    elif ybound%2 == 1:
-        y = (ybound-1,ybound+1)
-    return x,y
+    elif ybound % 2 == 1:
+        y = (ybound-1, ybound+1)
+    return x, y
+
 
 def check_trajectory_dict(trajectory):
     """Check function to strip of the dictionary if used
@@ -303,6 +305,7 @@ def check_trajectory_dict(trajectory):
     except:
         return trajectory
 
+
 def wrap_trajectory(flight_nr, trajectory):
     """Wraps the trajectory list in a dictionary
 
@@ -313,4 +316,4 @@ def wrap_trajectory(flight_nr, trajectory):
     Returns:
         dict: dict combining flight number and trajectory
     """
-    return {"flight_nr":flight_nr, "trajectory":trajectory}
+    return {"flight_nr": flight_nr, "trajectory": trajectory}

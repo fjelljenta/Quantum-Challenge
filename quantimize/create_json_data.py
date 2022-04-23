@@ -4,6 +4,7 @@ import simplejson
 import os
 import xarray as xr
 
+
 def create_flight_schedule():
     """Creates the flight schedule as json file
     """
@@ -12,26 +13,28 @@ def create_flight_schedule():
     df = pd.read_csv(base_dir+"/data/flights.csv", sep=";")
     for key, value in df.iterrows():
         data[value["flight_number"]] = {
-            "start_time":value["start_time"], 
-            "start_flightlevel":value["start_flightlevel"],
-            "start_longitudinal":value["start_longitudinal"], 
-            "start_latitudinal":value["start_latitudinal"], 
-            "end_longitudinal":value["end_longitudinal"], 
-            "end_latitudinal":value["end_latitudinal"]
+            "start_time": value["start_time"],
+            "start_flightlevel": value["start_flightlevel"],
+            "start_longitudinal": value["start_longitudinal"],
+            "start_latitudinal": value["start_latitudinal"],
+            "end_longitudinal": value["end_longitudinal"],
+            "end_latitudinal": value["end_latitudinal"]
         }
 
     with open(base_dir+"/data/flights.json", "wb") as f:
         f.write(json.dumps(data).encode("utf-8"))
+
 
 def create_bada_data():
     """Creates the flight level information as json file
     """
     data = {}
     base_dir = os.getcwd()
-    df = pd.read_csv(base_dir+"/data/bada_data.csv", sep=";", header=7, decimal=",")
-    for key,value in df.iterrows():
+    df = pd.read_csv(base_dir+"/data/bada_data.csv",
+                     sep=";", header=7, decimal=",")
+    for key, value in df.iterrows():
         if value["FL"] >= 100:
-            data[int(value["FL"])] = {"CRUISE":{},"CLIMB":{},"DESCENT":{}}
+            data[int(value["FL"])] = {"CRUISE": {}, "CLIMB": {}, "DESCENT": {}}
             data[int(value["FL"])]["CRUISE"]["TAS"] = value["TAS [kts]"]
             data[int(value["FL"])]["CRUISE"]["fuel"] = value["fuel [kg/min]"]
             data[int(value["FL"])]["CLIMB"]["TAS"] = value["TAS [kts].1"]
@@ -41,11 +44,12 @@ def create_bada_data():
             data[int(value["FL"])]["DESCENT"]["fuel"] = value["fuel [kg/min].2"]
             data[int(value["FL"])]["DESCENT"]["ROD"] = value["ROD [ft/min]"]
 
-    with open(base_dir+"/data/bada_data.json","wb") as f:
+    with open(base_dir+"/data/bada_data.json", "wb") as f:
         f.write(simplejson.dumps(data, ignore_nan=True).encode("utf-8"))
 
+
 def convert_hPa_to_FL(hPA):
-    """Converts hPa to flight level according to given PDF
+    """Converts hPa to flight level according to the table given in the PDF
 
     Args:
         hPA (int): Flight level in hPA
@@ -76,6 +80,7 @@ def convert_hPa_to_FL(hPA):
     else:
         return 0
 
+
 def create_atmo_data():
     """Converts the atmospheric data to json file
     """
@@ -86,28 +91,35 @@ def create_atmo_data():
 
     for key, value in df.iterrows():
         FL = convert_hPa_to_FL(key[2])
-        if FL != 0 and key[0]>=-30:
+        if FL != 0 and key[0] >= -30:
             if key[0] in data:
                 if key[1] in data[key[0]]:
                     if FL in data[key[0]][key[1]]:
-                        data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {"MERGED":value["MERGED"]}
+                        data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {
+                            "MERGED": value["MERGED"]}
                     else:
                         data[key[0]][key[1]][FL] = {}
-                        data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {"MERGED":value["MERGED"]}
+                        data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {
+                            "MERGED": value["MERGED"]}
                 else:
                     data[key[0]][key[1]] = {}
                     data[key[0]][key[1]][FL] = {}
-                    data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {"MERGED":value["MERGED"]}
+                    data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {
+                        "MERGED": value["MERGED"]}
             else:
                 data[key[0]] = {}
                 data[key[0]][key[1]] = {}
                 data[key[0]][key[1]][FL] = {}
-                data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {"MERGED":value["MERGED"]}
-        
+                data[key[0]][key[1]][FL][str(key[4]).split(" ")[1]] = {
+                    "MERGED": value["MERGED"]}
+
     with open(base_dir+"/data/atmo.json", "wb") as f:
         f.write(json.dumps(data).encode("utf-8"))
 
+
 if __name__ == "__main__":
+    """Main entry for an interactiv generation of the various data sources
+    """
     while True:
         print("Which data should be converted?")
         print("1) Flight schedule")
