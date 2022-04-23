@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Benchmarking toolbox &#8212; Quantum Challenge - Quantimize 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Benchmarking" href="benchmarking.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="benchmarking-toolbox">
+<h1>Benchmarking toolbox<a class="headerlink" href="#benchmarking-toolbox" title="Permalink to this headline">¶</a></h1>
+<p>The benchmarking toolbox consists of addtional functions and plot options.</p>
+<span class="target" id="module-quantimize.benchmarking.toolbox"></span><dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.toolbox.ga_for_benchmarking">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.toolbox.</span></span><span class="sig-name descname"><span class="pre">ga_for_benchmarking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.toolbox.ga_for_benchmarking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and returns the genetic algorithm solution for a given flight
+:param flight_nr: Flight number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Trajectory in the format of a list containing coordinates and time stamps</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.toolbox.plot_graph">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.toolbox.</span></span><span class="sig-name descname"><span class="pre">plot_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">titel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_value_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.toolbox.plot_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation of bar plots with error bars</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>titel</strong> (<em>string</em>) – title of the plot</p></li>
+<li><p><strong>y_label</strong> (<em>string</em>) – y-axis label of the plot</p></li>
+<li><p><strong>mean_value_list</strong> (<em>list</em>) – list of mean values for the bars</p></li>
+<li><p><strong>error_list</strong> (<em>list</em>) – list of the corresponding errors for the error bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.toolbox.qga_for_benchmarking">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.toolbox.</span></span><span class="sig-name descname"><span class="pre">qga_for_benchmarking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.toolbox.qga_for_benchmarking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and returns the quantum genetic algorithm solution for a given flight
+:param flight_nr: Flight number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Trajectory in the format of a list containing coordinates and time stamps</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.toolbox.qnn_for_benchmarking">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.toolbox.</span></span><span class="sig-name descname"><span class="pre">qnn_for_benchmarking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.toolbox.qnn_for_benchmarking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and returns the quantum neural network solution for a given flight
+:param flight_nr: Flight number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Trajectory in the format of a list containing coordinates and time stamps</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.toolbox.sl_for_benchmarking">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.toolbox.</span></span><span class="sig-name descname"><span class="pre">sl_for_benchmarking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.toolbox.sl_for_benchmarking" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Computes and returns the straight line solution for a given flight</dt><dd><p>The straight line solution assumes the same flight level as starting point for the ending point</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>flight_nr</strong> – Flight number</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trajectory in the format of a list containing coordinates and time stamps</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Quantum Challenge - Quantimize</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage of various functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../classic.html">How to use classic functions and algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quantum.html">How to use quantum functions and algorithms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../benchmarking.html">How to use benchmarking functions</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="benchmarking.html">Benchmarking</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Benchmarking toolbox</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../benchmarking.html">How to use benchmarking functions</a><ul>
+      <li>Previous: <a href="benchmarking.html" title="previous chapter">Benchmarking</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Franziska Wilfinger, Catharina Broocks, Jezer Jojo, Kevin Shen, Jakob Pforr.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/usage/benchmarking/toolbox.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

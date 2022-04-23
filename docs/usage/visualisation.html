@@ -1,0 +1,362 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Visualisation &#8212; Quantum Challenge - Quantimize 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Air Security" href="air_security.html" />
+    <link rel="prev" title="Converter" href="converter.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="visualisation">
+<h1>Visualisation<a class="headerlink" href="#visualisation" title="Permalink to this headline">¶</a></h1>
+<p>The visualisation covers almost everything regarding flight trajectory or atmospheric data plotting. There are 2D and 3D functions as well as animated ones.
+Especially highlighted should be the functions <code class="docutils literal notranslate"><span class="pre">plot_flight_path_on_3d_map_with_atmo_as_points</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_flight_path_on_3d_map_with_atmo_as_slices</span></code>.</p>
+<p>The general workingflow is to create a map object and then plot the trajectory on the map.</p>
+<span class="target" id="module-quantimize.visualisation"></span><dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.animate_flight_path_on_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">animate_flight_path_on_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_trajectories</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.animate_flight_path_on_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>animates fight paths on a map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_of_trajectories</strong> (<em>list of trajectory dicts</em>) – list of trajectory dicts</p></li>
+<li><p><strong>dt</strong> (<em>int</em>) – time step of the animation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.get_FL_index">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">get_FL_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.get_FL_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return index of flight level in hPa for atmo data for a given flight level in FL</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl_list</strong> (<em>list</em>) – List with available flight levels in hPa</p></li>
+<li><p><strong>FL</strong> (<em>int/float/str</em>) – Current flight level in FL</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Index position</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.get_time_index">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">get_time_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.get_time_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return index of time_list for a given time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>datetime.time</em>) – Current time</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Index position for time</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.make_3d_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">make_3d_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.make_3d_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a 3D map of the region with the flight levels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Axes and map to further plot trajectories or data</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>matplotlib.Axes, Basemap.map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.make_animated_atmo_FL_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">make_animated_atmo_FL_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.make_animated_atmo_FL_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation of an animated atmo data map for different flight level at one time point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>time</em>) – time point for the animation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.make_animated_atmo_day_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">make_animated_atmo_day_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.make_animated_atmo_day_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation of an animated atmo data map over the day for one flight level</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>FL</strong> (<em>int</em>) – flight level</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.make_atmo_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">make_atmo_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.make_atmo_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create map with a given flight level and time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FL</strong> (<em>int/float/str</em>) – Current flight level</p></li>
+<li><p><strong>time</strong> (<em>datetime.time</em>) – Current time</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.make_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">make_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.make_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a map of the region</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Basemap of the region</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Basemap.map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.plot_flight_path_on_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">plot_flight_path_on_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.plot_flight_path_on_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>makes a normal line plot of a flight path on a map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>map</strong> – Map to plot data in</p></li>
+<li><p><strong>trajectory</strong> (<em>list</em>) – list of trajectory elements</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>map with flight path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.plot_flight_path_on_map_3d">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">plot_flight_path_on_map_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.plot_flight_path_on_map_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a line plot on a 3d map of the flight trajectory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.Axes</em>) – Matplotlib axes</p></li>
+<li><p><strong>map</strong> (<em>matplotlib.Figure</em>) – The actual map</p></li>
+<li><p><strong>trajectory</strong> (<em>list/dict</em>) – List or dict with the trajectory points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the ax and map (might not be needed)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ax, map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.plot_flight_path_on_map_3d_with_atmo_as_points">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">plot_flight_path_on_map_3d_with_atmo_as_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.plot_flight_path_on_map_3d_with_atmo_as_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a scatter plot on a 3d map of the flight trajectory and adds colors to the points according to the
+atmospheric data values for that point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.Axes</em>) – Matplotlib axes</p></li>
+<li><p><strong>map</strong> (<em>matplotlib.Figure</em>) – The actual map</p></li>
+<li><p><strong>trajectory</strong> (<em>list/dict</em>) – List or dict with the trajectory points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the ax and map (might not be needed)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ax, map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.plot_flight_path_on_map_3d_with_atmo_as_slices">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">plot_flight_path_on_map_3d_with_atmo_as_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.plot_flight_path_on_map_3d_with_atmo_as_slices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a line plot on a 3d map of the flight trajectory and adds colored slices to the points according to the
+atmospheric data values for that point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.Axes</em>) – Matplotlib axes</p></li>
+<li><p><strong>map</strong> (<em>matplotlib.Figure</em>) – The actual map</p></li>
+<li><p><strong>trajectory</strong> (<em>list/dict</em>) – List or dict with the trajectory points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the ax and map (might not be needed)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ax, map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.scatter_flight_path_on_map">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">scatter_flight_path_on_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.scatter_flight_path_on_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>makes a scatter plot of a flight path on a map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>map</strong> – Map to plot data in</p></li>
+<li><p><strong>trajectory</strong> (<em>list</em>) – list of trajectory elements</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>map with flight path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.visualisation.scatter_flight_path_on_map_3d">
+<span class="sig-prename descclassname"><span class="pre">quantimize.visualisation.</span></span><span class="sig-name descname"><span class="pre">scatter_flight_path_on_map_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.visualisation.scatter_flight_path_on_map_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a scatter plot on a 3d map of the flight trajectory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.Axes</em>) – Matplotlib axes</p></li>
+<li><p><strong>map</strong> (<em>matplotlib.Figure</em>) – The actual map</p></li>
+<li><p><strong>trajectory</strong> (<em>list/dict</em>) – List or dict with the trajectory points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the ax and map (might not be needed)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ax, map</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Quantum Challenge - Quantimize</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../usage.html">Usage of various functions</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="create_json_data.html">Creation of JSON data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_access.html">Access to JSON data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="converter.html">Converter</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Visualisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="air_security.html">Air Security</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classic_summary.html">Access the classic functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantum_summary.html">Access the quantum functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classic.html">How to use classic functions and algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantum.html">How to use quantum functions and algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarking.html">How to use benchmarking functions</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../usage.html">Usage of various functions</a><ul>
+      <li>Previous: <a href="converter.html" title="previous chapter">Converter</a></li>
+      <li>Next: <a href="air_security.html" title="next chapter">Air Security</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Franziska Wilfinger, Catharina Broocks, Jezer Jojo, Kevin Shen, Jakob Pforr.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/usage/visualisation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

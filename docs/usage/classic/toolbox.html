@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Classic toolbox &#8212; Quantum Challenge - Quantimize 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to use quantum functions and algorithms" href="../quantum.html" />
+    <link rel="prev" title="Classic solution algorithm" href="classic_solution.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="classic-toolbox">
+<h1>Classic toolbox<a class="headerlink" href="#classic-toolbox" title="Permalink to this headline">¶</a></h1>
+<p>The classic toolbox inhabits the function to calculate the cost of a flight with respect to the environmental impact.
+Other functions in this toolbox offer functionality to</p>
+<ul class="simple">
+<li><p>calculate a straight line solution</p></li>
+<li><p>calculate the trajectory from the GA output</p></li>
+<li><p>change the time points of a flight to a uniform step size</p></li>
+<li><p>correct for possible boundary erros</p></li>
+</ul>
+<span class="target" id="module-quantimize.classic.toolbox"></span><dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.compute_cost">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">compute_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.compute_cost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cost for a given list of trajectories in 10**-12 K</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>trajectory</strong> (<em>list of trajectory dicts</em>) – List of trajectory dicts</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>cost in 10**-12 K and flight number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float, int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.compute_time_to_reach_other_flightlevel">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">compute_time_to_reach_other_flightlevel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fl2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.compute_time_to_reach_other_flightlevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the time a plane needs to reach another flight level</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fl1</strong> – start flight level</p></li>
+<li><p><strong>fl2</strong> – end flight level</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>time dt it needs to reach the next flight level in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.correct_for_boundaries">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">correct_for_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.correct_for_boundaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if every point in our trajectory has a flight level between 100 and 400, which are the bounds.
+If the trajectory leaves our boundaries the trajectory is corrected by replacing the “bad parts” with a straight line solution
+between the last point inside our bounds and the first point, which is inside the bounds again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>trajectory</strong> – input trajectory, which potentially leaves the area of interest</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>corrected trajectory, which is only inside the bounds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.correct_time_for_trajectory">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">correct_time_for_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_correction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.correct_time_for_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corrects a given trajectory for a certain time correction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trajectory</strong> (<em>list</em>) – trajectory</p></li>
+<li><p><strong>time_correction</strong> – time correction</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>time corrected trajectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.curve_3D_solution">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">curve_3D_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_pts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.curve_3D_solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the curved 3D solution for a given flight number</p>
+<p>Args:
+flight_nr (int): flight number</p>
+<p>Returns:
+dictionary with flight numbers and corresponding trajectory</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.curve_3D_trajectory">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">curve_3D_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_pts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.curve_3D_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>The curve 3D curve is constructed by multiplying two spline curves, spline_xy and spline_z together.
+Spline_xy curve is parametrized by 5 control points in the x-y plane. The first and last points are fixed, as they
+are the starting and ending points of the trajectory. 3 control points ( 3 x-coordinates + 3 y-coordinates =
+6 paramters) are variable.
+Spline_z curve is parametrized by 6 control points in the vertical plane, spanned by the z_axis and the vector along
+straight_line trajectory. The first control point is fixed as it;s the starting point of the trajectory.
+The coordinates of the vector along straight_line trajectory is also fixed and set to be evenly separated. The
+z-coordinates (flight level) of the remaining 5 control points are variable.</p>
+<p>Args:
+flight_nr (int): flight number
+ctrl_pts: numpy array containing control points</p>
+<p>Returns:
+trajectory (dict): dictionary containing the flights and the corresponding trajectories</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.curve_3D_trajectory_core">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">curve_3D_trajectory_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.curve_3D_trajectory_core" title="Permalink to this definition">¶</a></dt>
+<dd><p>The core function for computing the trajectory out of the input spline curves
+We break the trajectory into small straight line pieces according to a constant step in longitude. If in a piece,
+the plane is climbing (or descending), we will again break it into 2 smaller parts, the first being in climbing (or
+descending) mode with fixed ROC (or ROD), and the second being in cruise mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flight_nr</strong> (<em>int</em>) – flight number</p></li>
+<li><p><strong>spline_xy</strong> – The function of the xy-spline curve, takes x as input and gives y as output</p></li>
+<li><p><strong>spline_z</strong> – The function of the z-spline curve, takes distance as input and gives z as output</p></li>
+<li><p><strong>dx</strong> – The incremental step in longitude</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trajectory in the format of a list of tuples (time, longitude, latitude)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>trajectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.fit_spline">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">fit_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.fit_spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that takes in the x and y coordinates of control points, obtain the analytical function of the spline
+curve that interpolates the control points, and returns it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – x-coordinates of control points</p></li>
+<li><p><strong>y</strong> – y-coordinates of control points</p></li>
+<li><p><strong>k</strong> – optional, the default is 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The function of the spline curve, takes x as input and gives y as output</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>spline</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.partition">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.partition" title="Permalink to this definition">¶</a></dt>
+<dd><p>partitions a list into continuous parts
+eg. [1,2,3,5,6,7,8,11,12,15] –&gt; [[1, 2, 3], [5, 6, 7, 8], [11, 12], [15]]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>list</em>) – a list of indices</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of continuous lists of indices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.plot_b_spline">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">plot_b_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.plot_b_spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>makes a plot of the spline curve, and marks the control points on the plot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spline</strong> – The function of the spline curve, takes x as input and gives y as output</p></li>
+<li><p><strong>x</strong> – x-coordinates of control points</p></li>
+<li><p><strong>y</strong> – y-coordinates of control points</p></li>
+<li><p><strong>N</strong> – optional, the default is 100</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.straight_line_solution">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">straight_line_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.straight_line_solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the straight line solution for a given flight</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flight_nr</strong> – Flight number</p></li>
+<li><p><strong>dt</strong> – The time step in seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trajectory in the format of a list of tuples (time, longitude, latitude) embeded in a dict with flightnumber</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.straight_line_trajectory">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">straight_line_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.straight_line_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Computes and returns the straight line solution for a given flight</dt><dd><p>The straight line solution assumes the same flight level as starting point for the ending point</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flight_nr</strong> – Flight number</p></li>
+<li><p><strong>dt</strong> – The time step in seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trajectory in the format of a list of tuples (time, longitude, latitude)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.straight_line_trajectory_core">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">straight_line_trajectory_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_longitudinal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_longitudinal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_latitudinal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_latitudinal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_flightlevel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.straight_line_trajectory_core" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Computes and returns the straight line solution for a given start and ending point.</dt><dd><p>The straight line solution assumes that the ending point has the same flight level as the starting point</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_longitudinal</strong> (<em>float/int</em>) – start longitudinal coordinate</p></li>
+<li><p><strong>end_longitudinal</strong> (<em>float/int</em>) – end longitudinal coordinate</p></li>
+<li><p><strong>start_latitudinal</strong> (<em>float/int</em>) – start latitudinal coordinate</p></li>
+<li><p><strong>end_latitudinal</strong> (<em>float/int</em>) – end latitudinal coordinate</p></li>
+<li><p><strong>start_flightlevel</strong> (<em>float/int</em>) – start flight level, also the end flight level</p></li>
+<li><p><strong>start_time</strong> (<em>datetime</em>) – start time of the plane</p></li>
+<li><p><strong>dt</strong> (<em>float/int</em>) – time step</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Trajectory in the format of a list of tuples</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.timed_trajectory">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">timed_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.timed_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a trajectory for given time steps,
+end_time might be excluded if starttime-endtime is no multiple of dt.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>trajectory (list): List of trajectory points with constant dx
+dt (int): Timestep in seconds</p>
+</dd>
+<dt>Returns:</dt><dd><p>(list): List of trajectory points with constant dt</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.classic.toolbox.trajectory_at_time">
+<span class="sig-prename descclassname"><span class="pre">quantimize.classic.toolbox.</span></span><span class="sig-name descname"><span class="pre">trajectory_at_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.classic.toolbox.trajectory_at_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns one trajectory entry (x,y and z position) which approximates the position for a given time linearly,
+if time is out of bounds of flight time, an empty array is returned</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trajectory</strong> (<em>list</em>) – List of trajectory points with constant dx</p></li>
+<li><p><strong>datetime</strong> (<em>int</em>) – Time in seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>trajectory point at wished time</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Quantum Challenge - Quantimize</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage of various functions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../classic.html">How to use classic functions and algorithms</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="classic_solution.html">Classic solution algorithm</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Classic toolbox</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quantum.html">How to use quantum functions and algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarking.html">How to use benchmarking functions</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../classic.html">How to use classic functions and algorithms</a><ul>
+      <li>Previous: <a href="classic_solution.html" title="previous chapter">Classic solution algorithm</a></li>
+      <li>Next: <a href="../quantum.html" title="next chapter">How to use quantum functions and algorithms</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Franziska Wilfinger, Catharina Broocks, Jezer Jojo, Kevin Shen, Jakob Pforr.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/usage/classic/toolbox.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
