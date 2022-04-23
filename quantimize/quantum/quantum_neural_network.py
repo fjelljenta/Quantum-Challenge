@@ -175,7 +175,7 @@ def quantum_neural_network(flight_nr, n_qubits, init_solution):
         device_execs_spsa.append(num_executions)
 
         iteration_num = len(cost_store_spsa)
-        if iteration_num % 1 == 0:
+        if iteration_num % 2 == 0:
             print(
                 f"Iteration = {iteration_num}, "
                 f"Number of device executions = {num_executions}, "

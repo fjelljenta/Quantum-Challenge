@@ -357,7 +357,7 @@ def Q_GA(flight_nr, plot_graph=0, **kwargs):
         generation = generation+1
         Measure(0.5)
         Fitness_evaluation(flight_nr, generation)
-        if print_bool: print("Running QGA. Generation:", generation)
+        if print_bool and generation%2 == 0: print("Running QGA. Generation:", generation)
     rotation()
     mutation(0.01, 0.001)
     generation = generation+1
