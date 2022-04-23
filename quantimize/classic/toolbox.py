@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def compute_cost(trajectory):
-    """Returns the cost for a given list of trajectories in 10**-12
+    """Returns the cost for a given list of trajectories in 10**-12 K
 
     Args:
         trajectory (list of trajectory dicts): List of trajectory dicts
@@ -14,6 +14,7 @@ def compute_cost(trajectory):
     Returns:
         float, int: cost in 10**-12 K and flight number
     """
+    # preparation
     cost = 0
     flight_path = cv.check_trajectory_dict(trajectory)
     t = cv.datetime_to_seconds(flight_path[0][3])

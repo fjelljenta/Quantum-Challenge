@@ -1,21 +1,25 @@
-from quantimize.classic.toolbox import *
+import quantimize.classic.toolbox as toolbox
+import numpy as np
+import quantimize.data_access as da
+import quantimize.converter as cv
 from geneticalgorithm import geneticalgorithm as ga
 from functools import partial
 
 
 def run_genetic_algorithm(flight_nr, **kwargs):
-    """Genetic algorithm for the classical solution for a certain flight
-    
+    """Genetic algorithm for the classical solution for a given flightnumber
+
     Args:
         flight_nr (int): flight number
 
     Returns:
         report : model report
         solution (dict): output dictionary
-        trajectory (dict): dictionary containing the flights and the corresponding tranjectories
-
+        trajectory (list): list containing the flight and the corresponding tranjectories
     """
+    # generate initial search bounds
     varbound = generate_search_bounds(flight_nr, **kwargs)
+    # set algorithm parameters
     algorithm_param = {'max_num_iteration': kwargs.get("max_iter", 100),
                        'population_size': kwargs.get("pop_size", 10),
                        'mutation_probability': kwargs.get("mut_prob", 0.1),
@@ -24,18 +28,21 @@ def run_genetic_algorithm(flight_nr, **kwargs):
                        'parents_portion': kwargs.get("pp", 0.3),
                        'crossover_type': 'uniform',
                        'max_iteration_without_improv': kwargs.get("max_iter_w_i", 50)}
+    # prepare model and run it
     model = ga(fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
                variable_boundaries=varbound, algorithm_parameters=algorithm_param, convergence_curve=False)
     model.run()
+    # seperate the result
     report = model.report
     solution = model.output_dict
-    trajectory = curve_3D_trajectory(flight_nr, solution['variable'])
+    # calculate the trajectory from the solution
+    trajectory = toolbox.curve_3D_trajectory(flight_nr, solution['variable'])
     return report, solution, trajectory
 
 
 def fitness_function_single_flight(flight_nr):
     """
-    
+
     Args:
         flight_nr (int): flight number
 
@@ -47,23 +54,22 @@ def fitness_function_single_flight(flight_nr):
 
 
 def fitness_function(flight_nr, ctrl_pts):
-    """    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z.
-    obtain a trajectory and then compute cost
-    
+    """    Takes in a list of 11 parameters for control points, first 3 for x, next 3 for y, last 5 for z. Obtain a trajectory and then compute cost
+
     Args:
         flight_nr (int): flight number
         ctrl_pts : control points
-    
+
     Returns:
         cost (float): Environmental cost of a tranjectory
     """
-    trajectory = curve_3D_solution(flight_nr, ctrl_pts)
-    cost = compute_cost(trajectory)
+    trajectory = toolbox.curve_3D_solution(flight_nr, ctrl_pts)
+    cost = toolbox.compute_cost(trajectory)
     return cost
 
 
 def generate_search_bounds(flight_nr, **kwargs):
-    """Generation of search boundaries for a certain flight
+    """Generation of search boundaries for a certain flight number
 
     Args:
     flight_nr (int): flight number
@@ -75,9 +81,11 @@ def generate_search_bounds(flight_nr, **kwargs):
     info = da.get_flight_info(flight_nr)
     total_distance = cv.coordinates_to_distance(info['start_longitudinal'], info['start_latitudinal'],
                                                 info['end_longitudinal'], info['end_latitudinal'])
-    dx = np.abs(info['end_longitudinal'] - info['start_longitudinal']) / 60 * 0.05 * total_distance/85
+    dx = np.abs(info['end_longitudinal'] -
+                info['start_longitudinal']) / 60 * 0.05 * total_distance/85
     # x shouldn't vary a lot
-    dy = np.abs(info['end_latitudinal'] - info['start_latitudinal']) / 26 * 0.1 * total_distance/111
+    dy = np.abs(info['end_latitudinal'] -
+                info['start_latitudinal']) / 26 * 0.1 * total_distance/111
     x1 = 3/4*info['start_longitudinal'] + 1/4*info['end_longitudinal']
     x1_bound = [max(x1-dx, -30), min(x1+dx, 30)]
     x2 = 1/2*info['start_longitudinal'] + 1/2*info['end_longitudinal']
