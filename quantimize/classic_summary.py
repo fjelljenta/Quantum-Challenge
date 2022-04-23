@@ -32,7 +32,7 @@ def genetic_algorithm_solution(flight_nr, dt, **kwargs):
     while not run_complete:
         try:
             report, solution, trajectory = csol.run_genetic_algorithm(
-                flight_nr)
+                flight_nr, **kwargs)
             run_complete = True
         except:
             print("Retry GA")

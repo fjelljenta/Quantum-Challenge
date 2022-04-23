@@ -229,9 +229,13 @@ def radius_control(trajectory):
                       flight_path[i][1]-flight_path[i+1][1]])
         v2 = np.array([flight_path[i+1][0]-flight_path[i+2][0],
                       flight_path[i+1][1]-flight_path[i+2][1]])
-        #theta = np.arccos(np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2)))*180/np.pi
-        theta = np.arccos(np.dot(v1 / np.linalg.norm(v1),
-                          v2/np.linalg.norm(v2))) * 180 / np.pi
+        dotproduct= np.dot(v1 / np.linalg.norm(v1), v2/np.linalg.norm(v2))
+        if dotproduct > 1:
+            theta = 0.0
+        elif dotproduct < -1:
+            theta = 180.0
+        else:
+            theta = np.arccos(dotproduct) * 180 / np.pi
         if theta > 25:
             flag = True
     if flag:
@@ -241,17 +245,31 @@ def radius_control(trajectory):
 
 
 def safe_algorithm(flights, algorithm, **kwargs):
-    dt= kwargs.get("dt", 15)
+    dt = kwargs.get("dt", 15)
     trajectories = []
 
+    radius_check_needed=True
+    radius_runs = 0
+    radius_errors = []
+
     for flight in flights:
-        trajectories.append(algorithm(flight, dt, only_trajectory_dict=True))
+        while radius_check_needed:
+            if radius_runs > 3:
+                radius_errors.append(flight)
+                break
+            next_trajectory = algorithm(flight, dt, only_trajectory_dict=True, timed_trajecotory=False)
+            radius_check_needed = not radius_control(next_trajectory)
+            radius_runs = radius_runs+1
+        radius_runs = 0
+        radius_check_needed = True
 
-    safety_check_needed = True
+        trajectories.append(next_trajectory)
+
+    crash_check_needed = True
     old_compute_again_len = len(flights)
-    same_correction_count=0
+    same_correction_count = 0
 
-    while safety_check_needed:
+    while crash_check_needed:
 
         # todo: check radius
 
@@ -304,9 +322,22 @@ def safe_algorithm(flights, algorithm, **kwargs):
         print('compute_again: ', compute_again)
 
         for flight in compute_again:
-            trajectories[flights.index(flight)] = algorithm(flight, dt, only_trajectory_dict=True)
+            if flight in radius_errors:
+                radius_errors.remove(flight)
 
-        safety_check_needed = len(compute_again)
+            while radius_check_needed:
+                if radius_runs > 3:
+                    radius_errors.append(flight)
+                    break
+                next_trajectory = algorithm(flight, dt, only_trajectory_dict=True, timed_trajecotory=False)
+                radius_check_needed = not radius_control(next_trajectory)
+                radius_runs = radius_runs + 1
+            radius_runs = 0
+            radius_check_needed = True
+
+            trajectories[flights.index(flight)] = next_trajectory
+
+        crash_check_needed = len(compute_again)
 
         #break for too many rounds
         if (old_compute_again_len == len(compute_again)):
@@ -314,10 +345,18 @@ def safe_algorithm(flights, algorithm, **kwargs):
             if same_correction_count > 3:
                 print("flight(s) ", compute_again, " lead to non-correctable crashings, ",
                                                    "change starting time or starting level of these flights")
+                if len(radius_errors):
+                    print("flight(s) ", radius_errors, " have non-correctable too small curve-radius, ",
+                                                   "change starting time or starting level of these flights")
                 return trajectories
         else:
             same_correction_count = 0
             old_compute_again_len = len(compute_again)
+
+    if len(radius_errors):
+        print("flight(s) ", radius_errors, " have non-correctable too small curve-radius, ",
+              "change starting time or starting level of these flights")
+        return trajectories
 
     print("air security protocol suceeded")
     return trajectories

@@ -13,7 +13,13 @@ def quantum_genetic_algorithm_solution(flight_nr, dt, **kwargs):
     Returns:
         dict: Trajectory in the format of a list of tuples (long, lat, time) embedded in a dict with flight number
     """
-    trajectory = qga.Q_GA(flight_nr)
+    run_complete = False
+    while not run_complete:
+        try:
+            trajectory = qga.Q_GA(flight_nr, **kwargs)
+            run_complete = True
+        except:
+            print("Retry QGA")
     if kwargs.get("timed_trajectory", True):
         trajectory = toolbox.timed_trajectory(trajectory, dt)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
