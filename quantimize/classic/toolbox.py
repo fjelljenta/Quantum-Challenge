@@ -120,6 +120,7 @@ def straight_line_solution(flight_nr, dt):
 def straight_line_trajectory(flight_nr, dt):
     """Computes and returns the straight line solution for a given flight
        The straight line solution assumes the same flight level as starting point for the ending point
+       
     Args:
         flight_nr: Flight number
         dt: The time step in seconds
