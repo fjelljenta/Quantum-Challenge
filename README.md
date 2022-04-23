@@ -3,9 +3,31 @@ Hello everybody,
 this is team Quantimize's contribution to the Quantum Climate Challenge by Deloitte (https://app.ekipa.de/challenges/deloitte-quantum/brief).
 In this repository you can find all our code we produced during the challenge.
 
-You can find a file called requirement.txt, which provides all the packages necessary to run our code. 
+### Installation
+Our code requires the latest Python (3.10) and a virtual environment to decouple it from other environments or installations. Please install python from here [Python](https://www.python.org/). Make sure, that Python is listed in your PATH environment and then proceed creating a virtual environment. Open a command line and type
+```commandline
+python -m venv quantimize
+quantimize\Scripts\activate.bat
+```
+to create a quantimize environment and to activate the environment.
+The package can be cloned from github using 
+```commandline
+git clone https://github.com/fjelljenta/Quantum-Challenge
+cd Quantum-Challenge
+```
+After that, one needs to install all required packages using
+```commandline
+pip install -r requirements.txt
+```
+Now, everything should be ready and set up to further run this notebook. Type
+```commandline
+jupyter notebook
+```
+and open the Quantimize.ipynb.
 
-The folder Quantimze contains all the functions we have written. It is devided into parts, which are relevant only for our classical solution, only for our quantum solutions or for both, like the data extraction and access or the safety check. The data used were provided by Deloitte.
+If you cloned the github repo, you can also find a full documentation, when opening the index.html in the docs folder.
+
+The folder quantimze contains all the functions we have written. It is devided into parts, which are relevant for our classical solution, for our quantum solutions or for both, like the data extraction and access or the safety check. The data used were provided by Deloitte and partners for this challenge.
 
 In our work we implemented the nowadays fuel-efficient straight line solution and a classical genetic algorithm. The implementation of the genetic algorithm was inspired by the paper "Air traffic simulation in chemistry-climate model EMAC 2.41: AirTraf 1.0" written by Hiroshi Yamashita et al. It is used to benchmark our quantum algorithms.
 
