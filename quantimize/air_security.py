@@ -1,6 +1,7 @@
 import quantimize.converter as cv
 import quantimize.data_access as da
 import numpy as np
+from tqdm import tqdm
 
 
 def check_height(fl_1, fl_2):
@@ -252,9 +253,9 @@ def safe_algorithm(flights, algorithm, **kwargs):
     radius_runs = 0
     radius_errors = []
 
-    for flight in flights:
+    for flight in tqdm(flights):
         while radius_check_needed:
-            if radius_runs > 3:
+            if radius_runs > 5:
                 radius_errors.append(flight)
                 break
             next_trajectory = algorithm(flight, dt, only_trajectory_dict=True, timed_trajecotory=False)
@@ -268,6 +269,7 @@ def safe_algorithm(flights, algorithm, **kwargs):
     crash_check_needed = True
     old_compute_again_len = len(flights)
     same_correction_count = 0
+    print("Begin collision check")
 
     while crash_check_needed:
 
@@ -326,7 +328,7 @@ def safe_algorithm(flights, algorithm, **kwargs):
                 radius_errors.remove(flight)
 
             while radius_check_needed:
-                if radius_runs > 3:
+                if radius_runs > 5:
                     radius_errors.append(flight)
                     break
                 next_trajectory = algorithm(flight, dt, only_trajectory_dict=True, timed_trajecotory=False)

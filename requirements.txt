@@ -10,3 +10,4 @@ sklearn
 geneticalgorithm
 notebook
 ipympl
+tqdm
