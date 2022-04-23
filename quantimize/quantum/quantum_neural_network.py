@@ -2,8 +2,8 @@ import pennylane as qml
 import numpy as np
 import matplotlib.pyplot as plt
 from noisyopt import minimizeSPSA
-from quantimize.quantum.toolbox import tensorize_flight_info, normalize_input_data, sigmoid
-from quantimize.classic.toolbox import curve_3D_solution, compute_cost, correct_for_boundaries, curve_3D_trajectory
+import quantimize.quantum.toolbox as qtoolbox
+import quantimize.classic.toolbox as ctoolbox
 import quantimize.data_access as da
 
 # Adjustable parameters include the ansatz, the layer of ansatz, the embedding method, dxy, dz, c,
@@ -11,34 +11,60 @@ import quantimize.data_access as da
 
 
 def quantum_neural_network(flight_nr, n_qubits, init_solution):
+    """Create a quantum neural network for a given flight with n_qubits and an initial solution.
+
+    Args:
+        flight_nr (int): flight number
+        n_qubits (int): number of qubits the QNN should operate on
+        init_solution (list): list of initial boundary points
+
+    Returns:
+        scipy.optimize: result of the optimization containing the boundaries and the cost
+    """
     dev = qml.device('default.qubit', wires=n_qubits)
 
-    data = normalize_input_data(tensorize_flight_info())[flight_nr]
+    data = qtoolbox.normalize_input_data(
+        qtoolbox.tensorize_flight_info())[flight_nr]
 
     @qml.qnode(dev)
     def circuit(params):
+        """Create a circuit with params
+
+        Args:
+            params (list): list of parameters
+
+        Returns:
+            quantum circuit: returns the basic quantum circuit
+        """
         #qml.IQPEmbedding(data, wires=range(n_qubits))
         #qml.AmplitudeEmbedding(features=data, wires=range(n_qubits), normalize=True, pad_with=0.)
         qml.StronglyEntanglingLayers(params, wires=list(range(n_qubits)))
-        #return qml.expval(qml.PauliZ(0))
+        # return qml.expval(qml.PauliZ(0))
         return qml.probs(wires=range(n_qubits))
-
-
 
     num_layers = 5
 
     flat_shape = num_layers * n_qubits * 3
-    param_shape = qml.templates.StronglyEntanglingLayers.shape(n_wires=n_qubits, n_layers=num_layers)
+    param_shape = qml.templates.StronglyEntanglingLayers.shape(
+        n_wires=n_qubits, n_layers=num_layers)
     init_params = np.random.normal(scale=0.1, size=param_shape)
 
     init_params_spsa = init_params.reshape(flat_shape)
 
     #plot = plt.bar(np.arange(2**n_qubits), circuit(init_params))
-    #plt.show()
+    # plt.show()
 
     qnode = qml.QNode(circuit, dev)
 
     def from_distribution_to_trajectory_2(distribution):
+        """Create a trajectory from a given distribution
+
+        Args:
+            distribution (list): list with points for the distribution
+
+        Returns:
+            list: list of trajectory points
+        """
         off_setted_distribution = distribution - 1 / 2 ** n_qubits
         tabx = np.linspace(0, 1, 2 ** n_qubits)
 
@@ -53,27 +79,36 @@ def quantum_neural_network(flight_nr, n_qubits, init_solution):
 
         #plt.scatter(tabx, off_setted_distribution, facecolor='None', edgecolor='k', alpha=0.3)
         #plt.plot(tabx, model(tabx))
-        #plt.show()
+        # plt.show()
 
         ctrl_pts = np.concatenate((np.array(init_solution[:6]),
                                   np.array(init_solution[6:] + 1e4 * model(np.linspace(0, 1, 5)))))
         #trajectory = curve_3D_solution(flight_nr, ctrl_pts)
-        trajectory = curve_3D_trajectory(flight_nr, ctrl_pts)
-        corrected_trajectory = correct_for_boundaries(trajectory)
+        trajectory = ctoolbox.curve_3D_trajectory(flight_nr, ctrl_pts)
+        corrected_trajectory = ctoolbox.correct_for_boundaries(trajectory)
         return corrected_trajectory
 
     def from_distribution_to_trajectory(distribution):
+        """Create a trajectory from a given distribution
+
+        Args:
+            distribution (list): list with points for the distribution
+
+        Returns:
+            list: list of trajectory points
+        """
         c = 2 ** (n_qubits-2)
         dxy = 0.01
         dz = 100
-        index_xy = np.sort(np.argsort(distribution[int(0.5*2**(n_qubits-1)):2**(n_qubits-1)])[::-1][:3])
+        index_xy = np.sort(np.argsort(
+            distribution[int(0.5*2**(n_qubits-1)):2**(n_qubits-1)])[::-1][:3])
         value_xy = distribution[index_xy]
-        normalized_xy = sigmoid(value_xy - np.mean(value_xy), c) - 0.5
+        normalized_xy = qtoolbox.sigmoid(value_xy - np.mean(value_xy), c) - 0.5
 
-
-        index_z = np.sort(np.argsort(distribution[2**(n_qubits-1):int(1.5*2**(n_qubits-1))])[::-1][:5])
+        index_z = np.sort(np.argsort(
+            distribution[2**(n_qubits-1):int(1.5*2**(n_qubits-1))])[::-1][:5])
         value_z = distribution[index_z+2**(n_qubits-1)]
-        normalized_z = sigmoid(value_z - np.mean(value_z), c) - 0.5
+        normalized_z = qtoolbox.sigmoid(value_z - np.mean(value_z), c) - 0.5
 
         info = da.get_flight_info(flight_nr)
         slope = (info['end_latitudinal'] - info['start_latitudinal']) * 111 / \
@@ -86,11 +121,14 @@ def quantum_neural_network(flight_nr, n_qubits, init_solution):
             index = index_xy[i]
             size = normalized_xy[i]
             intersection = index/(2**(n_qubits-1)) * info['end_longitudinal'] + \
-                           (1-index/(2**(n_qubits-1))) * info['start_longitudinal'], \
-                           index/(2 ** (n_qubits - 1)) * info['end_latitudinal'] + \
-                           (1 - index / (2 ** (n_qubits - 1))) * info['start_latitudinal']
-            ctrl_pts_xy[0].append(np.cos(np.arctan(perp_slope)) * dxy * size + intersection[0])
-            ctrl_pts_xy[1].append(np.sin(np.arctan(perp_slope)) * dxy * size + intersection[1])
+                (1-index/(2**(n_qubits-1))) * info['start_longitudinal'], \
+                index/(2 ** (n_qubits - 1)) * info['end_latitudinal'] + \
+                (1 - index / (2 ** (n_qubits - 1))) * \
+                info['start_latitudinal']
+            ctrl_pts_xy[0].append(
+                np.cos(np.arctan(perp_slope)) * dxy * size + intersection[0])
+            ctrl_pts_xy[1].append(
+                np.sin(np.arctan(perp_slope)) * dxy * size + intersection[1])
 
         ctrl_pts_z = []
         for i in range(5):
@@ -100,18 +138,27 @@ def quantum_neural_network(flight_nr, n_qubits, init_solution):
 
         ctrl_pts = ctrl_pts_xy[0] + ctrl_pts_xy[1] + ctrl_pts_z
         #trajectory = curve_3D_solution(flight_nr, ctrl_pts)
-        trajectory = curve_3D_trajectory(flight_nr, ctrl_pts)
-        corrected_trajectory = correct_for_boundaries(trajectory)
+        trajectory = ctoolbox.curve_3D_trajectory(flight_nr, ctrl_pts)
+        corrected_trajectory = ctoolbox.correct_for_boundaries(trajectory)
         return corrected_trajectory
 
     def cost_spsa(params):
+        """Calculates the cost for a certain distrubution
+
+        Args:
+            params (list): list of parameters
+
+        Returns:
+            float: cost of the distribution
+        """
         distribution = np.array(qnode(params.reshape(num_layers, n_qubits, 3)))
-        trajectory = correct_for_boundaries(from_distribution_to_trajectory_2(distribution))
+        trajectory = ctoolbox.correct_for_boundaries(
+            from_distribution_to_trajectory_2(distribution))
         #trajectory = {'flight_nr':flight_nr, 'trajectory':trajectory}
-        cost = compute_cost(trajectory)
+        cost = ctoolbox.compute_cost(trajectory)
         return cost
 
-    #return cost_spsa(init_params)
+    # return cost_spsa(init_params)
 
     niter_spsa = 50
 
@@ -134,7 +181,7 @@ def quantum_neural_network(flight_nr, n_qubits, init_solution):
                 f"Number of device executions = {num_executions}, "
                 f"Cost = {cost_val}"
             )
-
+    # run the optimization
     res = minimizeSPSA(
         cost_spsa,
         x0=init_params_spsa.copy(),
