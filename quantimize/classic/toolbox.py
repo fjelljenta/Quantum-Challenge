@@ -3,6 +3,8 @@ import quantimize.data_access as da
 import numpy as np
 import scipy.interpolate as interpolate
 import matplotlib.pyplot as plt
+from contextlib import contextmanager
+import sys, os
 
 
 def compute_cost(trajectory):
@@ -467,3 +469,14 @@ intermediate_coord = (longitude * (1 - dt_2 / dt) + current_coord[0] * dt_2 / dt
                       flight_level,
                       cv.update_time(current_coord[3], dt_1))
 """
+
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout

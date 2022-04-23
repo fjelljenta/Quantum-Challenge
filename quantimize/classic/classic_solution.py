@@ -31,7 +31,11 @@ def run_genetic_algorithm(flight_nr, **kwargs):
     # prepare model and run it
     model = ga(fitness_function_single_flight(flight_nr), dimension=11, variable_type='real',
                variable_boundaries=varbound, algorithm_parameters=algorithm_param, convergence_curve=False)
-    model.run()
+    if kwargs.get("supress_print", True):
+        with toolbox.suppress_stdout():
+            model.run()
+    else:
+        model.run()
     # seperate the result
     report = model.report
     solution = model.output_dict

@@ -328,7 +328,7 @@ def mutation(pop_mutation_rate, mutation_rate):
             qpv[i, j, 1] = nqpv[i, j, 1]
 
 
-def Q_GA(flight_nr, plot_graph=0):
+def Q_GA(flight_nr, plot_graph=0, **kwargs):
     """main program: running of the QGA
 
     Args:

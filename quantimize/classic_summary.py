@@ -2,7 +2,7 @@ import quantimize.classic.toolbox as toolbox
 import quantimize.classic.classic_solution as csol
 
 
-def straight_line_solution(flight_nr, dt):
+def straight_line_solution(flight_nr, dt, **kwargs):
     """Returns the straight line solution for a given flight
 
     Args:
@@ -13,11 +13,12 @@ def straight_line_solution(flight_nr, dt):
         Trajectory in the format of a list of tuples (time, longitude, latitude) embedded in a dict with the flight number
     """
     trajectory = toolbox.straight_line_trajectory(flight_nr, dt)
-    trajectory = toolbox.timed_trajectory(trajectory, dt)
+    if kwargs.get("timed_trajectory", True):
+        trajectory = toolbox.timed_trajectory(trajectory, dt)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
-def genetic_algorithm_solution(flight_nr, dt):
+def genetic_algorithm_solution(flight_nr, dt, **kwargs):
     """Returns the genetic algorithm solution for a given flight and maps it to constant time points
 
     Args:
@@ -35,7 +36,10 @@ def genetic_algorithm_solution(flight_nr, dt):
             run_complete = True
         except:
             print("Retry GA")
-    trajectory = toolbox.timed_trajectory(trajectory, dt)
+    if kwargs.get("timed_trajectory", True):
+        trajectory = toolbox.timed_trajectory(trajectory, dt)
+    if kwargs.get("only_trajectory_dict", False):
+        return {"flight_nr": flight_nr, "trajectory": trajectory}
     return report, solution, {"flight_nr": flight_nr, "trajectory": trajectory}
 
 

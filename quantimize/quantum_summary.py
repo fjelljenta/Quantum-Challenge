@@ -4,7 +4,7 @@ import quantimize.quantum.quantum_neural_network as qna
 import quantimize.quantum.quantum_solution as qsol
 
 
-def quantum_genetic_algorithm_solution(flight_nr, dt):
+def quantum_genetic_algorithm_solution(flight_nr, dt, **kwargs):
     """Returns the quantum_genetic algorithm solution for a given flight and maps it to constant time points
 
     Args:
@@ -14,7 +14,8 @@ def quantum_genetic_algorithm_solution(flight_nr, dt):
         dict: Trajectory in the format of a list of tuples (long, lat, time) embedded in a dict with flight number
     """
     trajectory = qga.Q_GA(flight_nr)
-    trajectory = toolbox.timed_trajectory(trajectory, dt)
+    if kwargs.get("timed_trajectory", True):
+        trajectory = toolbox.timed_trajectory(trajectory, dt)
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 

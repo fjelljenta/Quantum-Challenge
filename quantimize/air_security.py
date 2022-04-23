@@ -1,7 +1,6 @@
 import quantimize.converter as cv
 import quantimize.data_access as da
 import numpy as np
-# from quantimize.classic.toolbox import straight_line_solution
 
 
 def check_height(fl_1, fl_2):
@@ -239,3 +238,86 @@ def radius_control(trajectory):
         return False
     else:
         return True
+
+
+def safe_algorithm(flights, algorithm, **kwargs):
+    dt= kwargs.get("dt", 15)
+    trajectories = []
+
+    for flight in flights:
+        trajectories.append(algorithm(flight, dt, only_trajectory_dict=True))
+
+    safety_check_needed = True
+    old_compute_again_len = len(flights)
+    same_correction_count=0
+
+    while safety_check_needed:
+
+        # todo: check radius
+
+        safety_errors= check_safety(trajectories, dt)
+        safety_errors_flightnumbers= [[safety_errors[i][1][-1],safety_errors[i][2][-1]]
+                                      for i in range(len(safety_errors))]
+
+        crashing_flights = []
+        for crash in safety_errors_flightnumbers:
+            if (not crash in crashing_flights) and (not [crash[1], crash[0]] in crashing_flights):
+                crashing_flights.append(crash)
+
+        crash_dict = {}
+        for crash in crashing_flights:
+            try:
+                crash_dict[str(crash[0])].append(crash[1])
+            except:
+                crash_dict[str(crash[0])] = [crash[1]]
+            try:
+                crash_dict[str(crash[1])].append(crash[0])
+            except:
+                crash_dict[str(crash[1])] = [crash[0]]
+
+        compute_again = []
+        while crash_dict != {}:
+
+            # find key with longest list of crashings
+            longest_key_value = 0
+            for key, value in crash_dict.items():
+                if len(value) > longest_key_value:
+                    longest_key_value = len(value)
+                    longest_key = key
+            longest_key_int = int(longest_key)
+
+            # save in compute_again list
+            compute_again.append(longest_key_int)
+
+            del_keys = [longest_key]
+
+            # delete this number from the values of all other keys
+            for key, value in crash_dict.items():
+                if longest_key_int in value:
+                    value.remove(longest_key_int)
+                    if len(value) == 0:
+                        del_keys.append(key)
+
+            for key in del_keys:
+                del crash_dict[key]
+
+        print('compute_again: ', compute_again)
+
+        for flight in compute_again:
+            trajectories[flights.index(flight)] = algorithm(flight, dt, only_trajectory_dict=True)
+
+        safety_check_needed = len(compute_again)
+
+        #break for too many rounds
+        if (old_compute_again_len == len(compute_again)):
+            same_correction_count = same_correction_count +1
+            if same_correction_count > 3:
+                print("flight(s) ", compute_again, " lead to non-correctable crashings, ",
+                                                   "change starting time or starting level of these flights")
+                return trajectories
+        else:
+            same_correction_count = 0
+            old_compute_again_len = len(compute_again)
+
+    print("air security protocol suceeded")
+    return trajectories
