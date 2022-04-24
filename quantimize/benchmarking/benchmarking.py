@@ -1,6 +1,6 @@
-import quantimize.classic.classic_solution as csol
+import quantimize.classic_summary as csol
 import quantimize.classic.toolbox as ct
-import quantimize.quantum.quantum_solution as qsol
+import quantimize.quantum_summary as qsol
 import quantimize.quantum.QGA as qga
 import quantimize.quantum.quantum_neural_network as qna
 import quantimize.converter as cv
@@ -8,9 +8,10 @@ import quantimize.data_access as da
 import numpy as np
 import quantimize.benchmarking.toolbox as bt
 import time
+from multiprocessing import Pool
+import quantimize.air_security as ais
 
-
-def computiation_time(flight_number, algorithm):
+def computation_time(flight_number, algorithm):
     """Calculation of the computation time for one flight and a with the second argument specified optimization algorithm
 
     Args:
@@ -24,8 +25,8 @@ def computiation_time(flight_number, algorithm):
     start = time.perf_counter()
     trajectory = algorithm(flight_number)
     stop = time.perf_counter()
-    computation_time= stop-start
-    return computation_time, trajectory
+    computation_t= stop-start
+    return computation_t, trajectory
 
 def average_computation_time(algorithm, **kwargs):
     """Averaged computation time for a with the first argument specified algorithm for several/all flights
@@ -48,7 +49,7 @@ def average_computation_time(algorithm, **kwargs):
     computation_time_list = []
     for flight_number in flightlist:
         if flight_number != 41:
-            computation_time_tmp, trajectory_tmp =computiation_time(flight_number, algorithm)
+            computation_time_tmp, trajectory_tmp =computation_time(flight_number, algorithm)
             computation_time_list.append(computation_time_tmp)
             trajectory_list.append(trajectory_tmp)
         else:
@@ -58,6 +59,38 @@ def average_computation_time(algorithm, **kwargs):
         return average_computation_time, trajectory_list
     else:
         return average_computation_time
+
+
+def average_computation_time_multiprocessing(algorithm, flights, run, **kwargs):
+    """Averaged computation time for a with the first argument specified algorithm for all flights
+
+        Args:
+            algorithm (function): algorithm used to optimize the trajectory
+            flights (list): list with flight numbers that shall be processed
+            run: counter for the repititions in the benchmarking-procedure
+            **kwargs: possibility to specify whether the Benchmarking should be done including air security,
+                      default value: False
+
+        Returns:
+            float: Averaged computation time for a with the first argument specified algorithm for all flights
+            list: trajectory_list: list containing all trajectories
+
+        """
+    air_security = kwargs.get("Air_security", False)
+    start_time = time.perf_counter()
+    if air_security:
+        print("\n")
+        trajectories, conflicts = ais.safe_algorithm_2(flights, algorithm)
+    else:
+        algorithmarguments = [[flightnumber] for flightnumber in flights]
+        with Pool() as p:
+            trajectories = p.starmap(algorithm, algorithmarguments)
+    print("Finished run ", run+1, " of trajectory calculation with ", str(algorithm)[1:-23])
+    for i, trajectory in enumerate(trajectories):
+        trajectories[i] = cv.check_trajectory_dict(trajectory)
+    stop_time = time.perf_counter()
+    computation_t =(stop_time - start_time)/len(flights)
+    return computation_t, trajectories
 
 
 def average_cost(trajectory_list):
@@ -130,7 +163,9 @@ def fuel_consumption(trajectory):
                         * dt1 / 60 + \
                         da.get_flight_level_data(coordinate[2])['CRUISE']['fuel'] \
                         * (cv.datetime_to_seconds(coordinate[3]) - t - dt1) / 60
-        return fuel
+            start_level = coordinate[2]
+        t = cv.datetime_to_seconds(coordinate[3])
+    return fuel
 
 
 def average_fuel(trajectory_list):
@@ -152,7 +187,23 @@ def average_fuel(trajectory_list):
     return average_fuel_per_flight
 
 
-def benchmark_wrapper(flights, runs):
+def costlist_creation(algorithm, flights, runs, **kwargs):
+    cost_comp, cost, flight_time, fuel = np.zeros(runs), np.zeros(runs), np.zeros(runs), np.zeros(runs)
+    for counter in range(runs):
+        cost_comp[counter], trajectory = average_computation_time_multiprocessing(algorithm, flights, counter, **kwargs)
+        cost[counter] = average_cost(trajectory)
+        flight_time[counter] = averaged_flight_time(trajectory)
+        fuel[counter] = average_fuel(trajectory)
+    return {"cost_comp": cost_comp, "cost":cost, "flight_time": flight_time, "fuel": fuel}
+
+
+def mean_and_error_list_creation(calculation_list):
+    mean = np.mean(calculation_list, axis=1)
+    error = np.std(calculation_list, axis=1)
+    return mean, error
+
+
+def benchmark_wrapper(flights, runs, **kwargs):
     """Calculation of the mean values and errors of the averaged computation time, averaged climate cost, averaged flight time
     and of the averaged fuel consumption
 
@@ -164,39 +215,28 @@ def benchmark_wrapper(flights, runs):
         float: Mean_comp_time, Error_comp_time, Mean_cost, Error_cost, Mean_flight_time, Error_flight_time, Mean_fuel, Error_fuel
 
     """
-    cost_comp_sl, cost_comp_ga, cost_comp_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
-    cost_sl, cost_ga, cost_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
-    flight_time_sl, flight_time_ga, flight_time_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
-    fuel_sl, fuel_ga, fuel_qga = np.zeros(runs), np.zeros(runs), np.zeros(runs)
 
-    for counter in range(runs):
-        cost_comp_sl[counter], trajectory_sl = average_computation_time(bt.sl_for_benchmarking, flights=flights)
-        cost_comp_ga[counter], trajectory_ga = average_computation_time(bt.ga_for_benchmarking, flights=flights)
-        cost_comp_qga[counter], trajectory_qga = average_computation_time(bt.qga_for_benchmarking, flights=flights)
+    if kwargs.get("Air_security", False):
+        ga_costlist = costlist_creation(csol.genetic_algorithm_solution, flights, runs, **kwargs)
+        qga_costlist = costlist_creation(qsol.quantum_genetic_algorithm_solution, flights, runs, **kwargs)
+        costlists = [ga_costlist, qga_costlist]
+    else:
+        sl_costlist = costlist_creation(bt.sl_for_benchmarking, flights, runs, **kwargs)
+        ga_costlist = costlist_creation(bt.ga_for_benchmarking, flights, runs, **kwargs)
+        qga_costlist = costlist_creation(bt.qga_for_benchmarking, flights, runs, **kwargs)
+        costlists = [sl_costlist, ga_costlist, qga_costlist]
 
-        cost_sl[counter] = average_cost(trajectory_sl)
-        cost_ga[counter] = average_cost(trajectory_ga)
-        cost_qga[counter] =average_cost(trajectory_qga)
+    cost_comp, cost, flight_time, fuel = [], [], [], []
+    for costlist in costlists:
+        cost_comp.append(costlist.get("cost_comp"))
+        cost.append(costlist.get("cost"))
+        flight_time.append(costlist.get("flight_time"))
+        fuel.append(costlist.get("fuel"))
 
-        flight_time_sl[counter] = averaged_flight_time(trajectory_sl)
-        flight_time_ga[counter] = averaged_flight_time(trajectory_ga)
-        flight_time_qga[counter] =averaged_flight_time(trajectory_qga)
-
-        fuel_sl[counter] = average_fuel(trajectory_sl)
-        fuel_ga[counter] = average_fuel(trajectory_ga)
-        fuel_qga[counter] =average_fuel(trajectory_qga)
-
-    Mean_comp_time = np.mean([cost_comp_sl, cost_comp_ga, cost_comp_qga], axis=1)
-    Error_comp_time = np.std([cost_comp_sl, cost_comp_ga, cost_comp_qga], axis=1)
-
-    Mean_cost = np.mean([cost_sl, cost_ga, cost_qga], axis=1)
-    Error_cost = np.std([cost_sl, cost_ga, cost_qga], axis=1)
-
-    Mean_flight_time = np.mean([flight_time_sl, flight_time_ga, flight_time_qga], axis=1)
-    Error_flight_time = np.std([flight_time_sl, flight_time_ga, flight_time_qga], axis=1)
-
-    Mean_fuel = np.mean([fuel_sl, fuel_ga, fuel_qga], axis=1)
-    Error_fuel = np.std([fuel_sl, fuel_ga, fuel_qga], axis=1)
+    Mean_comp_time, Error_comp_time = mean_and_error_list_creation(cost_comp)
+    Mean_cost, Error_cost = mean_and_error_list_creation(cost)
+    Mean_flight_time, Error_flight_time = mean_and_error_list_creation(flight_time)
+    Mean_fuel, Error_fuel = mean_and_error_list_creation(fuel)
 
     return Mean_comp_time, Error_comp_time, Mean_cost, Error_cost, Mean_flight_time, Error_flight_time, Mean_fuel, Error_fuel
 

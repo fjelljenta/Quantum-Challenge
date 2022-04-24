@@ -40,7 +40,7 @@ def ga_for_benchmarking(flight_nr, **kwargs):
     return trajectory
 
 
-def qga_for_benchmarking(flight_nr):
+def qga_for_benchmarking(flight_nr, **kwargs):
     """Computes and returns the quantum genetic algorithm solution for a given flight
     Args:
         flight_nr: Flight number
@@ -81,7 +81,10 @@ def plot_graph(titel, y_label, mean_value_list, error_list):
     Returns:
         plot
     """
-    algorithms=['Straight line', 'GA', 'QGA']
+    if len(mean_value_list) == 3:
+        algorithms = ['Straight line', 'GA', 'QGA']
+    else:
+        algorithms = ['GA', 'QGA']
     x_pos=np.arange(len(algorithms))
     fig, ax = plt.subplots()
     ax.bar(x_pos, mean_value_list, yerr=error_list, align='center', alpha=0.5, ecolor='black', capsize=10)
