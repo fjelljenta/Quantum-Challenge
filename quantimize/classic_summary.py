@@ -53,3 +53,16 @@ def compute_cost(trajectory):
         float: Cost of the flight
     """
     return toolbox.compute_cost(trajectory)
+
+
+def ga_trajectory_only(flight_nr, dt):
+    run_complete = False
+    while not run_complete:
+        try:
+            report, solution, trajectory = csol.run_genetic_algorithm(
+                flight_nr)
+            run_complete = True
+        except:
+            print("Retry GA")
+    trajectory = toolbox.timed_trajectory(trajectory, dt)
+    return {"flight_nr": flight_nr, "trajectory": trajectory}

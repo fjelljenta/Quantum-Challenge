@@ -1,6 +1,8 @@
+from tabnanny import check
 import quantimize.converter as cv
 import quantimize.data_access as da
 import numpy as np
+from multiprocessing import Pool
 from tqdm import tqdm
 
 
@@ -275,7 +277,7 @@ def safe_algorithm(flights, algorithm, **kwargs):
 
         # todo: check radius
 
-        safety_errors= check_safety(trajectories, dt)
+        safety_errors=check_safety(trajectories, dt)
         safety_errors_flightnumbers= [[safety_errors[i][1][-1],safety_errors[i][2][-1]]
                                       for i in range(len(safety_errors))]
 
@@ -362,3 +364,63 @@ def safe_algorithm(flights, algorithm, **kwargs):
 
     print("air security protocol suceeded")
     return trajectories
+
+
+def radius_check_for_flight(flight_number, algorithm, dt, run):
+    trajectory = algorithm(flight_number, dt)
+    if not radius_control(trajectory) and run<=5:
+        trajectory = radius_check_for_flight(flight_number, algorithm, dt, run+1)
+    else:
+        return trajectory
+
+def list_conflicts(list_of_conflicts):
+    pairs = []
+    for conflict in list_of_conflicts:
+        pairs.append((conflict[1][-1],conflict[2][-1]))
+    pairs = set(pairs)
+    conflicts = {}
+    for pair in pairs:
+        try:
+            conflicts[pair[0]].append(pair[1])
+        except:
+            conflicts[pair[0]] = [pair[1]]
+        try:
+            conflicts[pair[1]].append(pair[0])
+        except:
+            conflicts[pair[1]] = [pair[0]]
+    for conflict in conflicts:
+        conflicts[conflict] = list(set(conflicts[conflict]))
+    return sorted(conflicts, key=lambda k: len(conflicts[k]), reverse=True)
+
+
+def safe_algorithm_2(list_of_flights, algorithm):
+    dt = 15
+    prep_list = []
+    check_run = 0
+    for flight in list_of_flights:
+        prep_list.append((flight,algorithm,dt,0))
+
+    with Pool() as p:
+        trajectories = p.starmap(radius_check_for_flight, prep_list)
+    print("Finished trajectory calculation")
+    
+    while check_run < 10:
+        print("Running check:",check_run)
+        safety_errors = check_safety(trajectories, dt)
+        conflicts = list_conflicts(safety_errors)
+        print(conflicts)
+        if len(conflicts) == 0:
+            break
+        prep_list = []
+        for conflict in conflicts:
+            prep_list.append((conflict, algorithm, dt, 0))
+        with Pool() as p:
+            corrected_trajectories = p.starmap(radius_check_for_flight, prep_list)
+        for i, traj in zip(conflicts, corrected_trajectories):
+            if i > 41:
+                trajectories[i-1] = traj
+            else:
+                trajectories[i] = traj
+        check_run+=1
+
+    return trajectories, conflicts
