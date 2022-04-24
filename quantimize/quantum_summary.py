@@ -79,13 +79,3 @@ def compute_cost(trajectory):
     """
     return toolbox.compute_cost(trajectory)
 
-def qga_trajectory_only(flight_nr, dt):
-    run_complete = False
-    while not run_complete:
-        try:
-            trajectory = qga.Q_GA(flight_nr)
-            run_complete = True
-        except:
-            print("Retry QGA")
-    trajectory = toolbox.timed_trajectory(trajectory, dt)
-    return {"flight_nr": flight_nr, "trajectory": trajectory}
