@@ -5,7 +5,7 @@ import quantimize.quantum.quantum_neural_network as qna
 import quantimize.quantum.quantum_solution as qsol
 
 
-def quantum_genetic_algorithm_solution(flight_nr, dt, **kwargs):
+def quantum_genetic_algorithm_solution(flight_nr, dt=15, **kwargs):
     """Returns the quantum_genetic algorithm solution for a given flight and maps it to constant time points
 
     Args:
