@@ -1,4 +1,5 @@
 import quantimize.classic.toolbox as toolbox
+import quantimize.classic.classic_solution as csol
 import quantimize.quantum.QGA as qga
 import quantimize.quantum.quantum_neural_network as qna
 import quantimize.quantum.quantum_solution as qsol
@@ -25,7 +26,7 @@ def quantum_genetic_algorithm_solution(flight_nr, dt, **kwargs):
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
-def quantum_neural_network(flight_nr, n_qubits, init_solution):
+def quantum_neural_network(flight_nr, n_qubits):
     """Returns the quantum_neural_network algorithm solution for a given flight
 
     Args:
@@ -36,7 +37,9 @@ def quantum_neural_network(flight_nr, n_qubits, init_solution):
     Returns:
 
     """
-    return qna.quantum_neural_network(flight_nr, n_qubits, init_solution)
+    report, solution, trajectory = csol.run_genetic_algorithm(flight_nr)
+    print("Calculated boundary points")
+    return qna.quantum_neural_network(flight_nr, n_qubits, solution['variable'])
 
 
 def sample_grid():

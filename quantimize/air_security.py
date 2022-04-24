@@ -442,12 +442,12 @@ def safe_algorithm_2(list_of_flights, algorithm, dt=15, check_max=10):
     with Pool() as p:
         trajectories = p.starmap(radius_check_for_flight, prep_list)
     print("Finished trajectory calculation")
-    
+
     while check_run < check_max:
         print("Running check:",check_run)
         safety_errors = check_safety(trajectories, dt)
         conflicts = list_conflicts(safety_errors)
-        #print(conflicts)
+        print("Current conflicts",conflicts)
         if len(conflicts) == 0:
             break
         prep_list = []
