@@ -166,6 +166,45 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="quantimize.air_security.list_conflicts">
+<span class="sig-prename descclassname"><span class="pre">quantimize.air_security.</span></span><span class="sig-name descname"><span class="pre">list_conflicts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_conflicts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.air_security.list_conflicts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reformats the list_of_conflicts to show which flights collide with which</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>list_of_conflicts</strong> (<em>list</em>) – list with list of timestamp, flight1, flight2</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of flight numbers that have collision problems</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.air_security.radius_check_for_flight">
+<span class="sig-prename descclassname"><span class="pre">quantimize.air_security.</span></span><span class="sig-name descname"><span class="pre">radius_check_for_flight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.air_security.radius_check_for_flight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the trajectory for flight_number and the given algorithm and evaluates the radius requirements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flight_number</strong> (<em>int</em>) – flight number</p></li>
+<li><p><strong>algorithm</strong> (<em>trajectory algorithm</em>) – algorithm to calculate the trajectory</p></li>
+<li><p><strong>dt</strong> (<em>int</em>) – time step for the calculation</p></li>
+<li><p><strong>run</strong> (<em>int</em>) – number of already checked radii</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>trajcetory dict with valid radius</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="quantimize.air_security.radius_control">
 <span class="sig-prename descclassname"><span class="pre">quantimize.air_security.</span></span><span class="sig-name descname"><span class="pre">radius_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.air_security.radius_control" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns true or false depending on if the turning angle was above 25 degree or below</p>
@@ -178,6 +217,46 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.air_security.safe_algorithm">
+<span class="sig-prename descclassname"><span class="pre">quantimize.air_security.</span></span><span class="sig-name descname"><span class="pre">safe_algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.air_security.safe_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the trajectory for a list of flight numbers and checks the trajectories for radius boundaries and possible violations for the air safety. On errors, the trajectories are re-calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flights</strong> (<em>list</em>) – list of flight numbers to check</p></li>
+<li><p><strong>algorithm</strong> (<em>trajectory algorithm</em>) – algorithm to calculate the trajectory</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of corrected flight trajectories</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.air_security.safe_algorithm_2">
+<span class="sig-prename descclassname"><span class="pre">quantimize.air_security.</span></span><span class="sig-name descname"><span class="pre">safe_algorithm_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_flights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.air_security.safe_algorithm_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternative way to check air security, using multiprocessing for speedup. Calulates the valid trajectories, regarding radius and then re calculates air collisions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_of_flights</strong> (<em>list</em>) – list of flight numbers</p></li>
+<li><p><strong>algorithm</strong> (<em>trajectory algorithm</em>) – algorithm used to calculate the trajectories</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of checked trajectories, list of remaining conflicts</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list, list</p>
 </dd>
 </dl>
 </dd></dl>
