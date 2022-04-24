@@ -1,4 +1,3 @@
-from tabnanny import check
 import quantimize.converter as cv
 import quantimize.data_access as da
 import numpy as np
@@ -52,7 +51,8 @@ def check_position_safety(flight_1, flight_2):
     Returns:
         boolean: True for enough distance, false for to close
     """
-    if check_horizontal_distance(flight_1[0], flight_1[1], flight_2[0], flight_2[1]) or check_height(flight_1[2], flight_2[2]):
+    if check_horizontal_distance(flight_1[0], flight_1[1], flight_2[0], flight_2[1]) \
+            or check_height(flight_1[2], flight_2[2]):
         return True
     else:
         return False
@@ -123,13 +123,16 @@ def distance_between_trajectories_at_time(traj1, traj2, t):
     # Assuming the true trajectory is linear between two consecutive points
     # in our list, we can calculate the position of the airplane accordingly
 
-    x1 = ((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][0] + \
+    x1 = ((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])
+           - cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][0] + \
         ((t-cv.datetime_to_seconds(traj1[index][3]))/(cv.datetime_to_seconds(
             traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)+1][0]
-    y1 = ((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][1] + \
+    y1 = ((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])
+           - cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][1] + \
         ((t-cv.datetime_to_seconds(traj1[index][3]))/(cv.datetime_to_seconds(
             traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)+1][1]
-    z1 = ((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][2] + \
+    z1 = ((cv.datetime_to_seconds(traj1[index+1][3])-t)/(cv.datetime_to_seconds(traj1[index+1][3])
+         - cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)][2] + \
         ((t-cv.datetime_to_seconds(traj1[index][3]))/(cv.datetime_to_seconds(
             traj1[index+1][3])-cv.datetime_to_seconds(traj1[index][3])))*traj1[int(index)+1][2]
 
@@ -147,13 +150,16 @@ def distance_between_trajectories_at_time(traj1, traj2, t):
         else:
             break
 
-    x2 = ((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][0] + \
+    x2 = ((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])
+           - cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][0] + \
         ((t-cv.datetime_to_seconds(traj2[index][3]))/(cv.datetime_to_seconds(
             traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)+1][0]
-    y2 = ((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][1] + \
+    y2 = ((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])
+           - cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][1] + \
         ((t-cv.datetime_to_seconds(traj2[index][3]))/(cv.datetime_to_seconds(
             traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)+1][1]
-    z2 = ((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][2] + \
+    z2 = ((cv.datetime_to_seconds(traj2[index+1][3])-t)/(cv.datetime_to_seconds(traj2[index+1][3])
+           - cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)][2] + \
         ((t-cv.datetime_to_seconds(traj2[index][3]))/(cv.datetime_to_seconds(
             traj2[index+1][3])-cv.datetime_to_seconds(traj2[index][3])))*traj2[int(index)+1][2]
 
@@ -167,7 +173,6 @@ def check_safety_2(list_of_trajectory_dicts):
 
     Args:
         list_of_trajectory_dicts (list of trajectory dicts): list of flight trajectory dicts
-        dt (int): time step
 
     Returns:
         error_list (list): list consisting of the safety violations
@@ -183,7 +188,7 @@ def check_safety_2(list_of_trajectory_dicts):
             # Here we define the relevant time interval when both airplanes are flying
 
             start_time = traj1[0][3] if traj1[0][3] > traj2[0][3] \
-                else traj2[0][3]  # Start times in data are all within the 6 to 8 AM range. No flights just before midnight
+                else traj2[0][3]  # Start times in data are all within the 6 to 8 AM range. None just before midnight
             end_time = traj1[-1][3] if traj1[-1][3] < traj2[0][3] \
                 else traj2[-1][3]
 
@@ -204,14 +209,12 @@ def check_safety_2(list_of_trajectory_dicts):
                         break
                     else:
                         # The minimum time it would take for both planes to get dangerously close along the z axis
-                        t += max(1, (current_distance_z -
-                                 unsafe_height)/(2*max_speed_z))
+                        t += max(1, (current_distance_z - unsafe_height)/(2*max_speed_z))
                         current_distance_xy, current_distance_z = distance_between_trajectories_at_time(
                             traj1, traj2, t)
                 else:
                     # The minimum time it would take for both planes to be dangerously close along the xy plane
-                    t += max(1, (current_distance_xy-unsafe_radius) /
-                             (2*max_speed_xy))
+                    t += max(1, (current_distance_xy-unsafe_radius) / (2*max_speed_xy))
 
     return error_list
 
@@ -232,7 +235,7 @@ def radius_control(trajectory):
                       flight_path[i][1]-flight_path[i+1][1]])
         v2 = np.array([flight_path[i+1][0]-flight_path[i+2][0],
                       flight_path[i+1][1]-flight_path[i+2][1]])
-        dotproduct= np.dot(v1 / np.linalg.norm(v1), v2/np.linalg.norm(v2))
+        dotproduct = np.dot(v1 / np.linalg.norm(v1), v2/np.linalg.norm(v2))
         if dotproduct > 1:
             theta = 0.0
         elif dotproduct < -1:
@@ -248,7 +251,8 @@ def radius_control(trajectory):
 
 
 def safe_algorithm(flights, algorithm, **kwargs):
-    """ Calculates the trajectory for a list of flight numbers and checks the trajectories for radius boundaries and possible violations for the air safety. On errors, the trajectories are re-calculated.
+    """ Calculates the trajectory for a list of flight numbers and checks the trajectories for radius boundaries and
+    possible violations for the air safety. On errors, the trajectories are re-calculated.
 
     Args:
         flights (list): list of flight numbers to check
@@ -260,7 +264,7 @@ def safe_algorithm(flights, algorithm, **kwargs):
     dt = kwargs.get("dt", 15)
     trajectories = []
 
-    radius_check_needed=True
+    radius_check_needed = True
     radius_runs = 0
     radius_errors = []
     # calculate flights and check radius
@@ -286,13 +290,13 @@ def safe_algorithm(flights, algorithm, **kwargs):
 
         # todo: check radius
 
-        safety_errors=check_safety(trajectories, dt)
-        safety_errors_flightnumbers= [[safety_errors[i][1][-1],safety_errors[i][2][-1]]
-                                      for i in range(len(safety_errors))]
+        safety_errors = check_safety(trajectories, dt)
+        safety_errors_flightnumbers = [[safety_errors[i][1][-1], safety_errors[i][2][-1]]
+                                         for i in range(len(safety_errors))]
 
         crashing_flights = []
         for crash in safety_errors_flightnumbers:
-            if (not crash in crashing_flights) and (not [crash[1], crash[0]] in crashing_flights):
+            if not (crash in crashing_flights) and not ([crash[1], crash[0]] in crashing_flights):
                 crashing_flights.append(crash)
 
         crash_dict = {}
@@ -353,14 +357,14 @@ def safe_algorithm(flights, algorithm, **kwargs):
         crash_check_needed = len(compute_again)
 
         #break for too many rounds
-        if (old_compute_again_len == len(compute_again)):
-            same_correction_count = same_correction_count +1
+        if old_compute_again_len == len(compute_again):
+            same_correction_count = same_correction_count + 1
             if same_correction_count > 3:
                 print("flight(s) ", compute_again, " lead to non-correctable crashings, ",
                                                    "change starting time or starting level of these flights")
                 if len(radius_errors):
                     print("flight(s) ", radius_errors, " have non-correctable too small curve-radius, ",
-                                                   "change starting time or starting level of these flights")
+                                                       "change starting time or starting level of these flights")
                 return trajectories
         else:
             same_correction_count = 0
@@ -388,11 +392,11 @@ def radius_check_for_flight(flight_number, algorithm, dt, run):
         dict: trajcetory dict with valid radius
     """
     trajectory = algorithm(flight_number, dt)
-    if not radius_control(trajectory) and run<5:
-        print("Flight",flight_number,"has radius issues")
+    if not radius_control(trajectory) and run < 5:
+        print("Flight", flight_number, "has radius issues")
         trajectory = radius_check_for_flight(flight_number, algorithm, dt, run+1)
     if run == 5:
-        print("Flight",flight_number,"was uncorrectable")
+        print("Flight", flight_number, "was uncorrectable")
     return trajectory
 
 
@@ -407,7 +411,7 @@ def list_conflicts(list_of_conflicts):
     """
     pairs = []
     for conflict in list_of_conflicts:
-        pairs.append((conflict[1][-1],conflict[2][-1]))
+        pairs.append((conflict[1][-1], conflict[2][-1]))
     pairs = set(pairs)
     conflicts = {}
     for pair in pairs:
@@ -426,11 +430,14 @@ def list_conflicts(list_of_conflicts):
 
 
 def safe_algorithm_2(list_of_flights, algorithm, dt=15, check_max=10):
-    """ Alternative way to check air security, using multiprocessing for speedup. Calulates the valid trajectories, regarding radius and then re calculates air collisions
+    """ Alternative way to check air security, using multiprocessing for speedup. Calulates the valid trajectories,
+        regarding radius and then re calculates air collisions
 
     Args:
         list_of_flights (list): list of flight numbers
         algorithm (trajectory algorithm): algorithm used to calculate the trajectories
+        dt (int): second interval to calculate the trajectory
+        check_max (int): number of maximal iterations to find a save solution
 
     Returns:
         list, list: list of checked trajectories, list of remaining conflicts
@@ -438,16 +445,16 @@ def safe_algorithm_2(list_of_flights, algorithm, dt=15, check_max=10):
     prep_list = []
     check_run = 0
     for flight in list_of_flights:
-        prep_list.append((flight,algorithm,dt,0))
+        prep_list.append((flight, algorithm, dt, 0))
     with Pool() as p:
         trajectories = p.starmap(radius_check_for_flight, prep_list)
     print("Finished trajectory calculation")
 
     while check_run < check_max:
-        print("Running check:",check_run)
+        print("Running check:", check_run)
         safety_errors = check_safety(trajectories, dt)
         conflicts = list_conflicts(safety_errors)
-        print("Current conflicts",conflicts)
+        print("Current conflicts", conflicts)
         if len(conflicts) == 0:
             break
         prep_list = []
@@ -457,6 +464,6 @@ def safe_algorithm_2(list_of_flights, algorithm, dt=15, check_max=10):
             corrected_trajectories = p.starmap(radius_check_for_flight, prep_list)
         for i, traj in zip(conflicts, corrected_trajectories):
             trajectories[list_of_flights.index(i)] = traj
-        check_run+=1
+        check_run += 1
 
     return trajectories, conflicts
