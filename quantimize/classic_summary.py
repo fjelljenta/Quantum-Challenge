@@ -38,9 +38,7 @@ def genetic_algorithm_solution(flight_nr, dt, **kwargs):
             print("Retry GA")
     if kwargs.get("timed_trajectory", True):
         trajectory = toolbox.timed_trajectory(trajectory, dt)
-    if kwargs.get("only_trajectory_dict", False):
-        return {"flight_nr": flight_nr, "trajectory": trajectory}
-    return report, solution, {"flight_nr": flight_nr, "trajectory": trajectory}
+    return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
 def compute_cost(trajectory):
