@@ -248,13 +248,22 @@ def radius_control(trajectory):
 
 
 def safe_algorithm(flights, algorithm, **kwargs):
+    """ Calculates the trajectory for a list of flight numbers and checks the trajectories for radius boundaries and possible violations for the air safety. On errors, the trajectories are re-calculated.
+
+    Args:
+        flights (list): list of flight numbers to check
+        algorithm (trajectory algorithm): algorithm to calculate the trajectory
+
+    Returns:
+        list: list of corrected flight trajectories
+    """
     dt = kwargs.get("dt", 15)
     trajectories = []
 
     radius_check_needed=True
     radius_runs = 0
     radius_errors = []
-
+    # calculate flights and check radius
     for flight in tqdm(flights):
         while radius_check_needed:
             if radius_runs > 5:
@@ -367,13 +376,35 @@ def safe_algorithm(flights, algorithm, **kwargs):
 
 
 def radius_check_for_flight(flight_number, algorithm, dt, run):
+    """ Calculates the trajectory for flight_number and the given algorithm and evaluates the radius requirements.
+
+    Args:
+        flight_number (int): flight number
+        algorithm (trajectory algorithm): algorithm to calculate the trajectory
+        dt (int): time step for the calculation
+        run (int): number of already checked radii
+
+    Returns:
+        dict: trajcetory dict with valid radius
+    """
     trajectory = algorithm(flight_number, dt)
-    if not radius_control(trajectory) and run<=5:
+    if not radius_control(trajectory) and run<5:
+        print("Flight",flight_number,"has radius issues")
         trajectory = radius_check_for_flight(flight_number, algorithm, dt, run+1)
+    if run == 5:
+        print("Flight",flight_number,"was uncorrectable")
     return trajectory
 
 
 def list_conflicts(list_of_conflicts):
+    """ Reformats the list_of_conflicts to show which flights collide with which
+
+    Args:
+        list_of_conflicts (list): list with list of timestamp, flight1, flight2
+
+    Returns:
+        list: list of flight numbers that have collision problems
+    """
     pairs = []
     for conflict in list_of_conflicts:
         pairs.append((conflict[1][-1],conflict[2][-1]))
@@ -390,24 +421,33 @@ def list_conflicts(list_of_conflicts):
             conflicts[pair[1]] = [pair[0]]
     for conflict in conflicts:
         conflicts[conflict] = list(set(conflicts[conflict]))
+    #print(conflicts)
     return sorted(conflicts, key=lambda k: len(conflicts[k]), reverse=True)
 
 
-def safe_algorithm_2(list_of_flights, algorithm):
-    dt = 15
+def safe_algorithm_2(list_of_flights, algorithm, dt=15, check_max=10):
+    """ Alternative way to check air security, using multiprocessing for speedup. Calulates the valid trajectories, regarding radius and then re calculates air collisions
+
+    Args:
+        list_of_flights (list): list of flight numbers
+        algorithm (trajectory algorithm): algorithm used to calculate the trajectories
+
+    Returns:
+        list, list: list of checked trajectories, list of remaining conflicts
+    """
     prep_list = []
     check_run = 0
     for flight in list_of_flights:
         prep_list.append((flight,algorithm,dt,0))
-
     with Pool() as p:
         trajectories = p.starmap(radius_check_for_flight, prep_list)
     print("Finished trajectory calculation")
-    while check_run < 10:
+    
+    while check_run < check_max:
         print("Running check:",check_run)
         safety_errors = check_safety(trajectories, dt)
         conflicts = list_conflicts(safety_errors)
-        print(conflicts)
+        #print(conflicts)
         if len(conflicts) == 0:
             break
         prep_list = []
@@ -416,10 +456,7 @@ def safe_algorithm_2(list_of_flights, algorithm):
         with Pool() as p:
             corrected_trajectories = p.starmap(radius_check_for_flight, prep_list)
         for i, traj in zip(conflicts, corrected_trajectories):
-            if i > 41:
-                trajectories[i-1] = traj
-            else:
-                trajectories[i] = traj
+            trajectories[list_of_flights.index(i)] = traj
         check_run+=1
 
     return trajectories, conflicts
