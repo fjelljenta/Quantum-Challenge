@@ -59,12 +59,37 @@ list: trajectory_list: list containing all trajectories</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.average_computation_time_multiprocessing">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">average_computation_time_multiprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.average_computation_time_multiprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Averaged computation time for a with the first argument specified algorithm for all flights</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algorithm</strong> (<em>function</em>) – algorithm used to optimize the trajectory</p></li>
+<li><p><strong>flights</strong> (<em>list</em>) – list with flight numbers that shall be processed</p></li>
+<li><p><strong>run</strong> – counter for the repititions in the benchmarking-procedure</p></li>
+<li><p><strong>**kwargs</strong> – possibility to specify whether the Benchmarking should be done including air security,
+default value: False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Averaged computation time for a with the first argument specified algorithm for all flights
+list: trajectory_list: list containing all trajectories</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.average_cost">
 <span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">average_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.average_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computation of the average climate impacted for several/all flights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trajectory_list</strong> (<em>list</em>) – list, which contains all the trajectories of all the flights we want to take into account</p>
+<dd class="field-odd"><p><strong>trajectory_list</strong> (<em>list</em>) – list, which contains all the trajectories of all the flights
+we want to take into account</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>average_cost_per_flight average climate impact per flight in 10^(-12)K</p>
@@ -81,7 +106,8 @@ list: trajectory_list: list containing all trajectories</p>
 <dd><p>Computation of the averaged fuel consumption over several/all flights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trajectory_list</strong> (<em>list</em>) – list, which contains all the trajectories of all the flights we want to take into account</p>
+<dd class="field-odd"><p><strong>trajectory_list</strong> (<em>list</em>) – list, which contains all the trajectories of all the flights
+we want to take into account</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>average fuel consumption per flight</p>
@@ -98,7 +124,8 @@ list: trajectory_list: list containing all trajectories</p>
 <dd><p>Computation of the averaged flight time per flight</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trajectory_list</strong> (<em>list</em>) – list, which contains all the trajectories of all the flights we want to take into account</p>
+<dd class="field-odd"><p><strong>trajectory_list</strong> (<em>list</em>) – list, which contains all the trajectories of all the flights
+we want to take into account</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>average_time_per_flight averaged flight time per flight in seconds</p>
@@ -111,9 +138,11 @@ list: trajectory_list: list containing all trajectories</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.benchmark_wrapper">
-<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">benchmark_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.benchmark_wrapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculation of the mean values and errors of the averaged computation time, averaged climate cost, averaged flight time
-and of the averaged fuel consumption</p>
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">benchmark_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.benchmark_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Calculation of the mean values and errors of the averaged computation time, averaged climate cost,</dt><dd><p>averaged flight timeand of the averaged fuel consumption</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -122,7 +151,11 @@ and of the averaged fuel consumption</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Mean_comp_time, Error_comp_time, Mean_cost, Error_cost, Mean_flight_time, Error_flight_time, Mean_fuel, Error_fuel</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Mean_comp_time, Error_comp_time, Mean_cost, Error_cost, Mean_flight_time, Error_flight_time,</dt><dd><p>Mean_fuel, Error_fuel</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
@@ -131,9 +164,10 @@ and of the averaged fuel consumption</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.computiation_time">
-<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">computiation_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.computiation_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculation of the computation time for one flight and a with the second argument specified optimization algorithm</p>
+<dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.computation_time">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">computation_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.computation_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculation of the computation time for one flight and a with the second argument
+specified optimization algorithm</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -152,6 +186,30 @@ list: optimized trajectory of the given flight</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.costlist_creation">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">costlist_creation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.costlist_creation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculation of lists for computation cost, climate cost, flight time and fuel for a number of flights
+with flight trajectories defined via algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algorithm</strong> (<em>function</em>) – algorithm to use for trajectory calculation</p></li>
+<li><p><strong>flights</strong> (<em>list</em>) – list of the flight numbers of interest</p></li>
+<li><p><strong>runs</strong> (<em>int</em>) – number of runs for the benchmarking</p></li>
+<li><p><strong>**kwargs</strong> – possibility to specify whether the Benchmarking should be done including air security,
+default value: False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Costlists for computation cost, climate cost, flight time and fuel</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.fuel_consumption">
 <span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">fuel_consumption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.fuel_consumption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the fuel consumption for a given trajectory in 10**-12</p>
@@ -161,6 +219,23 @@ list: optimized trajectory of the given flight</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>fuel_consumption in kg for a given flight number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quantimize.benchmarking.benchmarking.mean_and_error_list_creation">
+<span class="sig-prename descclassname"><span class="pre">quantimize.benchmarking.benchmarking.</span></span><span class="sig-name descname"><span class="pre">mean_and_error_list_creation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculation_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quantimize.benchmarking.benchmarking.mean_and_error_list_creation" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates mean value and error for a given list of floats</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>calculation_list</strong> (<em>list</em>) – list of floats</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean value, error</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
