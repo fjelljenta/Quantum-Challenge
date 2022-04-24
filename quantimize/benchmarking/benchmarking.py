@@ -165,7 +165,7 @@ def fuel_consumption(trajectory):
                         * (cv.datetime_to_seconds(coordinate[3]) - t - dt1) / 60
             start_level = coordinate[2]
         t = cv.datetime_to_seconds(coordinate[3])
-        return fuel
+    return fuel
 
 
 def average_fuel(trajectory_list):
