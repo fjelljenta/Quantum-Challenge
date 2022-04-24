@@ -370,8 +370,8 @@ def radius_check_for_flight(flight_number, algorithm, dt, run):
     trajectory = algorithm(flight_number, dt)
     if not radius_control(trajectory) and run<=5:
         trajectory = radius_check_for_flight(flight_number, algorithm, dt, run+1)
-    else:
-        return trajectory
+    return trajectory
+
 
 def list_conflicts(list_of_conflicts):
     pairs = []
@@ -403,7 +403,6 @@ def safe_algorithm_2(list_of_flights, algorithm):
     with Pool() as p:
         trajectories = p.starmap(radius_check_for_flight, prep_list)
     print("Finished trajectory calculation")
-    
     while check_run < 10:
         print("Running check:",check_run)
         safety_errors = check_safety(trajectories, dt)
