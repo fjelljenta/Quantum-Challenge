@@ -3,6 +3,7 @@ import quantimize.classic.classic_solution as csol
 import quantimize.quantum.QGA as qga
 import quantimize.quantum.quantum_neural_network as qna
 import quantimize.quantum.quantum_solution as qsol
+from qiskit import Aer
 
 
 def quantum_genetic_algorithm_solution(flight_nr, dt, **kwargs):
@@ -51,7 +52,7 @@ def sample_grid():
     return qsol.sample_grid()
 
 
-def run_QAOA(cg, orientation=0, verbose=False):
+def run_QAOA(cg, orientation=0, verbose=False, runtime=False, backend=Aer.get_backend('qasm_simulator')):
     """Constructs and solves the mathematical function
 
     Args:
@@ -65,7 +66,9 @@ def run_QAOA(cg, orientation=0, verbose=False):
         vcg: voxel_center_graph
 
     """
-    return qsol.run_QAOA(cg, orientation, verbose)
+    if runtime:
+        return qsol.run_QAOA_real_backend(cg, orientation, verbose)
+    return qsol.run_QAOA(cg, orientation, verbose, backend)
 
 
 def compute_cost(trajectory):

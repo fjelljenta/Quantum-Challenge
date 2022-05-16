@@ -9,6 +9,9 @@ from qiskit import Aer
 from qiskit.utils import QuantumInstance
 from qiskit_optimization.algorithms import MinimumEigenOptimizer
 from qiskit.algorithms import QAOA
+from qiskit.opflow.primitive_ops import PauliSumOp
+from qiskit.algorithms.optimizers import SPSA
+from qiskit.test.mock import FakeGuadalupe
 
 
 def sample_grid():
@@ -163,7 +166,7 @@ def construct_function(cg, orientation=0):
     # map the Pauli Z variable {-1, 1} to variable x {0, 1} by doing Z = 2x-1
     for i in range(1,n-1):
         for j in range(1, n-1):
-            function = function.subs(sp.symbols('Z'+str(i)+str(j)), 2*sp.symbols('q'+str(i)+str(j)) -1 )
+            function = function.subs(sp.symbols('Z'+str(i)+str(j)), 1 - 2*sp.symbols('q'+str(i)+str(j)))
         coeffs = sp.Poly(function).as_dict()
         
         # expand and simplify the cost function
@@ -210,7 +213,7 @@ def generate_QP(coeffs, n, verbose=False):
     return qp
 
 
-def run_QAOA(cg, orientation=0, verbose=False):
+def run_QAOA(cg, orientation=0, verbose=False, backend=Aer.get_backend('qasm_simulator')):
     """Constructs and solves the mathematical function
 
     Args:
@@ -229,12 +232,14 @@ def run_QAOA(cg, orientation=0, verbose=False):
     if verbose:
         print('Function in Sympy:', function)
     # Generate the quadratic problem and solve it with Qiskit
-    qp = generate_QP(coeffs,n,verbose)
-    qins = QuantumInstance(backend=Aer.get_backend('qasm_simulator'), shots=1000, seed_simulator=123)
+    qp = generate_QP(coeffs, n, verbose)
+    qins = QuantumInstance(backend=backend, shots=1000, seed_simulator=123)
     meo = MinimumEigenOptimizer(min_eigen_solver=QAOA(reps=1, quantum_instance=qins))  # solve with QAOA algorithm,
     result = meo.solve(qp)    #could replace by classical solver and other quantum solvers
-    z_sol = 2*result.x-1
-    q_sol = np.array([int((i+1)%2) for i in result.x])
+    return result
+    z_sol = 1 - 2*result.x
+    q_sol = result.x
+    #q_sol = np.array([int((i+1)%2) for i in result.x])
     if verbose:
         print('\nrun time:', result.min_eigen_solver_result.optimizer_time)
         print('result in Pauli-Z form:', z_sol)
@@ -244,3 +249,171 @@ def run_QAOA(cg, orientation=0, verbose=False):
     for l in range(len(z_sol)):
         vcg[nl[l][0]][nl[l][1]] = z_sol[l]
     return z_sol, q_sol, vcg
+
+
+def construct_operator_for_runtime(cg, orientation=0):
+    """Constructs the operator (Cost Hamiltonian) to be fed into the runtime object
+
+    Args:
+        cg: cost grid
+
+    Returns:
+        sympyfunction, dict: mathematical sympy function with coefficients
+    """
+    function = 0
+    sp.init_printing(use_unicode=True)
+
+    n = len(cg)
+
+    vcg = create_vcg(n, orientation=orientation)
+
+    wv, wh = obtain_weight_matrices(cg)
+
+    op_list = []
+
+    # for each qubit, add its contribution to the total cost function
+    for i in range(1, n - 1):
+        for j in range(1, n - 1):
+            if vcg[i - 1][j] == 0:  # Check if neighbor up is variable or fixed
+                string = ''.join(['Z' if ((a == i and j == b) or (a == i-1 and j == b))
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, wv[i - 1][j] / 2))
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                string = ''.join(['Z' if (a == i and j == b)
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, vcg[i - 1][j] * wv[i - 1][j]))
+
+            if vcg[i + 1][j] == 0:  # Check if neighbor down is variable or fixed
+                string = ''.join(['Z' if ((a == i and j == b) or (a == i+1 and j == b))
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, wv[i][j] / 2))
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                string = ''.join(['Z' if (a == i and j == b)
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, vcg[i + 1][j] * wv[i][j]))
+
+            if vcg[i][j - 1] == 0:  # Check if neighbor left is variable or fixed
+                string = ''.join(['Z' if ((a == i and j == b) or (a == i and j-1 == b))
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, wh[i][j-1] / 2))
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                string = ''.join(['Z' if (a == i and j == b)
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, vcg[i][j-1] * wh[i][j - 1]))
+
+            if vcg[i][j + 1] == 0:  # Check if neighbor right is variable or fixed
+                string = ''.join(['Z' if ((a == i and j == b) or (a == i and j+1 == b))
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, wh[i][j] / 2))
+                # divide by 2 because each edge joining two variable qubits will be counted twice
+            else:
+                string = ''.join(['Z' if (a == i and j == b)
+                                  else 'I' for a in range(1, n-1) for b in range(1, n-1)])
+                op_list.append((string, vcg[i][j+1] * wh[i][j]))
+
+    op = PauliSumOp.from_list(op_list).reduce()
+
+    return op
+
+
+def run_QAOA_real_backend(cg, orientation=0, verbose=False):
+    op = construct_operator_for_runtime(cg, orientation=orientation)
+    options = {
+        'backend_name': 'ibmq_guadalupe'
+    }
+
+    runtime_inputs = {
+        # Whether to apply measurement error
+        # mitigation in form of a
+        # tensored measurement fitter to the
+        # measurements. Defaults to False.
+        'measurement_error_mitigation': True,  # boolean
+
+        # The cost Hamiltonian, consisting of
+        # Pauli I and Z operators,
+        # whose smallest eigenvalue we're trying
+        # to find. The type must
+        # be a PauliSumOp.
+        'operator': op,  # object (required)
+
+        # The optimization level to run
+        # if the swap strategies are
+        # not used. This value is
+        # 1 by default. This is
+        # an integer.
+        'optimization_level': 3,  # integer
+
+        # The classical optimizer used to
+        # update the parameters in each
+        # iteration. Per default, SPSA with
+        # automatic calibration of the learning
+        # rate is used. The type
+        # must be a qiskit.algorithms.optimizers.Optimizer.
+        'optimizer': SPSA(maxiter=100),  # object
+
+        # The number of QAOA repetitions,
+        # i.e. the QAOA depth typically
+        # labeled p. This value defaults
+        # to 1. This is an
+        # integer.
+        'reps': 1,  # integer
+
+        # The integer number of shots
+        # used for each circuit evaluation.
+        # Defaults to 1024.
+        'shots': 4096,  # integer
+
+        # A boolean flag that, if
+        # set to True (the default
+        # is False), runs a heuristic
+        # algorithm to permute the Paulis
+        # in the cost operator to
+        # better fit the coupling map
+        # and the swap strategy. This
+        # is only needed when the
+        # optimization problem is sparse and
+        # when using swap strategies to
+        # transpile.
+        'use_initial_mapping': False,  # boolean
+
+        # A boolean on whether or
+        # not to use a pulse-efficient
+        # transpilation. This flag is set
+        # to False by default.
+        'use_pulse_efficient': True,  # boolean
+
+        # A boolean on whether or
+        # not to use swap strategies
+        # when transpiling. This flag is
+        # set to True by default.
+        # If this is False then
+        # the standard transpiler with the
+        # given optimization level will run.
+        'use_swap_strategies': True  # boolean
+    }
+
+    IBMQ.load_account()
+    provider = IBMQ.get_provider(
+        hub='deloitte-event',
+        group='finalist',
+        project='recveveo3rbz2kyt'
+    )
+
+    job = provider.runtime.run(
+        program_id='qaoa',
+        options=options,
+        inputs=runtime_inputs
+    )
+
+    # Job id
+    print(job.job_id())
+    # See job status
+    print(job.status())
+
+    # Get results
+    result = job.result()
+    print(result)
+    return result
