@@ -249,10 +249,10 @@ def benchmark_wrapper(flights, runs, **kwargs):
         ga_costlist = costlist_creation(csol.genetic_algorithm_solution, flights, runs, **kwargs)
         qga_costlist = costlist_creation(qsol.quantum_genetic_algorithm_solution, flights, runs, **kwargs)
         costlists = [ga_costlist, qga_costlist]
-    else:
-        sl_costlist = costlist_creation(bt.sl_for_benchmarking, flights, runs, **kwargs)
-        ga_costlist = costlist_creation(bt.ga_for_benchmarking, flights, runs, **kwargs)
-        qga_costlist = costlist_creation(bt.qga_for_benchmarking, flights, runs, **kwargs)
+    else: 
+        sl_costlist = costlist_creation(csol.straight_line_solution, flights, runs, **kwargs)
+        ga_costlist = costlist_creation(csol.genetic_algorithm_solution, flights, runs, **kwargs)
+        qga_costlist = costlist_creation(qsol.quantum_genetic_algorithm_solution, flights, runs, **kwargs)
         costlists = [sl_costlist, ga_costlist, qga_costlist]
 
     cost_comp, cost, flight_time, fuel = [], [], [], []

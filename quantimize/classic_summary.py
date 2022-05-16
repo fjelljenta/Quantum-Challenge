@@ -2,7 +2,7 @@ import quantimize.classic.toolbox as toolbox
 import quantimize.classic.classic_solution as csol
 
 
-def straight_line_solution(flight_nr, dt, **kwargs):
+def straight_line_solution(flight_nr, dt=15, **kwargs):
     """Returns the straight line solution for a given flight
 
     Args:
@@ -18,7 +18,7 @@ def straight_line_solution(flight_nr, dt, **kwargs):
     return {"flight_nr": flight_nr, "trajectory": trajectory}
 
 
-def genetic_algorithm_solution(flight_nr, dt, **kwargs):
+def genetic_algorithm_solution(flight_nr, dt=15, **kwargs):
     """Returns the genetic algorithm solution for a given flight and maps it to constant time points
 
     Args:
